@@ -1,66 +1,65 @@
 package com.openclassrooms.realestatemanager.ui
 
 import android.os.Bundle
-import android.view.View
-
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.widget.Toast
-import androidx.activity.viewModels
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-
-import com.openclassrooms.realestatemanager.data.RealEstate
-import com.openclassrooms.realestatemanager.databinding.ActivityMainBinding
-import com.openclassrooms.realestatemanager.viewmodel.MainViewModel
+import androidx.navigation.findNavController
+import androidx.navigation.fragment.NavHostFragment
+import com.openclassrooms.realestatemanager.R
+import com.openclassrooms.realestatemanager.databinding.ActivityMain2Binding
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var realestateRecyclerView: RecyclerView
-    private lateinit var binding: ActivityMainBinding
-
-    private val viewModel: MainViewModel by viewModels()
+    private lateinit var binding: ActivityMain2Binding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityMainBinding.inflate(layoutInflater)
+        binding = ActivityMain2Binding.inflate(layoutInflater)
         setContentView(binding.root)
-        realestateRecyclerView = binding.realestateList
-        realestateRecyclerView.layoutManager = LinearLayoutManager(this)
 
-        observeRealEstates()
-        setupFab()
+        val navHostFragment =
+            supportFragmentManager.findFragmentById(R.id.navHostFragment) as NavHostFragment
+        val navController = navHostFragment.navController
+
+       // navController.navigate(R.id.fragmentList)
+        // navController.navigate(R.id.fragmentList)
+       /* supportFragmentManager.beginTransaction().replace(R.id.navHostFragment, FragmentList())
+            .commit()*/
+
+
     }
 
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        val inflater: MenuInflater = menuInflater
+        inflater.inflate(R.menu.toolbar_menu, menu)
+        return true
+    }
 
-    private fun observeRealEstates() {
-        viewModel.allRealEstate.observe(this) {
-            realestateRecyclerView.adapter = RealEstateAdapter(it)
+    override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
+        R.id.action_add -> {
+            findNavController(R.id.navHostFragment).navigate(R.id.fragmentAdd)
+            true
+        }
+
+        R.id.action_edit -> {
+            Toast.makeText(this, "Click on Edit button", Toast.LENGTH_LONG).show()
+            true
+        }
+
+        R.id.action_search -> {
+            Toast.makeText(this, "Click on Search button", Toast.LENGTH_LONG).show()
+            true
+        }
+
+        else -> {
+            super.onOptionsItemSelected(item)
         }
     }
-
-    private fun setupFab(){
-        val fab: View = binding.realestateAddFab
-
-        fab.setOnClickListener { view ->
-            val builder = AlertDialog.Builder(this)
-            builder.setTitle("Ajouter immobilier")
-            builder.setMessage("Vous allez ajouter un nouveau bien")
-            builder.setPositiveButton("Confirmer") {
-                    _, _ ->
-                viewModel.addRealEstate(RealEstate("Maison 1", 100000, 100))
-            }
-
-            builder.setNegativeButton("Annuler") {
-                    _, _ ->
-                Toast.makeText(applicationContext, "Rien", Toast.LENGTH_SHORT).show()
-            }
-
-            builder.show()
-        }
-    }
-
 
 }
+

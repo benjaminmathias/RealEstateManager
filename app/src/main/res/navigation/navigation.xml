@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/navigation"
+    app:startDestination="@id/fragmentList">
+
+    <fragment
+        android:id="@+id/fragmentList"
+        android:name="com.openclassrooms.realestatemanager.ui.FragmentList"
+        android:label="FragmentList" >
+        <action
+            android:id="@+id/action_fragmentList_to_fragmentAdd"
+            app:destination="@id/fragmentAdd"
+            app:popUpTo="@id/fragmentList" />
+        <action
+            android:id="@+id/action_fragmentList_to_fragmentDetails"
+            app:destination="@id/fragmentDetails"
+            app:popUpTo="@id/fragmentList" />
+    </fragment>
+    <fragment
+        android:id="@+id/fragmentAdd"
+        android:name="com.openclassrooms.realestatemanager.ui.FragmentAdd"
+        android:label="FragmentAdd" />
+    <fragment
+        android:id="@+id/fragmentDetails"
+        android:name="com.openclassrooms.realestatemanager.ui.FragmentDetails"
+        android:label="FragmentDetails" />
+
+</navigation>

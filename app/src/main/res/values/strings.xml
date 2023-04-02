@@ -1,3 +1,22 @@
 <resources>
     <string name="app_name">Real Estate Manager</string>
+
+
+    <string-array name="type_array">
+        <item>House</item>
+        <item>Apartment</item>
+        <item>Condo</item>
+        <item>Loft</item>
+        <item>Mansion</item>
+        <item>Villa</item>
+    </string-array>
+
+    <string-array name="agent_array">
+        <item>Jack</item>
+        <item>Walter</item>
+        <item>Ted</item>
+        <item>Ellie</item>
+        <item>Robin</item>
+        <item>Kate</item>
+    </string-array>
 </resources>

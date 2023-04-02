@@ -16,9 +16,11 @@
         android:id="@+id/realestate_add_fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:backgroundTint="#00BCD4"
         android:layout_marginEnd="12dp"
         android:layout_marginBottom="12dp"
+        android:foreground="@android:drawable/ic_input_add"
+        android:foregroundTint="#FFFFFF"
+        app:backgroundTint="#00BCD4"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 

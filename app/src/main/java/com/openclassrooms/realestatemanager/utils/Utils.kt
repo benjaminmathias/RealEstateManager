@@ -18,15 +18,15 @@ class Utils {
         return euros * 1.07
     }
 
-    fun getTodayDate(): String {
+    fun getTodayDate(date: Date): String {
         val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-        return dateFormat.format(Date())
+        return dateFormat.format(date)
     }
 
     fun isNetworkAvailable(context: Context): Boolean {
         val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            val nw      = connectivityManager.activeNetwork ?: return false
+            val nw = connectivityManager.activeNetwork ?: return false
             val actNw = connectivityManager.getNetworkCapabilities(nw) ?: return false
             return when {
                 actNw.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> true
@@ -38,9 +38,6 @@ class Utils {
             val nwInfo = connectivityManager.activeNetworkInfo ?: return false
             return nwInfo.isConnected
         }
-    }
-
-    fun subscribeOnBackground(function: () -> Unit) {
     }
 
 }

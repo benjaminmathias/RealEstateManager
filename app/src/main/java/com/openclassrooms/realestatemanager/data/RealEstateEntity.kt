@@ -1,6 +1,10 @@
 package com.openclassrooms.realestatemanager.data
 
-data class RealEstate(
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+
+@Entity(tableName = "realEstateTable")
+data class RealEstateEntity(
     val type: String,
     val surface: Int,
     val price: Int,
@@ -8,12 +12,12 @@ data class RealEstate(
     val address: String,
     // TODO : add nearbyPOI
     val isAvailable: Boolean,
-    val photos: List<PhotoItem>?,
     val entryDate: String,
     val saleDate: String?,
     val assignedAgent: String,
     val room: Int,
     val bedroom: Int,
     val bathroom: Int,
-    val id: Long?
+    @PrimaryKey(autoGenerate = false)
+    val id: Long? = null
 )
