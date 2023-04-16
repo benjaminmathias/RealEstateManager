@@ -29,14 +29,19 @@ class RealEstateAdapter(private val fragment: FragmentList, private var realEsta
 
         holder.typeText.text = currentItem.type
         holder.priceText.text = "$" + currentItem.price.toString()
-        holder.locationText.text = currentItem.surface.toString()
-        holder.id.text = currentItem.id.toString()
+        holder.locationText.text = currentItem.address
+        //holder.id.text = currentItem.id.toString()
 
        // holder.imageView.setImageResource(R.drawable.house_default)
 
-        Glide.with(holder.imageView)
-            .load(realEstateList[position].photos?.get(0)?.uri)
-            .into(holder.imageView)
+        if(realEstateList[position].photos.isNullOrEmpty()) {
+            holder.imageView.setImageResource(R.drawable.baseline_house_24)
+        } else {
+            Glide.with(holder.imageView)
+                .load(realEstateList[position].photos?.get(0)?.uri)
+                .centerCrop()
+                .into(holder.imageView)
+        }
 
         holder.itemView.setOnClickListener{
             val id = realEstateList[position].id
@@ -55,7 +60,7 @@ class RealEstateAdapter(private val fragment: FragmentList, private var realEsta
         val typeText : TextView = itemView.findViewById(R.id.type)
         val priceText : TextView = itemView.findViewById(R.id.price)
         val locationText : TextView = itemView.findViewById(R.id.location)
-        val id : TextView = itemView.findViewById(R.id.id)
+        // val id : TextView = itemView.findViewById(R.id.id)
         val imageView : ImageView = itemView.findViewById(R.id.image)
 
     }

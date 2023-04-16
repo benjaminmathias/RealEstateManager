@@ -1,5 +1,6 @@
 package com.openclassrooms.realestatemanager.data
 
+import android.util.Log
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
@@ -13,111 +14,94 @@ class RealEstateRepository @Inject constructor(
 
     // Retrieve List<RealEstateEntity> as a Flow<List< then convert it to RealEstate
     fun retrieveAndConvertRealEstateEntityList(): Flow<List<RealEstate>> {
-        return realEstateDao.getAllRealEstateFlow().map { entity: List<RealEstateEntity> ->
+        return realEstateDao.getAll().map { entity: List<RealEstateEntity> ->
             entity.map {
                 RealEstate(
-                    it.type,
-                    it.surface,
-                    it.price,
-                    it.description,
-                    it.address,
-                    it.isAvailable,
-                    it.id?.let { it1 -> fetchAllPhotoItem(it1) },
-                    it.entryDate,
-                    it.saleDate,
-                    it.assignedAgent,
-                    it.room,
-                    it.bedroom,
-                    it.bathroom,
-                    it.id
+                    type = it.type,
+                    surface = it.surface,
+                    price = it.price,
+                    description = it.description,
+                    address = it.address,
+                  //  nearbyPOI = it.nearbyPOI,
+                    isAvailable = it.isAvailable,
+                    photos = it.id?.let { it1 -> fetchAllPhotoItem(it1) },
+                    entryDate = it.entryDate,
+                    saleDate = it.saleDate,
+                    assignedAgent = it.assignedAgent,
+                    room = it.room,
+                    bedroom = it.bedroom,
+                    bathroom = it.bathroom,
+                    id = it.id
                 )
             }
         }
     }
 
-    // TODO : check avec Valdèse
     // Retrieve RealEstateEntity as a Flow< then convert it to RealEstate
-    fun retrieveAndConvertSpecificRealEstateEntityTest(id: Long): Flow<RealEstate> {
+    fun retrieveAndConvertSpecificRealEstateEntity(id: Long): Flow<RealEstate> {
 
-        return realEstateDao.getSpecificRealEstate(id).map { entity: RealEstateEntity ->
+        return realEstateDao.getById(id).map { entity: RealEstateEntity ->
             RealEstate(
-                entity.type,
-                entity.surface,
-                entity.price,
-                entity.description,
-                entity.address,
-                entity.isAvailable,
-                fetchAllPhotoItem(id),
-                entity.entryDate,
-                entity.saleDate,
-                entity.assignedAgent,
-                entity.room,
-                entity.bedroom,
-                entity.bathroom,
-                entity.id
+                type = entity.type,
+                surface = entity.surface,
+                price = entity.price,
+                description = entity.description,
+                address = entity.address,
+                isAvailable = entity.isAvailable,
+                photos = fetchAllPhotoItem(id),
+              //  nearbyPOI = entity.nearbyPOI,
+                entryDate = entity.entryDate,
+                saleDate = entity.saleDate,
+                assignedAgent = entity.assignedAgent,
+                room = entity.room,
+                bedroom = entity.bedroom,
+                bathroom = entity.bathroom,
+                id = entity.id
             )
         }
     }
 
-
-  /*  fun retrieveAndConvertSpecificRealEstateEntity(id: Long): LiveData<RealEstate> {
-
-        return realEstateDao.getSpecificRealEstate(id).map { entity: RealEstateEntity ->
-            RealEstate(
-                entity.type,
-                entity.surface,
-                entity.price,
-                entity.description,
-                entity.address,
-                entity.isAvailable,
-                null,
-                entity.entryDate,
-                entity.saleDate,
-                entity.assignedAgent,
-                entity.room,
-                entity.bedroom,
-                entity.bathroom,
-                entity.id
-            )
-        }
-    }*/
-
-    suspend fun insertRealEstateDTO(realEstate: RealEstate) {
+    suspend fun insertRealEstateAndPhoto(realEstate: RealEstate) {
         // Retrieve our RealEstate object and convert it to entity
         val realEstateEntity = RealEstateEntity(
-            realEstate.type,
-            realEstate.surface,
-            realEstate.price,
-            realEstate.description,
-            realEstate.address,
-            realEstate.isAvailable,
-            realEstate.entryDate,
-            realEstate.saleDate,
-            realEstate.assignedAgent,
-            realEstate.room,
-            realEstate.bedroom,
-            realEstate.bathroom,
+            type = realEstate.type,
+            surface = realEstate.surface,
+            price = realEstate.price,
+            description = realEstate.description,
+            address = realEstate.address,
+            isAvailable = realEstate.isAvailable,
+           // nearbyPOI = realEstate.nearbyPOI,
+            entryDate = realEstate.entryDate,
+            saleDate = realEstate.saleDate,
+            assignedAgent = realEstate.assignedAgent,
+            room = realEstate.room,
+            bedroom = realEstate.bedroom,
+            bathroom = realEstate.bathroom,
         )
 
+        // here we retrieve the newly inserted RealEstateEntity id
+        val insertedId: Long = realEstateDao.insert(realEstateEntity)
+
         // Retrieve PhotoItem and convert it to entity
-        val photoList = realEstate.photos?.get(0)?.let {
-            // here we retrieve the newly inserted RealEstateEntity id
-            val insertedId: Long = realEstateDao.insert(realEstateEntity)
+        val photoList = realEstate.photos?.map {
             PhotoEntity(
-                it.uri,
-                it.photoDescription,
-                insertedId
+                uri = it.uri,
+                photoDescription = it.photoDescription,
+                realEstateId = insertedId
             )
         }
 
         if (photoList != null) {
-            photoItemDao.insert(photoList)
+            val count = photoList.size
+            for (i in 0 until count) {
+                photoItemDao.insert(photoList[i])
+            }
         }
     }
 
     // PhotoItem
     private suspend fun fetchAllPhotoItem(id: Long): List<PhotoItem> {
-        val listOfEntity: List<PhotoEntity> = photoItemDao.getAllSpecificPhotos(id)
+        val listOfEntity: List<PhotoEntity> = photoItemDao.getById(id)
 
         val listOfPhotos: List<PhotoItem> = listOfEntity.map { entities ->
             PhotoItem(
@@ -126,5 +110,10 @@ class RealEstateRepository @Inject constructor(
             )
         }
         return listOfPhotos
+    }
+
+    suspend fun updateRealEstate(saleDate: String, isAvailable: Boolean, id: Long) {
+        Log.d("RealEstateRepository", "Update called")
+        realEstateDao.updateRealEstate(saleDate, isAvailable, id)
     }
 }

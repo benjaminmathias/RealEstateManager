@@ -11,5 +11,6 @@ data class PhotoEntity(
     val photoDescription: String,
     val realEstateId: Long,
     @PrimaryKey(autoGenerate = false)
+    // TODO : rename to id
     val photoGeneratedId: Long? = null
 )

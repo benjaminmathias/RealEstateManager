@@ -1,5 +1,6 @@
 package com.openclassrooms.realestatemanager.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.openclassrooms.realestatemanager.data.RealEstate
@@ -25,7 +26,7 @@ class DetailsViewModel @Inject constructor(private val realEstateRepository: Rea
 
     fun getSpecificRealEstateConverted(id: Long) {
         viewModelScope.launch {
-            realEstateRepository.retrieveAndConvertSpecificRealEstateEntityTest(id)
+            realEstateRepository.retrieveAndConvertSpecificRealEstateEntity(id)
                 .catch { e ->
                     _uiState.value = DetailsUiState.Error(e)
                 }
@@ -33,6 +34,11 @@ class DetailsViewModel @Inject constructor(private val realEstateRepository: Rea
                     _uiState.value = DetailsUiState.Success(it)
                 }
         }
+    }
+
+    fun updateRealEstate(saleDate: String, isAvailable: Boolean, id: Long) = viewModelScope.launch {
+        Log.d("DetailsViewModel", "Update called")
+        realEstateRepository.updateRealEstate(saleDate, isAvailable, id)
     }
 
     sealed class DetailsUiState {

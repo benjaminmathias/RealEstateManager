@@ -5,10 +5,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <androidx.recyclerview.widget.RecyclerView
+    <ImageView
         android:id="@+id/media_add_button"
         android:layout_width="match_parent"
-        android:layout_height="100dp"
+        android:layout_height="200dp"
         android:layout_marginStart="12dp"
         android:layout_marginTop="12dp"
         android:orientation="horizontal"

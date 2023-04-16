@@ -13,6 +13,6 @@ class AddViewModel @Inject constructor(private val realEstateRepository: RealEst
     ViewModel() {
 
     fun addRealEstateDTO(realEstate: RealEstate) = viewModelScope.launch {
-        realEstateRepository.insertRealEstateDTO(realEstate)
+        realEstateRepository.insertRealEstateAndPhoto(realEstate)
     }
 }

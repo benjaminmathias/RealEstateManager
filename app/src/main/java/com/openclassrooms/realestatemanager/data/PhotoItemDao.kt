@@ -11,5 +11,5 @@ interface PhotoItemDao {
     suspend fun insert(photoEntity: PhotoEntity)
 
     @Query("SELECT * FROM photoItemTable WHERE realEstateId = :id")
-    suspend fun getAllSpecificPhotos(id: Long): List<PhotoEntity>
+    suspend fun getById(id: Long): List<PhotoEntity>
 }

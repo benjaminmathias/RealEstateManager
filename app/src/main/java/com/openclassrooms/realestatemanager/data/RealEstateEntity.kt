@@ -3,6 +3,7 @@ package com.openclassrooms.realestatemanager.data
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
+// TODO : remove table
 @Entity(tableName = "realEstateTable")
 data class RealEstateEntity(
     val type: String,
@@ -10,7 +11,7 @@ data class RealEstateEntity(
     val price: Int,
     val description: String,
     val address: String,
-    // TODO : add nearbyPOI
+    // val nearbyPOI: List<String>,
     val isAvailable: Boolean,
     val entryDate: String,
     val saleDate: String?,
