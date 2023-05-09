@@ -18,6 +18,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMain2Binding
 
     override fun onCreate(savedInstanceState: Bundle?) {
+
         super.onCreate(savedInstanceState)
         binding = ActivityMain2Binding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -48,6 +49,7 @@ class MainActivity : AppCompatActivity() {
 
         R.id.action_edit -> {
             Toast.makeText(this, "Click on Edit button", Toast.LENGTH_LONG).show()
+            findNavController(R.id.navHostFragment).navigate(R.id.fragmentAddTest)
             true
         }
 

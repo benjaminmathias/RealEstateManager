@@ -5,6 +5,6 @@
 
     <include
         android:id="@+id/included_input_layout"
-        layout="@layout/input_layout_test" />
+        layout="@layout/input_layout" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

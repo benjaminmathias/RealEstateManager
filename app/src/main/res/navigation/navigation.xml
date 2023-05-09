@@ -16,14 +16,21 @@
             android:id="@+id/action_fragmentList_to_fragmentDetails"
             app:destination="@id/fragmentDetails"
             app:popUpTo="@id/fragmentList" />
+        <action
+            android:id="@+id/action_fragmentList_to_fragmentAdd2"
+            app:destination="@id/fragmentAddTest" />
     </fragment>
     <fragment
         android:id="@+id/fragmentAdd"
-        android:name="com.openclassrooms.realestatemanager.ui.FragmentAdd"
+        android:name="com.openclassrooms.realestatemanager.ui.FragmentAddOld"
         android:label="FragmentAdd" />
     <fragment
         android:id="@+id/fragmentDetails"
         android:name="com.openclassrooms.realestatemanager.ui.FragmentDetails"
         android:label="FragmentDetails" />
+    <fragment
+        android:id="@+id/fragmentAddTest"
+        android:name="com.openclassrooms.realestatemanager.ui.FragmentAdd"
+        android:label="FragmentAddTest" />
 
 </navigation>

@@ -1,15 +1,19 @@
 package com.openclassrooms.realestatemanager.ui
 
 import android.annotation.SuppressLint
+import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.os.Bundle
+import android.text.format.DateFormat
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.Menu
 import android.view.View
 import android.view.View.GONE
 import android.view.View.VISIBLE
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -35,14 +39,13 @@ class FragmentDetails : Fragment() {
 
     private val viewModel: DetailsViewModel by viewModels()
 
-    private var position = 0
-
     lateinit var viewPager: ViewPager
     lateinit var viewPagerAdapter: ViewPagerAdapter
     lateinit var tabLayout: TabLayout
     lateinit var imageList: List<PhotoItem>
     private lateinit var soldButton: Button
-    private var realEstateId = 0
+
+    var saleDate: String = ""
 
     var cal: Calendar = Calendar.getInstance()
 
@@ -60,13 +63,10 @@ class FragmentDetails : Fragment() {
         Log.d("Details", "Details id = $id")
 
         activity?.title = "Real Estate details"
-
         soldButton = binding.soldButton
 
-        // binding.imageSwitcher.setFactory { ImageView(context) }
-
         updateUI()
-        //observeRealEstate()
+
 
         return binding.root
     }
@@ -91,41 +91,98 @@ class FragmentDetails : Fragment() {
         }
     }
 
-/*
-    private fun observeRealEstate() {
-        viewModel.mSpeficicRealEstate.observe(viewLifecycleOwner, fun(realEstate: RealEstate?) {
-            if (realEstate != null) {
-                setupView(realEstate)
-            }
-        })
-    }*/
-
     // TODO : display error
     @SuppressLint("SetTextI18n")
     private fun setupEmptyView() {
         binding.typeTextView.text = "Error"
     }
 
-    private fun setupSoldButton(id: Long) {
-        val dateSetListener =
-            DatePickerDialog.OnDateSetListener { view, year, monthOfYear, dayOfMonth ->
-                cal.set(Calendar.YEAR, year)
-                cal.set(Calendar.MONTH, monthOfYear)
-                cal.set(Calendar.DAY_OF_MONTH, dayOfMonth)
-                updateRealEstate(id)
+    // TODO : update without deprecated function
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
+    }
+
+    override fun onPrepareOptionsMenu(menu: Menu) {
+        super.onPrepareOptionsMenu(menu)
+        menu.clear()
+    }
+
+    private fun setupSoldDialog(id: Long, minDay: String, minMonth: String, minYear: String) {
+        soldButton.setOnClickListener {
+            val dialog = AlertDialog.Builder(requireContext())
+            dialog.setTitle("Mark this property as sold")
+            dialog.setMessage("Click on the `Selected sale date` button to select the sale date of this property")
+
+            dialog.setNegativeButton("Cancel") { _, which ->
+                Toast.makeText(
+                    requireContext(),
+                    "You didn't mark this property as sold",
+                    Toast.LENGTH_LONG
+                ).show()
             }
 
-        soldButton.setOnClickListener {
-            DatePickerDialog(
-                requireContext(),
-                dateSetListener,
-                cal.get(Calendar.YEAR),
-                cal.get(Calendar.MONTH),
-                cal.get(Calendar.DAY_OF_MONTH)
-            ).show()
+            dialog.setNeutralButton("Select sale date") { _, which ->
+                val dateSetListener =
+                    DatePickerDialog.OnDateSetListener { _, year, monthOfYear, dayOfMonth ->
+                        cal.set(minYear.toInt(), minMonth.toInt(), minDay.toInt())
+                        cal.set(Calendar.YEAR, year)
+                        cal.set(Calendar.MONTH, monthOfYear)
+                        cal.set(Calendar.DAY_OF_MONTH, dayOfMonth)
+                        val myFormat = "dd/MM/yyyy"
+                        val sdf = SimpleDateFormat(myFormat, Locale.FRANCE)
+                        saleDate = sdf.format(cal.time)
+                        dialog.setMessage("This property will be mark as sold with the corresponding sale date : $saleDate")
+
+                        dialog.setPositiveButton("Confirm") { _, which ->
+                            updateRealEstate(id)
+                        }
+                        dialog.show()
+                    }
+
+                val picker =
+                    DatePickerDialog(
+                        requireContext(),
+                        dateSetListener,
+                        cal.get(Calendar.YEAR),
+                        cal.get(Calendar.MONTH),
+                        cal.get(Calendar.DAY_OF_MONTH)
+                    )
+                cal.set(minYear.toInt(), minMonth.toInt() - 1, minDay.toInt())
+                picker.datePicker.minDate = cal.timeInMillis
+                picker.show()
+            }
+            dialog.show()
         }
     }
 
+    /*
+        private fun setupSoldButton(id: Long, minDay: String, minMonth: String, minYear: String) {
+
+            val dateSetListener =
+                DatePickerDialog.OnDateSetListener { _, year, monthOfYear, dayOfMonth ->
+                    cal.set(minYear.toInt(), minMonth.toInt(), minDay.toInt())
+                    cal.set(Calendar.YEAR, year)
+                    cal.set(Calendar.MONTH, monthOfYear)
+                    cal.set(Calendar.DAY_OF_MONTH, dayOfMonth)
+                    updateRealEstate(id)
+                }
+
+            soldButton.setOnClickListener {
+                val dialog =
+                    DatePickerDialog(
+                        requireContext(),
+                        dateSetListener,
+                        cal.get(Calendar.YEAR),
+                        cal.get(Calendar.MONTH),
+                        cal.get(Calendar.DAY_OF_MONTH)
+                    )
+                cal.set(minYear.toInt(), minMonth.toInt() - 1, minDay.toInt())
+                dialog.datePicker.minDate = cal.timeInMillis
+                dialog.show()
+            }
+        }
+    */
     private fun updateRealEstate(id: Long) {
         val myFormat = "dd/MM/yyyy"
         val sdf = SimpleDateFormat(myFormat, Locale.FRANCE)
@@ -152,55 +209,27 @@ class FragmentDetails : Fragment() {
             binding.saledateTextView.text = "Sold : " + realEstate.saleDate
         }
 
-        binding.assignedagentTextView.text = "Assigned agent : " + realEstate.assignedAgent
+        binding.assignedagentTextView.text = realEstate.assignedAgent
         binding.roomsTextView.text = "Rooms : " + realEstate.room.toString()
         binding.bedroomTextView.text = "Bedrooms : " + realEstate.bedroom.toString()
         binding.bathroomTextView.text = "Bathrooms : " + realEstate.bathroom.toString()
 
+        val list = realEstate.nearbyPOI
+        binding.nearbyPOITextView.text = list.joinToString(separator = ", ")
+
+
         viewPager = binding.idViewPager
 
-        imageList = realEstate.photos!!
-
-        viewPagerAdapter = ViewPagerAdapter(requireContext(), imageList)
-        viewPager.adapter = viewPagerAdapter
-        tabLayout = binding.tablayout
-        tabLayout.setupWithViewPager(viewPager, true)
-        tabLayout.touchables?.forEach { it.isEnabled = false }
-
-        /*
-        binding.previousButton.setOnClickListener {
-            if (position > 0) {
-                position--
-                binding.imageSwitcher.setImageURI(Uri.parse(realEstate.photos?.get(position)?.uri))
-                /*
-                Glide.with(binding.imageSwitcher)
-                    .load(realEstate.photos?.get(position)?.uri)
-                    .centerCrop()
-                    .into(binding.imageSwitcher)*/
-            } else {
-                Toast.makeText(context, "This is the first image", Toast.LENGTH_SHORT).show()
-            }
+        if (realEstate.photos?.isNotEmpty() == true) {
+            imageList = realEstate.photos
+            viewPagerAdapter = ViewPagerAdapter(requireContext(), imageList)
+            viewPager.adapter = viewPagerAdapter
+            tabLayout = binding.tablayout
+            tabLayout.setupWithViewPager(viewPager, true)
+            tabLayout.touchables?.forEach { it.isEnabled = false }
+        } else {
+            viewPager.visibility = GONE
         }
-
-        binding.nextButton.setOnClickListener {
-            if (position < realEstate.photos?.size!! - 1) {
-                position++
-                binding.imageSwitcher.setImageURI(Uri.parse(realEstate.photos[position].uri))
-                /*Glide.with(binding.imageSwitcher)
-                    .load(realEstate.photos[position].uri)
-                    .centerCrop()
-                    .into(binding.imageSwitcher)*/
-            } else {
-                Toast.makeText(context, "This is the last image", Toast.LENGTH_SHORT).show()
-            }
-        }
-*/
-        /*
-        Glide.with(binding.mediaAddButton)
-            .load(realEstate.photos?.get(0)?.uri)
-            .centerCrop()
-            .into(binding.mediaAddButton)
-         */
 
         if (realEstate.isAvailable) {
             binding.availabilityTextView.text = "Available"
@@ -220,6 +249,14 @@ class FragmentDetails : Fragment() {
             )
         }
 
-        realEstate.id?.let { setupSoldButton(it) }
+        val fullDate = realEstate.entryDate
+        val format = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+
+        val date = format.parse(fullDate)
+        val day = DateFormat.format("dd", date) as String
+        val month = DateFormat.format("MM", date) as String
+        val year = DateFormat.format("yyyy", date) as String
+
+        realEstate.id?.let { setupSoldDialog(it, day, month, year) }
     }
 }

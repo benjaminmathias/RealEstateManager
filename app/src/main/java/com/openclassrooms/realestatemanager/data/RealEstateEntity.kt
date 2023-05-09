@@ -11,7 +11,7 @@ data class RealEstateEntity(
     val price: Int,
     val description: String,
     val address: String,
-    // val nearbyPOI: List<String>,
+    val nearbyPOI: ArrayList<String>,
     val isAvailable: Boolean,
     val entryDate: String,
     val saleDate: String?,

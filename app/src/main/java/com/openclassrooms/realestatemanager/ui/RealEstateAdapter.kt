@@ -30,37 +30,31 @@ class RealEstateAdapter(private val fragment: FragmentList, private var realEsta
         holder.typeText.text = currentItem.type
         holder.priceText.text = "$" + currentItem.price.toString()
         holder.locationText.text = currentItem.address
-        //holder.id.text = currentItem.id.toString()
 
-       // holder.imageView.setImageResource(R.drawable.house_default)
-
-        if(realEstateList[position].photos.isNullOrEmpty()) {
+        if(currentItem.photos.isNullOrEmpty()) {
             holder.imageView.setImageResource(R.drawable.baseline_house_24)
         } else {
             Glide.with(holder.imageView)
-                .load(realEstateList[position].photos?.get(0)?.uri)
+                .load(currentItem.photos[0].uri)
                 .centerCrop()
                 .into(holder.imageView)
         }
 
         holder.itemView.setOnClickListener{
-            val id = realEstateList[position].id
+            val id = currentItem.id
 
             if (id != null) {
                 fragment.onClick(id)
             }
         }
-
     }
 
     override fun getItemCount() = realEstateList.size
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-
         val typeText : TextView = itemView.findViewById(R.id.type)
         val priceText : TextView = itemView.findViewById(R.id.price)
         val locationText : TextView = itemView.findViewById(R.id.location)
-        // val id : TextView = itemView.findViewById(R.id.id)
         val imageView : ImageView = itemView.findViewById(R.id.image)
 
     }
