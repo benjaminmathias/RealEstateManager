@@ -62,16 +62,9 @@ class FragmentList : Fragment() {
 
     fun onClick(id: Long){
         Toast.makeText(context, "Click on $id", Toast.LENGTH_SHORT).show()
-
-        //val fragmentTransaction = parentFragmentManager.beginTransaction()
         val bundle = Bundle().apply {
             putLong("id", id)
         }
-      //  val fragmentDetails = FragmentDetails()
-      //  fragmentDetails.arguments = bundle
-
         requireView().findNavController().navigate(R.id.fragmentDetails, bundle)
-       // fragmentTransaction.replace(R.id.navHostFragment, fragmentDetails)
-       // fragmentTransaction.commit()
     }
 }

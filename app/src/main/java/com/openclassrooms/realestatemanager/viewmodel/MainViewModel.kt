@@ -12,8 +12,9 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class MainViewModel @Inject constructor(private val realEstateRepository: RealEstateRepository) :
-    ViewModel() {
+class MainViewModel @Inject constructor(
+    private val realEstateRepository: RealEstateRepository
+) : ViewModel() {
 
     private val _uiState: MutableStateFlow<MainUiState> =
         MutableStateFlow(MainUiState.Success(emptyList()))

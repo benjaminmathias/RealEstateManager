@@ -6,7 +6,7 @@ import androidx.room.PrimaryKey
 @Entity(
     tableName = "photoItemTable"
 )
-data class PhotoEntity(
+data class RealEstatePhotoEntity(
     val uri: String,
     val photoDescription: String,
     val realEstateId: Long,

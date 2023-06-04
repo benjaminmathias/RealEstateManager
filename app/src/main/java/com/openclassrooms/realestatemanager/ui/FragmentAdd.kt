@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.text.InputFilter
 import android.util.Log
@@ -19,6 +18,9 @@ import androidx.core.view.children
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -27,7 +29,9 @@ import com.openclassrooms.realestatemanager.R
 import com.openclassrooms.realestatemanager.data.PhotoItem
 import com.openclassrooms.realestatemanager.databinding.FragmentRealEstateEditBinding
 import com.openclassrooms.realestatemanager.viewmodel.NewRealEstateViewModel
+import com.openclassrooms.realestatemanager.viewmodel.RealEstateUiState
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -39,17 +43,6 @@ class FragmentAdd : Fragment(), PhotoAdapter.ItemClickListener {
     lateinit var addRealEstateButton: Button
     private lateinit var addPhotoButton: Button
 
-    private var images: ArrayList<Uri?>? = null
-    private var description: ArrayList<String?>? = null
-
-    //var photoList = mutableListOf<PhotoItem>()
-
-    // private val adapter = PhotoAdapter(this@FragmentAdd, photoList)
-
-    private var position = 0
-
-    private var isAllFieldsChecked = false
-
     var cal: Calendar = Calendar.getInstance()
 
     private val viewModel: NewRealEstateViewModel by viewModels()
@@ -59,8 +52,6 @@ class FragmentAdd : Fragment(), PhotoAdapter.ItemClickListener {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-
-        // val addBinding: FragmentRealEstateEditBinding = DataBindingUtil.setContentView(requireActivity(), R.layout.fragment_real_estate_edit)
         binding = DataBindingUtil.inflate(
             layoutInflater,
             R.layout.fragment_real_estate_edit,
@@ -68,29 +59,34 @@ class FragmentAdd : Fragment(), PhotoAdapter.ItemClickListener {
             false
         )
 
-        //  binding = DataBindingUtil.setContentView(layoutInflater, container, false)
-        // binding = FragmentRealEstateEditBinding.inflate(layoutInflater, container, false)
-        // binding.viewModel = viewModel
-
-        activity?.title = "Create a new Real Estate"
-
+        binding.lifecycleOwner = this
         binding.viewModel = viewModel
 
-        addRealEstateButton = binding.submitButton
-        addRealEstateButton.text = "Add"
+        setupAutocompletes()
+
+        activity?.title = "Create a new Real Estate"
         binding.entrydateTextView.text = "../../...."
         addPhotoButton = binding.mediaAddButton
-
+        addRealEstateButton = binding.submitButton
+        addRealEstateButton.text = "Add"
         setupEntryDate(binding.entrydateTextView)
 
-        images = ArrayList()
-        description = ArrayList()
-
+        // PHOTO //
+        // We setup our photo recyclerview here since registerForActivityResult needs to be called in onCreateView
         recyclerView = binding.inputRecyclerView
         recyclerView.layoutManager =
             LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
-        val adapter = PhotoAdapter(viewModel.realEstateData.photos, this)
+        val adapter = PhotoAdapter(viewModel.realEstateDataFlow.value.photos, this)
         recyclerView.adapter = adapter
+
+        // TODO : observe photos
+        // viewModel.realEstateDataFlow.col
+
+       /* if (viewModel.realEstateDataFlow.value.photos.isNotEmpty()) {
+            adapter.updateData(viewModel.realEstateDataFlow.value.photos)
+        }
+
+        observePhotos()*/
 
         // Setup photoPicker : needs to be called here; if not app will crash - activityResult needs to be
         // called in the actual fragment - NOT in a click listener
@@ -107,10 +103,10 @@ class FragmentAdd : Fragment(), PhotoAdapter.ItemClickListener {
                             imageUri.toString(),
                             ""
                         )
-                        viewModel.realEstateData.photos.add(photo)
+                        viewModel.realEstateDataFlow.value.photos.add(photo)
                         Log.d("PhotoItem created", "uri : " + photo.uri)
                     }
-                    adapter.updateData(viewModel.realEstateData.photos)
+                   adapter.updateData(viewModel.realEstateDataFlow.value.photos)
                 } else {
                     Log.d("PhotoPicker", "No media selected")
                 }
@@ -120,19 +116,28 @@ class FragmentAdd : Fragment(), PhotoAdapter.ItemClickListener {
             pickMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
         }
 
-        addRealEstateButton.setOnClickListener {
-            isAllFieldsChecked = checkAllFields()
+        // CHIP //
+        // Retrieve chip type single value with a listener then update our type stored in viewmodel
+        /* binding.typeChipGroup.setOnCheckedStateChangeListener { chipGroup, _ ->
+            viewModel.realEstateData.type = chipGroup.children
+                .filter { (it as Chip).isChecked }
+                .map { (it as Chip).text.toString() }
+                .first()
+        }*/
 
-            if (isAllFieldsChecked) {
-                getTypeChip()
-                getPoiChip()
-                confirmDialog()
-            }
+        // Retrieve multiple chip value if checked to update our nearByPoi list in viewmodel
+        binding.poiChipGroup.addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
+            viewModel.realEstateDataFlow.value.nearbyPOI = binding.poiChipGroup.children
+                .filter { (it as Chip).isChecked }
+                .map { (it as Chip).text.toString() }
+                .toList()
         }
 
         binding.cancelButton.setOnClickListener {
             requireView().findNavController().navigate(R.id.fragmentList)
         }
+
+        observeState()
 
         return binding.root
     }
@@ -142,34 +147,13 @@ class FragmentAdd : Fragment(), PhotoAdapter.ItemClickListener {
         savedInstanceState: Bundle?
     ) {
         super.onViewCreated(view, savedInstanceState)
-        setupAutocompletes()
+        // setupAutocompletes()
     }
 
     // TODO : check for updated non-deprecated methods
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
-    }
-
-    private fun getTypeChip() {
-       //  binding.typeChipGroup.set
-
-        viewModel.getTypeChip(
-            binding.typeChipGroup.children
-                .toList()
-                .filter { (it as Chip).isChecked }
-                .map { (it as Chip).text.toString() }
-                .first()
-        )
-    }
-
-    private fun getPoiChip() {
-        viewModel.getPoiChip(
-            binding.poiChipGroup.children
-                .toList()
-                .filter { (it as Chip).isChecked }
-                .map { (it as Chip).text.toString() } as ArrayList<String>
-        )
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -181,7 +165,7 @@ class FragmentAdd : Fragment(), PhotoAdapter.ItemClickListener {
         val layout = LinearLayout(requireContext())
         layout.orientation = LinearLayout.VERTICAL
         val editText = EditText(requireContext())
-        val photoList = viewModel.realEstateData.photos
+        val photoList = viewModel.realEstateDataFlow.value.photos
 
         if (photoList[position].photoDescription.isEmpty()) {
             editText.hint = "Add your description here"
@@ -190,7 +174,13 @@ class FragmentAdd : Fragment(), PhotoAdapter.ItemClickListener {
         }
 
         editText.filters = arrayOf(InputFilter.LengthFilter(30))
+
         layout.addView(editText)
+
+        val param = editText.layoutParams as ViewGroup.MarginLayoutParams
+        param.setMargins(50, 0, 50, 0)
+        editText.layoutParams = param
+
         builder.setView(layout)
 
         builder.setPositiveButton("Confirm") { _, _ ->
@@ -209,6 +199,68 @@ class FragmentAdd : Fragment(), PhotoAdapter.ItemClickListener {
         menu.clear()
     }
 
+    private fun observeState() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.uiState.collect { uiState ->
+                    when (uiState) {
+                        is RealEstateUiState.RealEstateDataUi ->
+                            Toast.makeText(
+                                requireContext(),
+                                "Create a new property",
+                                Toast.LENGTH_SHORT
+                            ).show()
+
+                        is RealEstateUiState.Default ->
+                            Toast.makeText(
+                                requireContext(),
+                                "Edit property",
+                                Toast.LENGTH_SHORT
+                            ).show()
+
+                        is RealEstateUiState.Success ->
+                            notifyRealEstateIsCreated()
+
+                        is RealEstateUiState.Error ->
+                            Toast.makeText(
+                                requireContext(),
+                                "All fields needs to be filled",
+                                Toast.LENGTH_LONG
+                            ).show()
+                    }
+                }
+            }
+        }
+    }
+
+   /* private fun observePhotos() {
+
+        var photoList: MutableList<PhotoItem> = mutableListOf()
+
+        recyclerView.layoutManager =
+            LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+        val adapter = PhotoAdapter(viewModel.realEstateDataFlow.value.photos, this)
+        recyclerView.adapter = adapter
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.realEstateDataFlow.collect { data ->
+                    when (data) {
+                        data -> photoList = viewModel.realEstateDataFlow.value.photos
+                    }
+                }
+            }
+        }
+        adapter.updateData(photoList)
+        adapter.notifyDataSetChanged()
+    }*/
+
+    private fun notifyRealEstateIsCreated() {
+        Toast.makeText(requireContext(), "New property successfully created ! ", Toast.LENGTH_LONG)
+            .show()
+        requireView().findNavController().navigate(R.id.fragmentList)
+    }
+
     private fun confirmDialog() {
         val builder = AlertDialog.Builder(requireContext())
         builder.setTitle("Confirmation")
@@ -216,10 +268,10 @@ class FragmentAdd : Fragment(), PhotoAdapter.ItemClickListener {
 
         builder.setPositiveButton("Confirm") { _, _ ->
 
-            requireView().findNavController().navigate(R.id.fragmentList)
         }
 
         builder.setNegativeButton("Cancel") { _, _ ->
+
         }
         builder.show()
     }
@@ -241,7 +293,7 @@ class FragmentAdd : Fragment(), PhotoAdapter.ItemClickListener {
 
     private fun setupEntryDate(entryDateTextView: TextView) {
         val dateSetListener =
-            DatePickerDialog.OnDateSetListener { view, year, monthOfYear, dayOfMonth ->
+            DatePickerDialog.OnDateSetListener { _, year, monthOfYear, dayOfMonth ->
                 cal.set(Calendar.YEAR, year)
                 cal.set(Calendar.MONTH, monthOfYear)
                 cal.set(Calendar.DAY_OF_MONTH, dayOfMonth)
@@ -263,46 +315,5 @@ class FragmentAdd : Fragment(), PhotoAdapter.ItemClickListener {
         val myFormat = "dd/MM/yyyy"
         val sdf = SimpleDateFormat(myFormat, Locale.FRANCE)
         entryDateTextView.text = sdf.format(cal.time)
-    }
-
-    private fun checkAllFields(): Boolean {
-        if (!binding.typeChipGroup.isSelectionRequired) {
-            Toast.makeText(requireContext(), "You need to select a type !", Toast.LENGTH_LONG)
-                .show()
-            return false
-        }
-        if (binding.priceEditText.length() == 0) {
-            binding.priceEditText.error = "This field is required"
-            return false
-        }
-        if (binding.surfaceEditText.length() == 0) {
-            binding.surfaceEditText.error = "This field is required"
-            return false
-        }
-        if (binding.roomEditText.length() == 0) {
-            binding.roomEditText.error = "This field is required"
-            return false
-        }
-        if (binding.bedroomsEditText.length() == 0) {
-            binding.bedroomsEditText.error = "This field is required"
-            return false
-        }
-        if (binding.bathroomsEditText.length() == 0) {
-            binding.bathroomsEditText.error = "This field is required"
-            return false
-        }
-        if (binding.locationEditText.length() == 0) {
-            binding.locationEditText.error = "This field is required"
-            return false
-        }
-        if (binding.descriptionEditText.length() == 0) {
-            binding.descriptionEditText.error = "This field is required"
-            return false
-        }
-        if (binding.assignedagentSpinner.text.isEmpty()) {
-            binding.assignedagentSpinner.error = "This field is required"
-            return false
-        }
-        return true
     }
 }

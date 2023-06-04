@@ -43,13 +43,12 @@ class MainActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
         R.id.action_add -> {
-            findNavController(R.id.navHostFragment).navigate(R.id.fragmentAdd)
+            findNavController(R.id.navHostFragment).navigate(R.id.fragmentAddTest)
             true
         }
 
         R.id.action_edit -> {
             Toast.makeText(this, "Click on Edit button", Toast.LENGTH_LONG).show()
-            findNavController(R.id.navHostFragment).navigate(R.id.fragmentAddTest)
             true
         }
 

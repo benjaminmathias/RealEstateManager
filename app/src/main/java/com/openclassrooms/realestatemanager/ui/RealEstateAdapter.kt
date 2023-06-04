@@ -31,6 +31,12 @@ class RealEstateAdapter(private val fragment: FragmentList, private var realEsta
         holder.priceText.text = "$" + currentItem.price.toString()
         holder.locationText.text = currentItem.address
 
+        if (currentItem.isAvailable) {
+            holder.availabilityText.text = "Available"
+        } else {
+            holder.availabilityText.text = "Sold"
+        }
+
         if(currentItem.photos.isNullOrEmpty()) {
             holder.imageView.setImageResource(R.drawable.baseline_house_24)
         } else {
@@ -56,6 +62,7 @@ class RealEstateAdapter(private val fragment: FragmentList, private var realEsta
         val priceText : TextView = itemView.findViewById(R.id.price)
         val locationText : TextView = itemView.findViewById(R.id.location)
         val imageView : ImageView = itemView.findViewById(R.id.image)
+        val availabilityText : TextView = itemView.findViewById(R.id.availability)
 
     }
 }

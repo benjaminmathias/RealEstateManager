@@ -7,7 +7,7 @@ data class RealEstate(
     val description: String,
     val address: String,
     // TODO : add nearbyPOI
-    val nearbyPOI: ArrayList<String>,
+    val nearbyPOI: List<String>,
     val isAvailable: Boolean,
     val photos: List<PhotoItem>?,
     val entryDate: String,

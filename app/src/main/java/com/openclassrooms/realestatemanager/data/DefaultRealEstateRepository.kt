@@ -12,7 +12,7 @@ class DefaultRealEstateRepository @Inject constructor(
     private val photoItemDao: PhotoItemDao
 ) : RealEstateRepository {
 
-    // Retrieve List<RealEstateEntity> as a Flow<List< then convert it to RealEstate
+    // Retrieve List<RealEstateEntity> as a Flow<List> then convert it to RealEstate
     override fun retrieveAndConvertRealEstateEntityList(): Flow<List<RealEstate>> {
         return realEstateDao.getAll().map { entity: List<RealEstateEntity> ->
             entity.map {
@@ -37,9 +37,8 @@ class DefaultRealEstateRepository @Inject constructor(
         }
     }
 
-    // Retrieve RealEstateEntity as a Flow< then convert it to RealEstate
+    // Retrieve RealEstateEntity as a Flow then convert it to RealEstate
     override fun retrieveAndConvertSpecificRealEstateEntity(id: Long): Flow<RealEstate> {
-
         return realEstateDao.getById(id).map { entity: RealEstateEntity ->
             RealEstate(
                 type = entity.type,
@@ -61,6 +60,7 @@ class DefaultRealEstateRepository @Inject constructor(
         }
     }
 
+    // Retrieve both user added RealEstate and PhotoItem, then insert it in db
     override suspend fun insertRealEstateAndPhoto(realEstate: RealEstate) {
         // Retrieve our RealEstate object and convert it to entity
         val realEstateEntity = RealEstateEntity(
@@ -70,7 +70,7 @@ class DefaultRealEstateRepository @Inject constructor(
             description = realEstate.description,
             address = realEstate.address,
             isAvailable = realEstate.isAvailable,
-            nearbyPOI = realEstate.nearbyPOI,
+            nearbyPOI = realEstate.nearbyPOI as ArrayList<String>,
             entryDate = realEstate.entryDate,
             saleDate = realEstate.saleDate,
             assignedAgent = realEstate.assignedAgent,
@@ -82,15 +82,16 @@ class DefaultRealEstateRepository @Inject constructor(
         // here we retrieve the newly inserted RealEstateEntity id
         val insertedId: Long = realEstateDao.insert(realEstateEntity)
 
-        // Retrieve PhotoItem and convert it to entity
+        // Retrieve PhotoItem (if it exists) and convert it to entity
         val photoList = realEstate.photos?.map {
-            PhotoEntity(
+            RealEstatePhotoEntity(
                 uri = it.uri,
                 photoDescription = it.photoDescription,
                 realEstateId = insertedId
             )
         }
 
+        // If the user added a single or multiple photos, add it to db
         if (photoList != null) {
             val count = photoList.size
             for (i in 0 until count) {
@@ -99,9 +100,9 @@ class DefaultRealEstateRepository @Inject constructor(
         }
     }
 
-    // PhotoItem
+    // Retrieve all PhotoItem with id related to RealEstateEntity
     private suspend fun fetchAllPhotoItem(id: Long): List<PhotoItem> {
-        val listOfEntity: List<PhotoEntity> = photoItemDao.getById(id)
+        val listOfEntity: List<RealEstatePhotoEntity> = photoItemDao.getById(id)
 
         val listOfPhotos: List<PhotoItem> = listOfEntity.map { entities ->
             PhotoItem(
@@ -112,8 +113,60 @@ class DefaultRealEstateRepository @Inject constructor(
         return listOfPhotos
     }
 
-    override suspend fun updateRealEstate(saleDate: String, isAvailable: Boolean, id: Long) {
+    // Update an existing RealEstateEntity when user set it as no longer available
+    override suspend fun setRealEstateAsNoLongerAvailable(saleDate: String, isAvailable: Boolean, id: Long) {
         Log.d("RealEstateRepository", "Update called")
         realEstateDao.updateRealEstate(saleDate, isAvailable, id)
+    }
+
+    override suspend fun editRealEstate(realEstate: RealEstate) {
+        // Retrieve our RealEstate object and convert it to entity
+        val realEstateEntity = convertRealEstateToEntity(realEstate)
+
+        // here we update the realEstateEntity
+        realEstateDao.update(realEstateEntity)
+
+        // Retrieve PhotoItem from the updated realEstate and convert it to entity
+        val photoList = realEstate.photos?.map {
+            realEstateEntity.id?.let { it1 ->
+                RealEstatePhotoEntity(
+                    uri = it.uri,
+                    photoDescription = it.photoDescription,
+                    realEstateId = it1
+                )
+            }
+        }
+
+        if (photoList != null) {
+            photoList.forEach { photo ->
+                if (photo != null) {
+                    photoItemDao.deletePhotosByRealEstateId(photo.realEstateId)
+                }
+            }
+
+            val count = photoList.size
+            for (i in 0 until count) {
+                photoList[i]?.let { photoItemDao.insert(it) }
+            }
+        }
+    }
+
+    private fun convertRealEstateToEntity(realEstate: RealEstate): RealEstateEntity {
+        return RealEstateEntity(
+            type = realEstate.type,
+            surface = realEstate.surface,
+            price = realEstate.price,
+            description = realEstate.description,
+            address = realEstate.address,
+            isAvailable = realEstate.isAvailable,
+            nearbyPOI = realEstate.nearbyPOI as ArrayList<String>,
+            entryDate = realEstate.entryDate,
+            saleDate = realEstate.saleDate,
+            assignedAgent = realEstate.assignedAgent,
+            room = realEstate.room,
+            bedroom = realEstate.bedroom,
+            bathroom = realEstate.bathroom,
+            id = realEstate.id
+        )
     }
 }

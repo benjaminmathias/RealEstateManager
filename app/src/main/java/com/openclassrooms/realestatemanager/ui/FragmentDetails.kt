@@ -20,12 +20,13 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.findNavController
 import androidx.viewpager.widget.ViewPager
 import com.google.android.material.tabs.TabLayout
 import com.openclassrooms.realestatemanager.R
 import com.openclassrooms.realestatemanager.data.PhotoItem
 import com.openclassrooms.realestatemanager.data.RealEstate
-import com.openclassrooms.realestatemanager.databinding.FragmentDetailsTestBinding
+import com.openclassrooms.realestatemanager.databinding.FragmentDetailsBinding
 import com.openclassrooms.realestatemanager.viewmodel.DetailsViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -35,7 +36,7 @@ import java.util.*
 @AndroidEntryPoint
 class FragmentDetails : Fragment() {
 
-    private lateinit var binding: FragmentDetailsTestBinding
+    private lateinit var binding: FragmentDetailsBinding
 
     private val viewModel: DetailsViewModel by viewModels()
 
@@ -54,7 +55,7 @@ class FragmentDetails : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentDetailsTestBinding.inflate(layoutInflater, container, false)
+        binding = FragmentDetailsBinding.inflate(layoutInflater, container, false)
 
         val id = this.arguments?.getLong("id")
         if (id != null) {
@@ -67,6 +68,16 @@ class FragmentDetails : Fragment() {
 
         updateUI()
 
+        binding.editButton.setOnClickListener {
+            // TODO : passer infos via navigation
+            val bundle = Bundle().apply {
+                if (id != null) {
+                    putLong("id", id)
+                }
+            }
+
+            requireView().findNavController().navigate(R.id.fragmentAddTest, bundle)
+        }
 
         return binding.root
     }
@@ -82,6 +93,7 @@ class FragmentDetails : Fragment() {
                     when (uiState) {
                         is DetailsViewModel.DetailsUiState.Success ->
                             setupView(uiState.realEstate)
+
                         else -> {
                             setupEmptyView()
                         }
@@ -156,38 +168,11 @@ class FragmentDetails : Fragment() {
         }
     }
 
-    /*
-        private fun setupSoldButton(id: Long, minDay: String, minMonth: String, minYear: String) {
-
-            val dateSetListener =
-                DatePickerDialog.OnDateSetListener { _, year, monthOfYear, dayOfMonth ->
-                    cal.set(minYear.toInt(), minMonth.toInt(), minDay.toInt())
-                    cal.set(Calendar.YEAR, year)
-                    cal.set(Calendar.MONTH, monthOfYear)
-                    cal.set(Calendar.DAY_OF_MONTH, dayOfMonth)
-                    updateRealEstate(id)
-                }
-
-            soldButton.setOnClickListener {
-                val dialog =
-                    DatePickerDialog(
-                        requireContext(),
-                        dateSetListener,
-                        cal.get(Calendar.YEAR),
-                        cal.get(Calendar.MONTH),
-                        cal.get(Calendar.DAY_OF_MONTH)
-                    )
-                cal.set(minYear.toInt(), minMonth.toInt() - 1, minDay.toInt())
-                dialog.datePicker.minDate = cal.timeInMillis
-                dialog.show()
-            }
-        }
-    */
     private fun updateRealEstate(id: Long) {
         val myFormat = "dd/MM/yyyy"
         val sdf = SimpleDateFormat(myFormat, Locale.FRANCE)
         val saleDate = sdf.format(cal.time)
-        viewModel.updateRealEstate(saleDate, false, id)
+        viewModel.setRealEstateAsNoLongerAvailable(saleDate, false, id)
         binding.soldButton.visibility = GONE
     }
 
@@ -204,6 +189,7 @@ class FragmentDetails : Fragment() {
         if (realEstate.isAvailable) {
             binding.saledateTextView.visibility = GONE
             binding.soldButton.visibility = VISIBLE
+            binding.editButton.visibility = VISIBLE
         } else {
             binding.saledateTextView.visibility = VISIBLE
             binding.saledateTextView.text = "Sold : " + realEstate.saleDate

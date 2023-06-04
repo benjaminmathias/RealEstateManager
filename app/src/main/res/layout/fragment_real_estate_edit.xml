@@ -5,14 +5,20 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
-
         <variable
-            name="photos"
+            name="photosAdapter"
             type="com.openclassrooms.realestatemanager.ui.PhotoAdapter" />
 
         <variable
             name="viewModel"
             type="com.openclassrooms.realestatemanager.viewmodel.NewRealEstateViewModel" />
+
+        <variable
+            name="poi"
+            type="java.util.ArrayList&lt;RealEstateNearbyPoi&gt;" />
+
+        <import type="com.openclassrooms.realestatemanager.viewmodel.RealEstateType" />
+        <import type="com.openclassrooms.realestatemanager.viewmodel.RealEstateNearbyPoi" />
     </data>
 
     <ScrollView
@@ -38,6 +44,8 @@
                 android:scrollbars="none"
                 app:layout_constraintTop_toTopOf="parent">
 
+
+                <!-- android:checkedButton="@{viewModel.getRealEstateTypeSelected()}" -->
                 <com.google.android.material.chip.ChipGroup
                     android:id="@+id/type_chip_group"
                     android:layout_width="wrap_content"
@@ -51,36 +59,48 @@
                         style="@style/Widget.MaterialComponents.Chip.Choice"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:checked="@{viewModel.realEstateDataFlow.type == RealEstateType.HOUSE.name()}"
+                        android:onClick="@{() -> viewModel.onRealEstateTypeSelected(RealEstateType.HOUSE)}"
                         android:text="House" />
 
                     <com.google.android.material.chip.Chip
                         style="@style/Widget.MaterialComponents.Chip.Choice"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:checked="@{viewModel.realEstateDataFlow.type == RealEstateType.APARTMENT.name()}"
+                        android:onClick="@{() -> viewModel.onRealEstateTypeSelected(RealEstateType.APARTMENT)}"
                         android:text="Apartment" />
 
                     <com.google.android.material.chip.Chip
                         style="@style/Widget.MaterialComponents.Chip.Choice"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:checked="@{viewModel.realEstateDataFlow.type == RealEstateType.CONDO.name()}"
+                        android:onClick="@{() -> viewModel.onRealEstateTypeSelected(RealEstateType.CONDO)}"
                         android:text="Condo" />
 
                     <com.google.android.material.chip.Chip
                         style="@style/Widget.MaterialComponents.Chip.Choice"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:checked="@{viewModel.realEstateDataFlow.type == RealEstateType.LOFT.name()}"
+                        android:onClick="@{() -> viewModel.onRealEstateTypeSelected(RealEstateType.LOFT)}"
                         android:text="Loft" />
 
                     <com.google.android.material.chip.Chip
                         style="@style/Widget.MaterialComponents.Chip.Choice"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:checked="@{viewModel.realEstateDataFlow.type == RealEstateType.MANSION.name()}"
+                        android:onClick="@{() -> viewModel.onRealEstateTypeSelected(RealEstateType.MANSION)}"
                         android:text="Mansion" />
 
                     <com.google.android.material.chip.Chip
                         style="@style/Widget.MaterialComponents.Chip.Choice"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:checked="@{viewModel.realEstateDataFlow.type == RealEstateType.VILLA.name()}"
+                        android:onClick="@{() -> viewModel.onRealEstateTypeSelected(RealEstateType.VILLA)}"
                         android:text="Villa" />
 
                 </com.google.android.material.chip.ChipGroup>
@@ -99,7 +119,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="number"
-                    android:text="@={viewModel.realEstateData.price}" />
+                    android:maxLength="9"
+                    android:text="@={viewModel.realEstateDataFlow.price}" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -115,7 +136,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="number"
-                    android:text="@={viewModel.realEstateData.surface}" />
+                    android:maxLength="9"
+                    android:text="@={viewModel.realEstateDataFlow.surface}" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -131,7 +153,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="number"
-                    android:text="@={viewModel.realEstateData.room}" />
+                    android:maxLength="9"
+                    android:text="@={viewModel.realEstateDataFlow.room}" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -147,7 +170,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="number"
-                    android:text="@={viewModel.realEstateData.bedroom}" />
+                    android:maxLength="9"
+                    android:text="@={viewModel.realEstateDataFlow.bedroom}" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -163,7 +187,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="number"
-                    android:text="@={viewModel.realEstateData.bathroom}" />
+                    android:maxLength="9"
+                    android:text="@={viewModel.realEstateDataFlow.bathroom}" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -178,7 +203,7 @@
                     android:id="@+id/location_edit_text"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@={viewModel.realEstateData.address}" />
+                    android:text="@={viewModel.realEstateDataFlow.address}" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -273,7 +298,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:maxLength="200"
-                    android:text="@={viewModel.realEstateData.description}" />
+                    android:text="@={viewModel.realEstateDataFlow.description}" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -297,7 +322,7 @@
                     android:layout_marginBottom="12dp"
                     android:layout_weight="1"
                     android:gravity="center"
-                    android:text="@={viewModel.realEstateData.entryDate}"
+                    android:text="@={viewModel.realEstateDataFlow.entryDate}"
                     android:textSize="24sp" />
 
             </LinearLayout>
@@ -315,7 +340,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:inputType="none"
-                    android:text="@={viewModel.realEstateData.assignedAgent}" />
+                    android:text="@={viewModel.realEstateDataFlow.assignedAgent}" />
 
             </com.google.android.material.textfield.TextInputLayout>
 

@@ -1,17 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/navigation"
     app:startDestination="@id/fragmentList">
 
     <fragment
         android:id="@+id/fragmentList"
         android:name="com.openclassrooms.realestatemanager.ui.FragmentList"
-        android:label="FragmentList" >
-        <action
-            android:id="@+id/action_fragmentList_to_fragmentAdd"
-            app:destination="@id/fragmentAdd"
-            app:popUpTo="@id/fragmentList" />
+        android:label="FragmentList"
+        tools:layout="@layout/fragment_list">
         <action
             android:id="@+id/action_fragmentList_to_fragmentDetails"
             app:destination="@id/fragmentDetails"
@@ -21,16 +19,22 @@
             app:destination="@id/fragmentAddTest" />
     </fragment>
     <fragment
-        android:id="@+id/fragmentAdd"
-        android:name="com.openclassrooms.realestatemanager.ui.FragmentAddOld"
-        android:label="FragmentAdd" />
-    <fragment
         android:id="@+id/fragmentDetails"
         android:name="com.openclassrooms.realestatemanager.ui.FragmentDetails"
-        android:label="FragmentDetails" />
+        android:label="FragmentDetails"
+        tools:layout="@layout/fragment_details">
+        <action
+            android:id="@+id/action_fragmentDetails_to_fragmentList"
+            app:destination="@id/fragmentList" />
+    </fragment>
     <fragment
         android:id="@+id/fragmentAddTest"
         android:name="com.openclassrooms.realestatemanager.ui.FragmentAdd"
-        android:label="FragmentAddTest" />
+        android:label="FragmentAdd"
+        tools:layout="@layout/fragment_real_estate_edit">
+        <action
+            android:id="@+id/action_fragmentAddTest_to_fragmentList"
+            app:destination="@id/fragmentList" />
+    </fragment>
 
 </navigation>

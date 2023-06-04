@@ -9,5 +9,7 @@ interface RealEstateRepository {
 
     suspend fun insertRealEstateAndPhoto(realEstate: RealEstate)
 
-    suspend fun updateRealEstate(saleDate: String, isAvailable: Boolean, id: Long)
+    suspend fun setRealEstateAsNoLongerAvailable(saleDate: String, isAvailable: Boolean, id: Long)
+
+    suspend fun editRealEstate(realEstate: RealEstate)
 }

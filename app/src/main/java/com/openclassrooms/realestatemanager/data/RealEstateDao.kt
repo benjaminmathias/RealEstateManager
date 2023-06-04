@@ -17,7 +17,7 @@ interface RealEstateDao {
 
     @Query("UPDATE realEstateTable SET saleDate = :saleDate, isAvailable = :isAvailable WHERE id LIKE :id")
     suspend fun updateRealEstate(saleDate: String, isAvailable: Boolean, id: Long)
-    
+
     @Query("SELECT * FROM realEstateTable")
     fun getAll(): Flow<List<RealEstateEntity>>
 

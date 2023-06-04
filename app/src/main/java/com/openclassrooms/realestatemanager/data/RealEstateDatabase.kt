@@ -7,7 +7,7 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 
 
-@Database(entities = [RealEstateEntity::class, PhotoEntity::class], version = 1)
+@Database(entities = [RealEstateEntity::class, RealEstatePhotoEntity::class], version = 1)
 @TypeConverters(PoiTypeConverter::class)
 abstract class RealEstateDatabase : RoomDatabase() {
 

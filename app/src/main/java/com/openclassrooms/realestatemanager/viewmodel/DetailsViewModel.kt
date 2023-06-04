@@ -36,9 +36,9 @@ class DetailsViewModel @Inject constructor(private val realEstateRepository: Rea
         }
     }
 
-    fun updateRealEstate(saleDate: String, isAvailable: Boolean, id: Long) = viewModelScope.launch {
+    fun setRealEstateAsNoLongerAvailable(saleDate: String, isAvailable: Boolean, id: Long) = viewModelScope.launch {
         Log.d("DetailsViewModel", "Update called")
-        realEstateRepository.updateRealEstate(saleDate, isAvailable, id)
+        realEstateRepository.setRealEstateAsNoLongerAvailable(saleDate, isAvailable, id)
     }
 
     sealed class DetailsUiState {
