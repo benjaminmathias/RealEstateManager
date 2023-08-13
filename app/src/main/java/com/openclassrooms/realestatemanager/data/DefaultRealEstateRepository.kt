@@ -9,7 +9,7 @@ import javax.inject.Singleton
 @Singleton
 class DefaultRealEstateRepository @Inject constructor(
     private val realEstateDao: RealEstateDao,
-    private val photoItemDao: PhotoItemDao
+    private val realEstatePhotoDao: RealEstatePhotoDao
 ) : RealEstateRepository {
 
     // Retrieve List<RealEstateEntity> as a Flow<List> then convert it to RealEstate
@@ -31,6 +31,8 @@ class DefaultRealEstateRepository @Inject constructor(
                     room = it.room,
                     bedroom = it.bedroom,
                     bathroom = it.bathroom,
+                    lat = it.lat,
+                    lon = it.lon,
                     id = it.id
                 )
             }
@@ -55,10 +57,13 @@ class DefaultRealEstateRepository @Inject constructor(
                 room = entity.room,
                 bedroom = entity.bedroom,
                 bathroom = entity.bathroom,
+                lat = entity.lat,
+                lon = entity.lon,
                 id = entity.id
             )
         }
     }
+
 
     // Retrieve both user added RealEstate and PhotoItem, then insert it in db
     override suspend fun insertRealEstateAndPhoto(realEstate: RealEstate) {
@@ -77,6 +82,8 @@ class DefaultRealEstateRepository @Inject constructor(
             room = realEstate.room,
             bedroom = realEstate.bedroom,
             bathroom = realEstate.bathroom,
+            lat = realEstate.lat,
+            lon = realEstate.lon
         )
 
         // here we retrieve the newly inserted RealEstateEntity id
@@ -95,17 +102,17 @@ class DefaultRealEstateRepository @Inject constructor(
         if (photoList != null) {
             val count = photoList.size
             for (i in 0 until count) {
-                photoItemDao.insert(photoList[i])
+                realEstatePhotoDao.insert(photoList[i])
             }
         }
     }
 
     // Retrieve all PhotoItem with id related to RealEstateEntity
-    private suspend fun fetchAllPhotoItem(id: Long): List<PhotoItem> {
-        val listOfEntity: List<RealEstatePhotoEntity> = photoItemDao.getById(id)
+    private suspend fun fetchAllPhotoItem(id: Long): List<RealEstatePhoto> {
+        val listOfEntity: List<RealEstatePhotoEntity> = realEstatePhotoDao.getById(id)
 
-        val listOfPhotos: List<PhotoItem> = listOfEntity.map { entities ->
-            PhotoItem(
+        val listOfPhotos: List<RealEstatePhoto> = listOfEntity.map { entities ->
+            RealEstatePhoto(
                 entities.uri,
                 entities.photoDescription
             )
@@ -140,13 +147,13 @@ class DefaultRealEstateRepository @Inject constructor(
         if (photoList != null) {
             photoList.forEach { photo ->
                 if (photo != null) {
-                    photoItemDao.deletePhotosByRealEstateId(photo.realEstateId)
+                    realEstatePhotoDao.deletePhotosByRealEstateId(photo.realEstateId)
                 }
             }
 
             val count = photoList.size
             for (i in 0 until count) {
-                photoList[i]?.let { photoItemDao.insert(it) }
+                photoList[i]?.let { realEstatePhotoDao.insert(it) }
             }
         }
     }
@@ -166,6 +173,8 @@ class DefaultRealEstateRepository @Inject constructor(
             room = realEstate.room,
             bedroom = realEstate.bedroom,
             bathroom = realEstate.bathroom,
+            lat = realEstate.lat,
+            lon = realEstate.lon,
             id = realEstate.id
         )
     }

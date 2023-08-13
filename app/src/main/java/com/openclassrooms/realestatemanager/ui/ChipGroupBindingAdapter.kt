@@ -6,26 +6,28 @@ import androidx.databinding.InverseBindingMethod
 import androidx.databinding.InverseBindingMethods
 import com.google.android.material.chip.ChipGroup
 
-@InverseBindingMethods(InverseBindingMethod(type = ChipGroup::class, attribute = "android:checkedButton", method = "getCheckedChipId"))
+@InverseBindingMethods(InverseBindingMethod(type = ChipGroup::class, attribute = "android:checkedChips", method = "getCheckedChipIds"))
 class ChipGroupBindingAdapter {
     companion object {
         @JvmStatic
-        @BindingAdapter("android:checkedButton")
-        fun setCheckedChip(view: ChipGroup?, id: Int) {
-            if (id != view?.checkedChipId) {
-                view?.check(id)
+        @BindingAdapter("android:checkedChips")
+        fun setCheckedChips(view: ChipGroup?, ids: MutableList<Int>) {
+            for (id in ids){
+                if (!ids.contains(view?.checkedChipId)) {
+                    view?.check(id)
+                }
             }
         }
 
         @JvmStatic
-        @BindingAdapter(value = ["android:onCheckedChanged", "android:checkedButtonAttrChanged"], requireAll = false)
-        fun setChipsListeners(view: ChipGroup?, listener: ChipGroup.OnCheckedChangeListener?,
+        @BindingAdapter(value = ["android:onCheckedChanged", "android:checkedChipsAttrChanged"], requireAll = false)
+        fun setChipsListeners(view: ChipGroup?, listener: ChipGroup.OnCheckedStateChangeListener?,
                               attrChange: InverseBindingListener?) {
             if (attrChange == null) {
-                view?.setOnCheckedChangeListener(listener)
+                view?.setOnCheckedStateChangeListener(listener)
             } else {
-                view?.setOnCheckedChangeListener { group, checkedId ->
-                    listener?.onCheckedChanged(group, checkedId)
+                view?.setOnCheckedStateChangeListener { group, checkedIds ->
+                    listener?.onCheckedChanged(group, checkedIds)
                     attrChange.onChange()
                 }
             }

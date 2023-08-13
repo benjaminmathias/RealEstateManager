@@ -14,7 +14,6 @@ import android.view.View.VISIBLE
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.Toast
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -22,10 +21,17 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.findNavController
 import androidx.viewpager.widget.ViewPager
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.MapView
+import com.google.android.gms.maps.OnMapReadyCallback
+import com.google.android.gms.maps.model.CameraPosition
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.material.tabs.TabLayout
 import com.openclassrooms.realestatemanager.R
-import com.openclassrooms.realestatemanager.data.PhotoItem
 import com.openclassrooms.realestatemanager.data.RealEstate
+import com.openclassrooms.realestatemanager.data.RealEstatePhoto
 import com.openclassrooms.realestatemanager.databinding.FragmentDetailsBinding
 import com.openclassrooms.realestatemanager.viewmodel.DetailsViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -34,7 +40,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 @AndroidEntryPoint
-class FragmentDetails : Fragment() {
+class RealEstateDetailsFragment : Fragment(), OnMapReadyCallback {
 
     private lateinit var binding: FragmentDetailsBinding
 
@@ -43,11 +49,12 @@ class FragmentDetails : Fragment() {
     lateinit var viewPager: ViewPager
     lateinit var viewPagerAdapter: ViewPagerAdapter
     lateinit var tabLayout: TabLayout
-    lateinit var imageList: List<PhotoItem>
+    lateinit var imageList: List<RealEstatePhoto>
     private lateinit var soldButton: Button
 
-    var saleDate: String = ""
+    private lateinit var mMap: GoogleMap
 
+    var saleDate: String = ""
     var cal: Calendar = Calendar.getInstance()
 
     override fun onCreateView(
@@ -69,21 +76,36 @@ class FragmentDetails : Fragment() {
         updateUI()
 
         binding.editButton.setOnClickListener {
-            // TODO : passer infos via navigation
             val bundle = Bundle().apply {
                 if (id != null) {
                     putLong("id", id)
                 }
             }
-
-            requireView().findNavController().navigate(R.id.fragmentAddTest, bundle)
+            requireView().findNavController().navigate(R.id.fragmentInput, bundle)
         }
-
         return binding.root
     }
 
-    private fun getRealEstate(id: Long) {
-        viewModel.getSpecificRealEstateConverted(id)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        val mapView: MapView = binding.detailsMap
+        mapView.onCreate(savedInstanceState)
+        mapView.onResume()
+        mapView.getMapAsync(this)
+    }
+
+    override fun onMapReady(googleMap: GoogleMap) {
+        mMap = googleMap
+    }
+
+    private fun setupMap(lat: Double, long: Double) {
+        val realEstateLocation = LatLng(lat, long)
+        val marker = MarkerOptions().position(realEstateLocation)
+       // mMap.setMyLocationEnabled(true)
+        mMap.addMarker(marker)
+        val cameraPosition = CameraPosition.Builder()
+            .target(LatLng(lat, long)).zoom(16f).build()
+        mMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition))
     }
 
     private fun updateUI() {
@@ -91,9 +113,10 @@ class FragmentDetails : Fragment() {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.uiState.collect { uiState ->
                     when (uiState) {
-                        is DetailsViewModel.DetailsUiState.Success ->
+                        is DetailsViewModel.DetailsUiState.Success -> {
                             setupView(uiState.realEstate)
-
+                            setupMap(uiState.realEstate.lat, uiState.realEstate.lon)
+                        }
                         else -> {
                             setupEmptyView()
                         }
@@ -101,6 +124,10 @@ class FragmentDetails : Fragment() {
                 }
             }
         }
+    }
+
+    private fun getRealEstate(id: Long) {
+        viewModel.getSpecificRealEstateConverted(id)
     }
 
     // TODO : display error
@@ -196,9 +223,9 @@ class FragmentDetails : Fragment() {
         }
 
         binding.assignedagentTextView.text = realEstate.assignedAgent
-        binding.roomsTextView.text = "Rooms : " + realEstate.room.toString()
-        binding.bedroomTextView.text = "Bedrooms : " + realEstate.bedroom.toString()
-        binding.bathroomTextView.text = "Bathrooms : " + realEstate.bathroom.toString()
+        binding.roomsTextView.text = "Rooms : \n" + "      " + realEstate.room.toString()
+        binding.bedroomTextView.text = "Bedrooms : \n" + "      " + realEstate.bedroom.toString()
+        binding.bathroomTextView.text = "Bathrooms : \n" + "      " + realEstate.bathroom.toString()
 
         val list = realEstate.nearbyPOI
         binding.nearbyPOITextView.text = list.joinToString(separator = ", ")
@@ -215,24 +242,14 @@ class FragmentDetails : Fragment() {
             tabLayout.touchables?.forEach { it.isEnabled = false }
         } else {
             viewPager.visibility = GONE
+            binding.noPicTextView.visibility = VISIBLE
+            binding.noPicTextView.text = "No picture has been provided for this property"
         }
 
         if (realEstate.isAvailable) {
             binding.availabilityTextView.text = "Available"
-            binding.availabilityTextView.setTextColor(
-                ContextCompat.getColor(
-                    requireContext(),
-                    R.color.colorPrimaryDark
-                )
-            )
         } else {
             binding.availabilityTextView.text = "Sold"
-            binding.availabilityTextView.setTextColor(
-                ContextCompat.getColor(
-                    requireContext(),
-                    R.color.colorAccent
-                )
-            )
         }
 
         val fullDate = realEstate.entryDate

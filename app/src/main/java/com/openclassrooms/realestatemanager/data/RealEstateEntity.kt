@@ -3,8 +3,7 @@ package com.openclassrooms.realestatemanager.data
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
-// TODO : remove table
-@Entity(tableName = "realEstateTable")
+@Entity(tableName = "realEstate")
 data class RealEstateEntity(
     val type: String,
     val surface: Int,
@@ -19,6 +18,8 @@ data class RealEstateEntity(
     val room: Int,
     val bedroom: Int,
     val bathroom: Int,
+    val lat: Double,
+    val lon: Double,
     @PrimaryKey(autoGenerate = false)
     val id: Long? = null
 )

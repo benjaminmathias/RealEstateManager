@@ -15,12 +15,6 @@ import javax.inject.Inject
 class DetailsViewModel @Inject constructor(private val realEstateRepository: RealEstateRepository) :
     ViewModel() {
 
-    /* lateinit var mSpeficicRealEstate: LiveData<RealEstate>
-
-     fun getSpecificRealEstateConverted(id: Long) {
-         mSpeficicRealEstate = realEstateRepository.retrieveAndConvertSpecificRealEstateEntity(id)
-     }*/
-
     private val _uiState = MutableStateFlow<DetailsUiState?>(null)
     val uiState: MutableStateFlow<DetailsUiState?> = _uiState
 

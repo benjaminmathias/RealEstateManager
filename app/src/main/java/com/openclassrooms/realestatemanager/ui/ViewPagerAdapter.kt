@@ -11,10 +11,10 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.viewpager.widget.PagerAdapter
 import com.bumptech.glide.Glide
 import com.openclassrooms.realestatemanager.R
-import com.openclassrooms.realestatemanager.data.PhotoItem
-import java.util.*
+import com.openclassrooms.realestatemanager.data.RealEstatePhoto
+import java.util.Objects
 
-class ViewPagerAdapter(val context: Context, val imageList: List<PhotoItem>) : PagerAdapter() {
+class ViewPagerAdapter(val context: Context, val imageList: List<RealEstatePhoto>) : PagerAdapter() {
     override fun getCount(): Int {
         return imageList.size
     }

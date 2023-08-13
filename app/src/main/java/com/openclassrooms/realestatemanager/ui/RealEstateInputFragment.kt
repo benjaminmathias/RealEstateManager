@@ -4,7 +4,9 @@ import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.os.Environment
 import android.text.InputFilter
 import android.util.Log
 import android.view.LayoutInflater
@@ -14,7 +16,7 @@ import android.view.ViewGroup
 import android.widget.*
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.view.children
+import androidx.core.content.FileProvider
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -24,26 +26,29 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.chip.Chip
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.openclassrooms.realestatemanager.R
-import com.openclassrooms.realestatemanager.data.PhotoItem
+import com.openclassrooms.realestatemanager.data.RealEstatePhoto
 import com.openclassrooms.realestatemanager.databinding.FragmentRealEstateEditBinding
 import com.openclassrooms.realestatemanager.viewmodel.NewRealEstateViewModel
 import com.openclassrooms.realestatemanager.viewmodel.RealEstateUiState
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
 
 @AndroidEntryPoint
-class FragmentAdd : Fragment(), PhotoAdapter.ItemClickListener {
+class RealEstateInputFragment : Fragment(), PhotoAdapter.ItemClickListener {
     private lateinit var binding: FragmentRealEstateEditBinding
     private lateinit var recyclerView: RecyclerView
 
-    lateinit var addRealEstateButton: Button
+    private lateinit var uri: Uri
+
+    private lateinit var addRealEstateButton: Button
     private lateinit var addPhotoButton: Button
 
-    var cal: Calendar = Calendar.getInstance()
+    private var cal: Calendar = Calendar.getInstance()
 
     private val viewModel: NewRealEstateViewModel by viewModels()
 
@@ -61,35 +66,26 @@ class FragmentAdd : Fragment(), PhotoAdapter.ItemClickListener {
 
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
-
-        setupAutocompletes()
+        observeState()
 
         activity?.title = "Create a new Real Estate"
-        binding.entrydateTextView.text = "../../...."
         addPhotoButton = binding.mediaAddButton
         addRealEstateButton = binding.submitButton
-        addRealEstateButton.text = "Add"
         setupEntryDate(binding.entrydateTextView)
 
         // PHOTO //
         // We setup our photo recyclerview here since registerForActivityResult needs to be called in onCreateView
         recyclerView = binding.inputRecyclerView
+
         recyclerView.layoutManager =
             LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
         val adapter = PhotoAdapter(viewModel.realEstateDataFlow.value.photos, this)
         recyclerView.adapter = adapter
 
-        // TODO : observe photos
-        // viewModel.realEstateDataFlow.col
-
-       /* if (viewModel.realEstateDataFlow.value.photos.isNotEmpty()) {
-            adapter.updateData(viewModel.realEstateDataFlow.value.photos)
-        }
-
-        observePhotos()*/
+        observePhotos(adapter)
 
         // Setup photoPicker : needs to be called here; if not app will crash - activityResult needs to be
-        // called in the actual fragment - NOT in a click listener
+        // called in the actual fragment - NOT in a click listener.
         val pickMedia =
             registerForActivityResult(ActivityResultContracts.PickMultipleVisualMedia(5)) { uris ->
                 if (uris.isNotEmpty()) {
@@ -99,58 +95,75 @@ class FragmentAdd : Fragment(), PhotoAdapter.ItemClickListener {
                     for (i in 0 until count) {
                         val imageUri = uris[i]
                         context?.contentResolver?.takePersistableUriPermission(imageUri, flag)
-                        val photo = PhotoItem(
+                        val photo = RealEstatePhoto(
                             imageUri.toString(),
                             ""
                         )
                         viewModel.realEstateDataFlow.value.photos.add(photo)
                         Log.d("PhotoItem created", "uri : " + photo.uri)
                     }
-                   adapter.updateData(viewModel.realEstateDataFlow.value.photos)
+                    adapter.updateData(viewModel.realEstateDataFlow.value.photos)
                 } else {
                     Log.d("PhotoPicker", "No media selected")
                 }
             }
 
+        // Setup TakePicture : needs also to be called here - same reason as above.
+        val takePicture =
+            registerForActivityResult(ActivityResultContracts.TakePicture()) { isSaved ->
+                if (isSaved) {
+                    val photo = RealEstatePhoto(
+                        uri.toString(),
+                        ""
+                    )
+                    viewModel.realEstateDataFlow.value.photos.add(photo)
+                }
+                adapter.updateData(viewModel.realEstateDataFlow.value.photos)
+            }
+
+        // Open BottomSheetDialog where the user can pick existing photos or a new ones
         addPhotoButton.setOnClickListener {
-            pickMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
-        }
+            val dialog = BottomSheetDialog(requireContext())
+            val view = layoutInflater.inflate(R.layout.image_selection_bottom_sheet, null)
 
-        // CHIP //
-        // Retrieve chip type single value with a listener then update our type stored in viewmodel
-        /* binding.typeChipGroup.setOnCheckedStateChangeListener { chipGroup, _ ->
-            viewModel.realEstateData.type = chipGroup.children
-                .filter { (it as Chip).isChecked }
-                .map { (it as Chip).text.toString() }
-                .first()
-        }*/
+            val cameraButton = view.findViewById<TextView>(R.id.camera_text_view)
+            val galleryButton = view.findViewById<TextView>(R.id.gallery_text_view)
 
-        // Retrieve multiple chip value if checked to update our nearByPoi list in viewmodel
-        binding.poiChipGroup.addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
-            viewModel.realEstateDataFlow.value.nearbyPOI = binding.poiChipGroup.children
-                .filter { (it as Chip).isChecked }
-                .map { (it as Chip).text.toString() }
-                .toList()
+            // Handle pictures taken from camera
+            cameraButton.setOnClickListener {
+                val photoFile = File.createTempFile(
+                    "IMG_",
+                    ".jpg",
+                    requireContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+                )
+
+                uri = FileProvider.getUriForFile(
+                    requireContext(),
+                    "${requireContext().packageName}.provider",
+                    photoFile
+                )
+
+                takePicture.launch(uri)
+                dialog.cancel()
+            }
+
+            // Handle pictures picked from gallery
+            galleryButton.setOnClickListener {
+                pickMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+                dialog.cancel()
+            }
+
+            dialog.setCancelable(true)
+            dialog.setContentView(view)
+            dialog.show()
         }
 
         binding.cancelButton.setOnClickListener {
             requireView().findNavController().navigate(R.id.fragmentList)
         }
-
-        observeState()
-
         return binding.root
     }
 
-    override fun onViewCreated(
-        view: View,
-        savedInstanceState: Bundle?
-    ) {
-        super.onViewCreated(view, savedInstanceState)
-        // setupAutocompletes()
-    }
-
-    // TODO : check for updated non-deprecated methods
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
@@ -204,19 +217,23 @@ class FragmentAdd : Fragment(), PhotoAdapter.ItemClickListener {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.uiState.collect { uiState ->
                     when (uiState) {
-                        is RealEstateUiState.RealEstateDataUi ->
+                        is RealEstateUiState.RealEstateDataUi -> {
+                            addRealEstateButton.text = "Add"
                             Toast.makeText(
                                 requireContext(),
                                 "Create a new property",
                                 Toast.LENGTH_SHORT
                             ).show()
+                        }
 
-                        is RealEstateUiState.Default ->
+                        is RealEstateUiState.Default -> {
+                            addRealEstateButton.text = "Edit"
                             Toast.makeText(
                                 requireContext(),
                                 "Edit property",
                                 Toast.LENGTH_SHORT
                             ).show()
+                        }
 
                         is RealEstateUiState.Success ->
                             notifyRealEstateIsCreated()
@@ -233,62 +250,24 @@ class FragmentAdd : Fragment(), PhotoAdapter.ItemClickListener {
         }
     }
 
-   /* private fun observePhotos() {
-
-        var photoList: MutableList<PhotoItem> = mutableListOf()
-
-        recyclerView.layoutManager =
-            LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
-        val adapter = PhotoAdapter(viewModel.realEstateDataFlow.value.photos, this)
-        recyclerView.adapter = adapter
-
+    private fun observePhotos(adapter: PhotoAdapter) {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.realEstateDataFlow.collect { data ->
                     when (data) {
-                        data -> photoList = viewModel.realEstateDataFlow.value.photos
+                        data -> {
+                            adapter.updateData(viewModel.realEstateDataFlow.value.photos)
+                        }
                     }
                 }
             }
         }
-        adapter.updateData(photoList)
-        adapter.notifyDataSetChanged()
-    }*/
+    }
 
     private fun notifyRealEstateIsCreated() {
-        Toast.makeText(requireContext(), "New property successfully created ! ", Toast.LENGTH_LONG)
+        Toast.makeText(requireContext(), "Success ! ", Toast.LENGTH_LONG)
             .show()
         requireView().findNavController().navigate(R.id.fragmentList)
-    }
-
-    private fun confirmDialog() {
-        val builder = AlertDialog.Builder(requireContext())
-        builder.setTitle("Confirmation")
-        builder.setMessage("Once this property is added, it can be edited but cannot be deleted, are you sure that you want to add this property ?")
-
-        builder.setPositiveButton("Confirm") { _, _ ->
-
-        }
-
-        builder.setNegativeButton("Cancel") { _, _ ->
-
-        }
-        builder.show()
-    }
-
-    private fun setupAutocompletes() {
-        // For Agent autocomplete
-        val agents = resources.getStringArray(R.array.agent_array)
-
-        val agentsAdapter =
-            ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, agents)
-        (binding.assignedagentSpinner as? AutoCompleteTextView)?.setAdapter(
-            agentsAdapter
-        )
-
-        binding.assignedagentSpinner.setOnClickListener {
-            binding.assignedagentSpinner.showDropDown()
-        }
     }
 
     private fun setupEntryDate(entryDateTextView: TextView) {

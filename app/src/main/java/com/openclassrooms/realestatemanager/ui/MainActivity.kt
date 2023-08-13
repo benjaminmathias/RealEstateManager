@@ -1,38 +1,64 @@
 package com.openclassrooms.realestatemanager.ui
 
+import android.Manifest
+import android.os.Build
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
+import android.view.View
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.ui.setupWithNavController
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.openclassrooms.realestatemanager.R
-import com.openclassrooms.realestatemanager.databinding.ActivityMain2Binding
+import com.openclassrooms.realestatemanager.databinding.ActivityMainBinding
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivityMain2Binding
+    private lateinit var binding: ActivityMainBinding
 
+    private lateinit var bottomNav: BottomNavigationView
+
+    @RequiresApi(Build.VERSION_CODES.N)
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
-        binding = ActivityMain2Binding.inflate(layoutInflater)
+        binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         val navHostFragment =
             supportFragmentManager.findFragmentById(R.id.navHostFragment) as NavHostFragment
+
         val navController = navHostFragment.navController
 
-       // navController.navigate(R.id.fragmentList)
-        // navController.navigate(R.id.fragmentList)
-       /* supportFragmentManager.beginTransaction().replace(R.id.navHostFragment, FragmentList())
-            .commit()*/
+        bottomNav = binding.bottomNavigation
 
+        bottomNav.setupWithNavController(navController)
 
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            if (destination.id == R.id.fragmentDetails ||
+                destination.id == R.id.fragmentInput
+            ) {
+                bottomNav.visibility = View.GONE
+                binding.realestateAddFab.visibility = View.GONE
+            } else {
+                bottomNav.visibility = View.VISIBLE
+                binding.realestateAddFab.visibility = View.VISIBLE
+            }
+        }
+
+        binding.realestateAddFab.setOnClickListener {
+            findNavController(R.id.navHostFragment).navigate(R.id.fragmentInput)
+        }
+
+        requestLocationPermission()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -42,18 +68,18 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
-        R.id.action_add -> {
-            findNavController(R.id.navHostFragment).navigate(R.id.fragmentAddTest)
+        R.id.action_filter -> {
+            Toast.makeText(this, "Click on Filter button", Toast.LENGTH_LONG).show()
             true
         }
 
-        R.id.action_edit -> {
-            Toast.makeText(this, "Click on Edit button", Toast.LENGTH_LONG).show()
+        R.id.action_mortgage -> {
+            Toast.makeText(this, "Click on Mortgage button", Toast.LENGTH_LONG).show()
             true
         }
 
-        R.id.action_search -> {
-            Toast.makeText(this, "Click on Search button", Toast.LENGTH_LONG).show()
+        R.id.action_settings -> {
+            Toast.makeText(this, "Click on Settings button", Toast.LENGTH_LONG).show()
             true
         }
 
@@ -62,5 +88,36 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.N)
+    val locationPermissionRequest = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        when {
+            permissions.getOrDefault(Manifest.permission.ACCESS_FINE_LOCATION, false) -> {
+                // Precise location access granted.
+                Toast.makeText(this, "Permission granted !", Toast.LENGTH_LONG).show()
+            }
+
+            permissions.getOrDefault(Manifest.permission.ACCESS_COARSE_LOCATION, false) -> {
+                // Only approximate location access granted.
+                Toast.makeText(this, "Permission granted !", Toast.LENGTH_LONG).show()
+            }
+
+            else -> {
+                // No location access granted.
+                Toast.makeText(this, "Permission denied !", Toast.LENGTH_LONG).show()
+            }
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.N)
+    fun requestLocationPermission() {
+        locationPermissionRequest.launch(
+            arrayOf(
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            )
+        )
+    }
 }
 

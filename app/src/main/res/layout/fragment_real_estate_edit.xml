@@ -5,6 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
+
         <variable
             name="photosAdapter"
             type="com.openclassrooms.realestatemanager.ui.PhotoAdapter" />
@@ -15,10 +16,15 @@
 
         <variable
             name="poi"
-            type="java.util.ArrayList&lt;RealEstateNearbyPoi&gt;" />
+            type="java.util.ArrayList&lt;RealEstatePoi&gt;" />
+
+        <variable
+            name="adapter"
+            type="com.openclassrooms.realestatemanager.ui.PhotoAdapter" />
 
         <import type="com.openclassrooms.realestatemanager.viewmodel.RealEstateType" />
-        <import type="com.openclassrooms.realestatemanager.viewmodel.RealEstateNearbyPoi" />
+
+        <import type="com.openclassrooms.realestatemanager.viewmodel.RealEstatePoi" />
     </data>
 
     <ScrollView
@@ -44,63 +50,62 @@
                 android:scrollbars="none"
                 app:layout_constraintTop_toTopOf="parent">
 
-
-                <!-- android:checkedButton="@{viewModel.getRealEstateTypeSelected()}" -->
                 <com.google.android.material.chip.ChipGroup
                     android:id="@+id/type_chip_group"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:checkedChips="@={viewModel.checkedTypeChipObservable}"
                     android:theme="@style/Theme.MaterialComponents.Light"
                     app:selectionRequired="true"
                     app:singleLine="true"
                     app:singleSelection="true">
 
                     <com.google.android.material.chip.Chip
+                        android:id="@+id/first_type_chip"
                         style="@style/Widget.MaterialComponents.Chip.Choice"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:checked="@{viewModel.realEstateDataFlow.type == RealEstateType.HOUSE.name()}"
-                        android:onClick="@{() -> viewModel.onRealEstateTypeSelected(RealEstateType.HOUSE)}"
+                        android:checkable="true"
                         android:text="House" />
 
                     <com.google.android.material.chip.Chip
+                        android:id="@+id/second_type_chip"
                         style="@style/Widget.MaterialComponents.Chip.Choice"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:checked="@{viewModel.realEstateDataFlow.type == RealEstateType.APARTMENT.name()}"
-                        android:onClick="@{() -> viewModel.onRealEstateTypeSelected(RealEstateType.APARTMENT)}"
+                        android:checkable="true"
                         android:text="Apartment" />
 
                     <com.google.android.material.chip.Chip
+                        android:id="@+id/third_type_chip"
                         style="@style/Widget.MaterialComponents.Chip.Choice"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:checked="@{viewModel.realEstateDataFlow.type == RealEstateType.CONDO.name()}"
-                        android:onClick="@{() -> viewModel.onRealEstateTypeSelected(RealEstateType.CONDO)}"
+                        android:checkable="true"
                         android:text="Condo" />
 
                     <com.google.android.material.chip.Chip
+                        android:id="@+id/fourth_type_chip"
                         style="@style/Widget.MaterialComponents.Chip.Choice"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:checked="@{viewModel.realEstateDataFlow.type == RealEstateType.LOFT.name()}"
-                        android:onClick="@{() -> viewModel.onRealEstateTypeSelected(RealEstateType.LOFT)}"
+                        android:checkable="true"
                         android:text="Loft" />
 
                     <com.google.android.material.chip.Chip
+                        android:id="@+id/fifth_type_chip"
                         style="@style/Widget.MaterialComponents.Chip.Choice"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:checked="@{viewModel.realEstateDataFlow.type == RealEstateType.MANSION.name()}"
-                        android:onClick="@{() -> viewModel.onRealEstateTypeSelected(RealEstateType.MANSION)}"
+                        android:checkable="true"
                         android:text="Mansion" />
 
                     <com.google.android.material.chip.Chip
+                        android:id="@+id/sixth_type_chip"
                         style="@style/Widget.MaterialComponents.Chip.Choice"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:checked="@{viewModel.realEstateDataFlow.type == RealEstateType.VILLA.name()}"
-                        android:onClick="@{() -> viewModel.onRealEstateTypeSelected(RealEstateType.VILLA)}"
+                        android:checkable="true"
                         android:text="Villa" />
 
                 </com.google.android.material.chip.ChipGroup>
@@ -192,28 +197,20 @@
 
             </com.google.android.material.textfield.TextInputLayout>
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/locationTextField"
+            <TextView
+                android:id="@+id/converted_address"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:hint="Address">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/location_edit_text"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@={viewModel.realEstateDataFlow.address}" />
-
-            </com.google.android.material.textfield.TextInputLayout>
+                android:text="@={viewModel.realEstateDataFlow.address}"
+                 />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
-                android:text="Select nearby point of interest : " />
+                android:text="Select nearby points of interest : " />
 
-            <HorizontalScrollView
+            <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:scrollbars="none"
@@ -223,66 +220,78 @@
                     android:id="@+id/poi_chip_group"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:checkedChips="@={viewModel.checkedPoiChipObservable}"
                     android:theme="@style/Theme.MaterialComponents.Light"
-                    app:singleLine="true">
+                    app:selectionRequired="true"
+                    app:singleLine="false">
 
                     <com.google.android.material.chip.Chip
+                        android:id="@+id/restaurant_poi_chip"
                         style="@style/Widget.MaterialComponents.Chip.Filter"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:checkable="true"
                         android:text="Restaurant" />
 
                     <com.google.android.material.chip.Chip
+                        android:id="@+id/shopping_poi_chip"
                         style="@style/Widget.MaterialComponents.Chip.Filter"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:checkable="true"
                         android:text="Shopping" />
 
                     <com.google.android.material.chip.Chip
+                        android:id="@+id/school_poi_chip"
                         style="@style/Widget.MaterialComponents.Chip.Filter"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:checkable="true"
                         android:text="School" />
 
                     <com.google.android.material.chip.Chip
+                        android:id="@+id/healthcare_poi_chip"
                         style="@style/Widget.MaterialComponents.Chip.Filter"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:checkable="true"
                         android:text="Healthcare" />
 
                     <com.google.android.material.chip.Chip
+                        android:id="@+id/park_poi_chip"
                         style="@style/Widget.MaterialComponents.Chip.Filter"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:checkable="true"
                         android:text="Park" />
 
                     <com.google.android.material.chip.Chip
+                        android:id="@+id/sports_poi_chip"
                         style="@style/Widget.MaterialComponents.Chip.Filter"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Something" />
+                        android:checkable="true"
+                        android:text="Sports" />
 
                     <com.google.android.material.chip.Chip
+                        android:id="@+id/market_poi_chip"
                         style="@style/Widget.MaterialComponents.Chip.Filter"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="else" />
+                        android:checkable="true"
+                        android:text="Market" />
 
                     <com.google.android.material.chip.Chip
+                        android:id="@+id/entertainment_poi_chip"
                         style="@style/Widget.MaterialComponents.Chip.Filter"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="goes" />
-
-                    <com.google.android.material.chip.Chip
-                        style="@style/Widget.MaterialComponents.Chip.Filter"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="here" />
+                        android:checkable="true"
+                        android:text="Entertainment" />
 
                 </com.google.android.material.chip.ChipGroup>
 
-            </HorizontalScrollView>
+            </FrameLayout>
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/descriptionTextField"
@@ -327,22 +336,79 @@
 
             </LinearLayout>
 
-            <com.google.android.material.textfield.TextInputLayout
+            <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
-                android:hint="Select assigned agent"
-                app:endIconDrawable="@drawable/baseline_arrow_drop_down_24"
-                app:endIconMode="custom">
+                android:text="Select assigned agent :" />
 
-                <com.google.android.material.textfield.MaterialAutoCompleteTextView
-                    android:id="@+id/assignedagent_spinner"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:inputType="none"
-                    android:text="@={viewModel.realEstateDataFlow.assignedAgent}" />
+            <HorizontalScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:scrollbars="none"
+                app:layout_constraintTop_toTopOf="parent">
 
-            </com.google.android.material.textfield.TextInputLayout>
+                <com.google.android.material.chip.ChipGroup
+                    android:id="@+id/agent_chip_group"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checkedChips="@={viewModel.checkedAgentChipObservable}"
+                    android:theme="@style/Theme.MaterialComponents.Light"
+                    app:selectionRequired="true"
+                    app:singleLine="true"
+                    app:singleSelection="true">
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/first_agent_chip"
+                        style="@style/Widget.MaterialComponents.Chip.Choice"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:checkable="true"
+                        android:text="Jack" />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/second_agent_chip"
+                        style="@style/Widget.MaterialComponents.Chip.Choice"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:checkable="true"
+                        android:text="Walter" />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/third_agent_chip"
+                        style="@style/Widget.MaterialComponents.Chip.Choice"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:checkable="true"
+                        android:text="Ted" />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/fourth_agent_chip"
+                        style="@style/Widget.MaterialComponents.Chip.Choice"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:checkable="true"
+                        android:text="Ellie" />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/fifth_agent_chip"
+                        style="@style/Widget.MaterialComponents.Chip.Choice"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:checkable="true"
+                        android:text="Robin" />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/sixth_agent_chip"
+                        style="@style/Widget.MaterialComponents.Chip.Choice"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:checkable="true"
+                        android:text="Kate" />
+
+                </com.google.android.material.chip.ChipGroup>
+
+            </HorizontalScrollView>
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -350,6 +416,13 @@
                 android:layout_gravity="center"
                 android:baselineAligned="false"
                 android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:layout_marginBottom="12dp"
+                    android:text="Add up to 5 pictures for this property (mandatory !)  : " />
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/input_recycler_view"

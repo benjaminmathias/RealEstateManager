@@ -45,6 +45,19 @@
 
         </LinearLayout>
 
+        <TextView
+            android:id="@+id/no_pic_text_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="12dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:visibility="gone"
+            tools:text="No picture has been provided" />
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -58,11 +71,11 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:drawablePadding="2dp"
-                android:text="Agent"
                 android:padding="16dp"
+                android:text="Agent"
                 android:textSize="16sp"
                 android:textStyle="bold"
-                app:drawableLeftCompat="@drawable/baseline_person_24"
+                app:drawableLeftCompat="@drawable/person_24px"
                 app:drawableTint="@color/colorPrimaryDark" />
 
             <TextView
@@ -83,51 +96,53 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:orientation="vertical">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="start"
-                android:layout_weight="1"
                 android:baselineAligned="false"
-                android:orientation="vertical"
+                android:orientation="horizontal"
                 android:padding="16dp">
 
                 <TextView
                     android:id="@+id/type_text_view"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
                     android:drawablePadding="2dp"
-                    android:text="Type"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    app:drawableLeftCompat="@drawable/baseline_bedroom_24"
-                    app:drawableTint="@color/colorPrimaryDark" />
+                    app:drawableLeftCompat="@drawable/home_24px"
+                    app:drawableTint="@color/colorPrimaryDark"
+                    tools:text="Type" />
 
 
                 <TextView
                     android:id="@+id/price_text_view"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
                     android:drawablePadding="2dp"
-                    android:text="Price"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    app:drawableLeftCompat="@drawable/baseline_bedroom_24"
-                    app:drawableTint="@color/colorPrimaryDark" />
+                    app:drawableLeftCompat="@drawable/sell_24px"
+                    app:drawableTint="@color/colorPrimaryDark"
+                    tools:text="Price" />
 
 
                 <TextView
                     android:id="@+id/surface_text_view"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
                     android:drawablePadding="2dp"
-                    android:text="Surface"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    app:drawableLeftCompat="@drawable/baseline_bedroom_24"
-                    app:drawableTint="@color/colorPrimaryDark" />
+                    app:drawableLeftCompat="@drawable/fullscreen_24px"
+                    app:drawableTint="@color/colorPrimaryDark"
+                    tools:text="Surface" />
 
             </LinearLayout>
 
@@ -135,44 +150,47 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"
-                android:layout_weight="1"
                 android:baselineAligned="false"
-                android:orientation="vertical"
+                android:orientation="horizontal"
                 android:padding="16dp">
 
                 <TextView
                     android:id="@+id/rooms_text_view"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Rooms"
+                    android:layout_weight="1"
+                    android:drawablePadding="2dp"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    app:drawableLeftCompat="@drawable/baseline_house_24"
-                    app:drawableTint="@color/colorPrimaryDark" />
+                    app:drawableLeftCompat="@drawable/nest_multi_room_24px"
+                    app:drawableTint="@color/colorPrimaryDark"
+                    tools:text="Pièce(s) : \n        1" />
 
 
                 <TextView
                     android:id="@+id/bedroom_text_view"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
                     android:drawablePadding="2dp"
-                    android:text="Bedrooms"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    app:drawableLeftCompat="@drawable/baseline_bedroom_24"
-                    app:drawableTint="@color/colorPrimaryDark" />
+                    app:drawableLeftCompat="@drawable/bedroom_24px"
+                    app:drawableTint="@color/colorPrimaryDark"
+                    tools:text="Chambre(s) : \n           1" />
 
 
                 <TextView
                     android:id="@+id/bathroom_text_view"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
                     android:drawablePadding="2dp"
-                    android:text="Bathrooms"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    app:drawableLeftCompat="@drawable/baseline_bathroom_24"
-                    app:drawableTint="@color/colorPrimaryDark" />
+                    app:drawableLeftCompat="@drawable/shower_24px"
+                    app:drawableTint="@color/colorPrimaryDark"
+                    tools:text="Salle(s) de bain : \n        1" />
 
             </LinearLayout>
 
@@ -182,15 +200,21 @@
             android:id="@+id/location_text_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="start"
+            android:layout_gravity="center"
             android:layout_weight="1"
-            android:padding="16dp"
             android:gravity="center"
-            android:text="Address"
+            android:padding="16dp"
             android:textSize="16sp"
             android:textStyle="bold"
-            app:drawableLeftCompat="@drawable/baseline_location_on_24"
-            app:drawableTint="@color/colorPrimaryDark" />
+            app:drawableLeftCompat="@drawable/home_pin_24px"
+            app:drawableTint="@color/colorPrimaryDark"
+            tools:text="146 Rue de la grande route, 75000 Paris" />
+
+
+        <com.google.android.gms.maps.MapView
+            android:id="@+id/details_map"
+            android:layout_width="match_parent"
+            android:layout_height="150dp"/>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -207,9 +231,11 @@
                 android:layout_gravity="center"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:text="Description"
                 android:textSize="16sp"
-                android:textStyle="italic" />
+                android:textStyle="italic"
+                tools:text="Lorem ipsum dolor sit amet,
+                 consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore
+                  et dolore magna aliqua." />
 
         </LinearLayout>
 
@@ -227,8 +253,7 @@
             android:layout_weight="1"
             android:gravity="center"
             android:padding="16dp"
-            android:text="POI"
-            android:textStyle="italic" />
+            tools:text="Restaurant, Shopping, Entertainment" />
 
 
         <LinearLayout
@@ -266,11 +291,13 @@
 
         <Button
             android:id="@+id/sold_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:layout_marginStart="64dp"
+            android:layout_marginEnd="64dp"
             android:layout_marginBottom="12dp"
             android:background="@drawable/rounded_corner"
-            android:layout_gravity="center"
             android:padding="16dp"
             android:text="Mark as sold"
             android:textColor="#FFFFFF"
@@ -278,11 +305,13 @@
 
         <Button
             android:id="@+id/edit_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:layout_marginStart="64dp"
+            android:layout_marginEnd="64dp"
             android:layout_marginBottom="12dp"
             android:background="@drawable/rounded_corner"
-            android:layout_gravity="center"
             android:padding="16dp"
             android:text="Edit property"
             android:textColor="#FFFFFF"

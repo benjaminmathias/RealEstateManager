@@ -15,13 +15,13 @@ interface RealEstateDao {
     @Update
     suspend fun update(realEstateEntity: RealEstateEntity)
 
-    @Query("UPDATE realEstateTable SET saleDate = :saleDate, isAvailable = :isAvailable WHERE id LIKE :id")
+    @Query("UPDATE realEstate SET saleDate = :saleDate, isAvailable = :isAvailable WHERE id LIKE :id")
     suspend fun updateRealEstate(saleDate: String, isAvailable: Boolean, id: Long)
 
-    @Query("SELECT * FROM realEstateTable")
+    @Query("SELECT * FROM realEstate")
     fun getAll(): Flow<List<RealEstateEntity>>
 
-    @Query("SELECT * FROM realEstateTable WHERE id = :id")
+    @Query("SELECT * FROM realEstate WHERE id = :id")
     fun getById(id: Long): Flow<RealEstateEntity>
 
 }

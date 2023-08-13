@@ -1,5 +1,6 @@
 package com.openclassrooms.realestatemanager.ui
 
+import android.location.Geocoder
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -19,22 +20,26 @@ import com.openclassrooms.realestatemanager.databinding.FragmentListBinding
 import com.openclassrooms.realestatemanager.viewmodel.MainViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
-
+import java.util.Locale
 
 @AndroidEntryPoint
-class FragmentList : Fragment() {
+class RealEstateListFragment : Fragment() {
 
     private lateinit var realestateRecyclerView: RecyclerView
     private lateinit var binding: FragmentListBinding
 
     private val viewModel: MainViewModel by viewModels()
 
+    private lateinit var geocoder: Geocoder
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentListBinding.inflate(layoutInflater, container, false)
 
-        activity?.title = "RealEstateManager"
+        activity?.title = "Real Estate Manager"
 
         setupRecyclerView()
+
+        geocoder = Geocoder(requireContext(), Locale.getDefault())
 
         return binding.root
     }
@@ -44,7 +49,7 @@ class FragmentList : Fragment() {
         realestateRecyclerView.layoutManager = LinearLayoutManager(context)
         realestateRecyclerView.addItemDecoration(DividerItemDecoration(realestateRecyclerView.context, DividerItemDecoration.HORIZONTAL))
 
-        val adapter = RealEstateAdapter(this@FragmentList, emptyList())
+        val adapter = RealEstateAdapter(this@RealEstateListFragment, emptyList())
         realestateRecyclerView.adapter = adapter
 
         lifecycleScope.launch {
@@ -52,9 +57,9 @@ class FragmentList : Fragment() {
                 viewModel.uiState.collect { uiState ->
                     when (uiState) {
                         is MainViewModel.MainUiState.Success -> adapter.updateData(uiState.realEstateEntity)
-                        is MainViewModel.MainUiState.Error -> RealEstateAdapter(this@FragmentList, emptyList())
-                    }
 
+                        is MainViewModel.MainUiState.Error -> RealEstateAdapter(this@RealEstateListFragment, emptyList())
+                    }
                 }
             }
         }

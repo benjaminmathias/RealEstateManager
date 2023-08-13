@@ -10,14 +10,17 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.openclassrooms.realestatemanager.R
-import com.openclassrooms.realestatemanager.data.PhotoItem
+import com.openclassrooms.realestatemanager.data.RealEstatePhoto
+
 
 class PhotoAdapter(
-    private var photoList: MutableList<PhotoItem>, private val itemClickListener: ItemClickListener
+    private var photoList: MutableList<RealEstatePhoto>, private val itemClickListener: ItemClickListener
 ) : RecyclerView.Adapter<PhotoAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.photo_item, parent, false)
+
+       // val photoBinding : PhotoItemBinding = DataBindingUtil.inflate(LayoutInflater.from(parent.context), R.layout.photo_item, parent, false)
         return ViewHolder(view)
     }
 
@@ -39,14 +42,15 @@ class PhotoAdapter(
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    fun updateData(photoItemListNew: MutableList<PhotoItem>) {
-        this.photoList = photoItemListNew
+    fun updateData(realEstatePhotoListNew: MutableList<RealEstatePhoto>) {
+        this.photoList = realEstatePhotoListNew
         notifyDataSetChanged()
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
 
-        val currentItem = photoList[position]
+         val currentItem = photoList[position]
+        //holder.bind(photoList[position])
 
         if (currentItem.photoDescription.isNotEmpty()) {
             holder.textview.text = currentItem.photoDescription
@@ -73,6 +77,12 @@ class PhotoAdapter(
     }
 
     override fun getItemCount() = photoList.size
+
+  /*  class ViewHolder(private val binding: PhotoItemBinding) : RecyclerView.ViewHolder(binding.root) {
+        fun bind(photo: RealEstatePhoto) {
+            binding.setVariable(binding.root.id ,photo)
+        }
+    }*/
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val imageView: ImageView = itemView.findViewById(R.id.photo_item_image_view)

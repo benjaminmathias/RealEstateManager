@@ -1,24 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
-
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:id="@+id/action_add"
+        android:id="@+id/action_filter"
         android:icon="@drawable/baseline_add_24"
-        app:showAsAction="always"
-        android:title="ADD" />
+        android:title="Filter" />
 
     <item
-        android:id="@+id/action_edit"
-        android:icon="@drawable/baseline_edit_24"
-        app:showAsAction="always"
-        android:title="EDIT" />
+        android:id="@+id/action_mortgage"
+        android:icon="@drawable/baseline_house_24"
+        android:title="Sim mortgage" />
 
-
-    <item android:id="@+id/action_search"
+    <item android:id="@+id/action_settings"
         android:icon="@drawable/baseline_search_24"
-        app:showAsAction="ifRoom"
-        android:title="SEARCH" />
+        android:title="Settings" />
 
 </menu>

@@ -17,4 +17,10 @@ abstract class AbstractModule {
     abstract fun provideRealEstateRepository(
         defaultRealEstateRepository: DefaultRealEstateRepository
     ) : RealEstateRepository
+
+    @Singleton
+    @Binds
+    abstract fun provideLocationService(
+        defaultLocationService: DefaultLocationService
+    ) : LocationService
 }

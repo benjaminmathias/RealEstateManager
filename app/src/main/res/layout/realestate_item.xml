@@ -21,6 +21,16 @@
             android:layout_width="match_parent"
             android:layout_height="194dp" />
 
+        <TextView
+            android:id="@+id/no_picture_text_view"
+            android:layout_gravity="center"
+            android:visibility="gone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:textSize="16sp"
+            tools:text="$1,000,000" />
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -30,7 +40,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
+                android:layout_weight="0.5"
                 android:orientation="vertical"
                 android:padding="8dp">
 
@@ -48,7 +58,8 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:textSize="16sp"
-                    tools:text="Location" />
+                    tools:text="Location"
+                    app:drawableStartCompat="@drawable/baseline_location_on_24" />
 
                 <TextView
                     android:id="@+id/price"
@@ -63,12 +74,13 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:padding="8dp">
+                android:padding="12dp">
 
                 <TextView
                     android:id="@+id/availability"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:padding="6dp"
                     android:gravity="end"
                     android:textAppearance="?attr/textAppearanceLabelLarge"
                     android:textSize="16sp"

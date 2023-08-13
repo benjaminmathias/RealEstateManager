@@ -7,7 +7,6 @@ import com.google.gson.reflect.TypeToken
 class PoiTypeConverter {
 
     // This class is used to convert our ArrayList of String containing nearbyPOI
-
     inline fun <reified T> Gson.fromJson(json: String) =
         fromJson<T>(json, object : TypeToken<T>() {}.type)
 

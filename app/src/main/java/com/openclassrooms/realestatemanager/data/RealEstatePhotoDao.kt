@@ -6,18 +6,17 @@ import androidx.room.Query
 import androidx.room.Update
 
 @Dao
-interface PhotoItemDao {
+interface RealEstatePhotoDao {
 
-    // TODO : rename to RealEstatePhoto
     @Insert
     suspend fun insert(realEstatePhotoEntity: RealEstatePhotoEntity)
 
     @Update
     suspend fun update(realEstatePhotoEntity: RealEstatePhotoEntity)
 
-    @Query("DELETE FROM photoItemTable WHERE realEstateId = :realEstateId")
+    @Query("DELETE FROM realEstatePhoto WHERE realEstateId = :realEstateId")
     suspend fun deletePhotosByRealEstateId(realEstateId: Long)
 
-    @Query("SELECT * FROM photoItemTable WHERE realEstateId = :id")
+    @Query("SELECT * FROM realEstatePhoto WHERE realEstateId = :id")
     suspend fun getById(id: Long): List<RealEstatePhotoEntity>
 }

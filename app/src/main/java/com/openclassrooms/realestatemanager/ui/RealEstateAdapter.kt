@@ -11,7 +11,7 @@ import com.bumptech.glide.Glide
 import com.openclassrooms.realestatemanager.R
 import com.openclassrooms.realestatemanager.data.RealEstate
 
-class RealEstateAdapter(private val fragment: FragmentList, private var realEstateList: List<RealEstate>) : RecyclerView.Adapter<RealEstateAdapter.ViewHolder>()  {
+class RealEstateAdapter(private val fragment: RealEstateListFragment, private var realEstateList: List<RealEstate>) : RecyclerView.Adapter<RealEstateAdapter.ViewHolder>()  {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.realestate_item, parent, false)
@@ -33,12 +33,17 @@ class RealEstateAdapter(private val fragment: FragmentList, private var realEsta
 
         if (currentItem.isAvailable) {
             holder.availabilityText.text = "Available"
+            holder.availabilityText.setCompoundDrawablesWithIntrinsicBounds(0,0,R.drawable.baseline_check_24,0)
         } else {
             holder.availabilityText.text = "Sold"
+            holder.availabilityText.setCompoundDrawablesWithIntrinsicBounds(0,0,R.drawable.baseline_not_available_24,0)
         }
 
         if(currentItem.photos.isNullOrEmpty()) {
             holder.imageView.setImageResource(R.drawable.baseline_house_24)
+            holder.imageView.visibility = View.GONE
+            holder.nopicText.visibility = View.VISIBLE
+            holder.nopicText.text = "No picture provided"
         } else {
             Glide.with(holder.imageView)
                 .load(currentItem.photos[0].uri)
@@ -63,6 +68,7 @@ class RealEstateAdapter(private val fragment: FragmentList, private var realEsta
         val locationText : TextView = itemView.findViewById(R.id.location)
         val imageView : ImageView = itemView.findViewById(R.id.image)
         val availabilityText : TextView = itemView.findViewById(R.id.availability)
+        val nopicText : TextView = itemView.findViewById(R.id.no_picture_text_view)
 
     }
 }
