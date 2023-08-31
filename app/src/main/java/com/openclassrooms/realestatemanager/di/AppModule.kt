@@ -1,10 +1,10 @@
-package com.openclassrooms.realestatemanager.utils
+package com.openclassrooms.realestatemanager.di
 
 import android.content.Context
 import androidx.room.Room
-import com.openclassrooms.realestatemanager.data.RealEstateDao
-import com.openclassrooms.realestatemanager.data.RealEstateDatabase
-import com.openclassrooms.realestatemanager.data.RealEstatePhotoDao
+import com.openclassrooms.realestatemanager.model.data.RealEstateDao
+import com.openclassrooms.realestatemanager.model.data.RealEstateDatabase
+import com.openclassrooms.realestatemanager.model.data.RealEstatePhotoDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

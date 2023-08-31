@@ -10,7 +10,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.openclassrooms.realestatemanager.R
-import com.openclassrooms.realestatemanager.data.RealEstatePhoto
+import com.openclassrooms.realestatemanager.model.data.RealEstatePhoto
 
 
 class PhotoAdapter(

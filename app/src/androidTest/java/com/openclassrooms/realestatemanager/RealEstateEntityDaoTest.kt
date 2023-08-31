@@ -1,77 +1,85 @@
 package com.openclassrooms.realestatemanager
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import androidx.room.Room
-import androidx.test.core.app.ApplicationProvider
-import com.openclassrooms.realestatemanager.data.RealEstateDao
-import com.openclassrooms.realestatemanager.data.RealEstateDatabase
-import kotlinx.coroutines.Dispatchers
+import androidx.test.filters.SmallTest
+import com.google.common.truth.Truth.assertThat
+import com.openclassrooms.realestatemanager.model.data.RealEstateDao
+import com.openclassrooms.realestatemanager.model.data.RealEstateDatabase
+import com.openclassrooms.realestatemanager.model.data.RealEstateEntity
+import com.openclassrooms.realestatemanager.model.data.RealEstatePhotoDao
+import com.openclassrooms.realestatemanager.model.data.RealEstatePhotoEntity
+import dagger.hilt.android.testing.HiltAndroidRule
+import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.StandardTestDispatcher
-import kotlinx.coroutines.test.resetMain
-import kotlinx.coroutines.test.setMain
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.test.runBlockingTest
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import java.util.concurrent.Executors
+import javax.inject.Inject
+import javax.inject.Named
 
+@HiltAndroidTest
+@ExperimentalCoroutinesApi
+@SmallTest
 class RealEstateEntityDaoTest {
 
-    private lateinit var database: RealEstateDatabase
-    private lateinit var dao: RealEstateDao
-
-    private val testDispatcher = StandardTestDispatcher()
-
-   // private val estate1 = RealEstateEntity("Maison 1","Maison",100,100000,10,"Belle maison","L'adresse")
-   // private val estate2 = RealEstateEntity("Maison 2","Maison",100,100000,10,"Belle maison","L'adresse")
-  //  private val estate3 = RealEstateEntity("Maison 3","Maison",100,100000,10,"Belle maison","L'adresse")
+    @get:Rule
+    var hiltRule = HiltAndroidRule(this)
 
     @get:Rule
     var instantExecutorRule = InstantTaskExecutorRule()
 
-    @OptIn(ExperimentalCoroutinesApi::class)
+    @Inject
+    @Named("test_db")
+    lateinit var database: RealEstateDatabase
+    private lateinit var realEstateDao: RealEstateDao
+    private lateinit var realEstatePhotoDao: RealEstatePhotoDao
+
     @Before
     fun setup() {
-
-        Dispatchers.setMain(testDispatcher)
-        this.database = Room.inMemoryDatabaseBuilder(
-            ApplicationProvider.getApplicationContext(),
-            RealEstateDatabase::class.java
-        )
-            .allowMainThreadQueries()
-            .setTransactionExecutor(Executors.newSingleThreadExecutor())
-            .build()
-
-        dao = database.realEstateDao()
+        hiltRule.inject()
+        realEstateDao = database.realEstateDao()
+        realEstatePhotoDao = database.photoItemDao()
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     @After
-    fun closeDatabase() {
+    fun tearDown() {
         database.close()
-        Dispatchers.resetMain()
-
     }
-
- /*  @Test
-    fun testInsertNewEstate() = runBlocking {
-        dao.insert(estate1)
-        val estate = dao.getAllRealEstateFlow().collect(it)
-
-        assertEquals(estate.name, estate1.name)
-    }*/
 
     @Test
-    fun testInsertAndGetSpecificNewEstate() = runBlocking {
-      //  dao.insert(estate1)
-      //  dao.insert(estate2)
-      //  dao.insert(estate3)
+    fun insertRealEstate() = runBlockingTest {
 
-      //  val expectedEstate = dao.getSpecificRealEstate(2)
+        val realEstateEntity = RealEstateEntity(
+            type = "HOUSE",
+            surface = 250,
+            price = 250,
+            description = "House",
+            address = "here",
+            isAvailable = true,
+            nearbyPOI = arrayListOf("RESTAURANT","PARK"),
+            entryDate = "17/07/2023",
+            saleDate = null,
+            assignedAgent = "JACK",
+            room = 1,
+            bedroom = 1,
+            bathroom = 1,
+            lat = 0.0,
+            lon = 0.0
+        )
 
-       // assertEquals(estate2.name, expectedEstate.)
+        val insertedId: Long = realEstateDao.insert(realEstateEntity)
 
+        val photoToInsert = RealEstatePhotoEntity(
+            "content://media/picker/0/com.android.providers.media.photopicker/media/1000000040",
+            "test",
+            insertedId
+        )
+
+        realEstatePhotoDao.insert(photoToInsert)
+        val getRealEstate = realEstateDao.getAll().first()
+        assertThat(getRealEstate).contains(realEstateEntity)
     }
 }

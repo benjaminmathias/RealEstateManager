@@ -30,9 +30,9 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.material.tabs.TabLayout
 import com.openclassrooms.realestatemanager.R
-import com.openclassrooms.realestatemanager.data.RealEstate
-import com.openclassrooms.realestatemanager.data.RealEstatePhoto
 import com.openclassrooms.realestatemanager.databinding.FragmentDetailsBinding
+import com.openclassrooms.realestatemanager.model.data.RealEstate
+import com.openclassrooms.realestatemanager.model.data.RealEstatePhoto
 import com.openclassrooms.realestatemanager.viewmodel.DetailsViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -102,10 +102,12 @@ class RealEstateDetailsFragment : Fragment(), OnMapReadyCallback {
         val realEstateLocation = LatLng(lat, long)
         val marker = MarkerOptions().position(realEstateLocation)
        // mMap.setMyLocationEnabled(true)
-        mMap.addMarker(marker)
-        val cameraPosition = CameraPosition.Builder()
-            .target(LatLng(lat, long)).zoom(16f).build()
-        mMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition))
+        if (this::mMap.isInitialized) {
+            mMap.addMarker(marker)
+            val cameraPosition = CameraPosition.Builder()
+                .target(LatLng(lat, long)).zoom(16f).build()
+            mMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition))
+        }
     }
 
     private fun updateUI() {
@@ -209,7 +211,12 @@ class RealEstateDetailsFragment : Fragment(), OnMapReadyCallback {
         binding.typeTextView.text = realEstate.type
         binding.surfaceTextView.text = realEstate.surface.toString() + " m²"
         binding.priceTextView.text = "$" + realEstate.price.toString()
-        binding.descriptionTextView.text = realEstate.description
+
+        if (realEstate.description.isEmpty()) {
+            binding.descriptionTextView.text = "No description provided"
+        } else {
+            binding.descriptionTextView.text = realEstate.description
+        }
         binding.locationTextView.text = realEstate.address
         binding.entrydateTextView.text = "Date listed : " + realEstate.entryDate
 

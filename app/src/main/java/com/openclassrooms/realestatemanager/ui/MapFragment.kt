@@ -19,12 +19,11 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.openclassrooms.realestatemanager.R
-import com.openclassrooms.realestatemanager.data.RealEstate
 import com.openclassrooms.realestatemanager.databinding.FragmentMapBinding
+import com.openclassrooms.realestatemanager.model.data.RealEstate
 import com.openclassrooms.realestatemanager.viewmodel.MainViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
-import java.util.Objects
 
 @AndroidEntryPoint
 class MapFragment : Fragment(), OnMapReadyCallback {
@@ -58,8 +57,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         mMap = googleMap
         mMap.isMyLocationEnabled = true
 
-        // Handle click on marker by retrieving marker's tag
-        mMap.setOnMarkerClickListener { marker: Marker ->
+        mMap.setOnMarkerClickListener { marker ->
             Log.d("MapFragment", "marker position" + marker.position)
             val placeId = marker.tag as Long
             val bundle = Bundle().apply {
@@ -76,7 +74,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
                         is MainViewModel.MainUiState.Success -> {
                             setupMap(it.realEstateEntity)
                         }
-                        else -> TODO()
+                        else -> TODO("empty view")
                     }
                 }
             }
@@ -87,12 +85,13 @@ class MapFragment : Fragment(), OnMapReadyCallback {
     private fun setupMap(realEstateList : List<RealEstate>) {
         for (realEstate in realEstateList){
             val location = LatLng(realEstate.lat, realEstate.lon)
-            mapMarker = mMap.addMarker(MarkerOptions().position(location))
-
-            Objects.requireNonNull(mapMarker)?.tag = realEstate.id
+            mapMarker = mMap.addMarker(
+                MarkerOptions()
+                    .position(location)
+            )
+            mapMarker?.tag = realEstate.id
 
         }
         // TODO : inject userlocation interface to retrieve lat lng to animate camera
-
     }
 }

@@ -5,9 +5,9 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.openclassrooms.realestatemanager.R
-import com.openclassrooms.realestatemanager.data.RealEstate
-import com.openclassrooms.realestatemanager.data.RealEstatePhoto
-import com.openclassrooms.realestatemanager.data.RealEstateRepository
+import com.openclassrooms.realestatemanager.model.data.RealEstate
+import com.openclassrooms.realestatemanager.model.data.RealEstatePhoto
+import com.openclassrooms.realestatemanager.model.repo.RealEstateRepository
 import com.openclassrooms.realestatemanager.utils.LocationService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,16 +19,13 @@ import java.util.UUID
 import javax.inject.Inject
 
 @HiltViewModel
-class NewRealEstateViewModel @Inject constructor(
+class NewEditRealEstateViewModel @Inject constructor(
     private val realEstateRepository: RealEstateRepository,
     private val locationService: LocationService,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
     private val realEstateId = savedStateHandle.get<Long>("id")
-
-    // private val _retrievedLocation: MutableSharedFlow<UserLocation> = MutableSharedFlow(replay = 1)
-    //val retrievedLocationFlow: SharedFlow<UserLocation> = _retrievedLocation
 
     private val _realEstateData: MutableStateFlow<RealEstateData> =
         MutableStateFlow(RealEstateData())
@@ -48,6 +45,7 @@ class NewRealEstateViewModel @Inject constructor(
                 _uiState.value = RealEstateUiState.Default(true)
                 _uiState.value = RealEstateUiState.RealEstateDataUi(_realEstateData.value)
                 Log.d("VM", "Default RealEstateData")
+                getCurrentLocation()
             } else {
                 _uiState.value = RealEstateUiState.Default(false)
                 retrieveStoredRealEstate(realEstateId)
@@ -55,21 +53,22 @@ class NewRealEstateViewModel @Inject constructor(
             }
         }
 
+    }
+
+    // GET ADDRESS
+    private fun getCurrentLocation(){
         viewModelScope.launch {
             locationService.userLocation.collect {
                 Log.d("Initial flow in VM", it.address)
-                // _retrievedLocation.emit(it)
                 _realEstateData.value = _realEstateData.value.copy(
                     address = it.address,
                     lat = it.latitude,
                     lon = it.longitude
                 )
-                //   Log.d("Flow value 0 in VM", _retrievedLocation.replayCache[0].address)
             }
         }
+        Log.d("NewVM", _realEstateData.value.address)
     }
-
-    // GET ADDRESS
 
     // TYPE //
     // Retrieve currently selected real estate type
@@ -267,9 +266,9 @@ class NewRealEstateViewModel @Inject constructor(
 
     private fun checkIfFieldsAreValid(): Boolean {
         if (getSelectedRealEstateType().toString().isEmpty() ||
-            _realEstateData.value.price.isEmpty() ||
+            _realEstateData.value.price.isEmpty() || currencyToInt(_realEstateData.value.price) <= 10000||
             _realEstateData.value.surface.isEmpty() ||
-            _realEstateData.value.description.isEmpty() ||
+           // _realEstateData.value.description.isEmpty() ||
             _realEstateData.value.room.isEmpty() ||
             _realEstateData.value.bedroom.isEmpty() ||
             _realEstateData.value.bathroom.isEmpty() ||
@@ -283,12 +282,20 @@ class NewRealEstateViewModel @Inject constructor(
         return true
     }
 
+    private fun currencyToInt(price: String) : Int{
+        return price
+            .replace("$", "")
+            .replace(".", "")
+            .replace(",", "")
+            .toInt()
+    }
+
     // Get the current value of all fields
     private fun getRealEstate(realEstateData: RealEstateData): RealEstate {
         return RealEstate(
             type = getSelectedRealEstateType()[0],
             surface = realEstateData.surface.toInt(),
-            price = realEstateData.price.toInt(),
+            price = currencyToInt(realEstateData.price),
             description = realEstateData.description,
             address = realEstateData.address,
             isAvailable = realEstateData.isAvailable,

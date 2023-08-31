@@ -9,9 +9,12 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.openclassrooms.realestatemanager.R
-import com.openclassrooms.realestatemanager.data.RealEstate
+import com.openclassrooms.realestatemanager.model.data.RealEstate
 
-class RealEstateAdapter(private val fragment: RealEstateListFragment, private var realEstateList: List<RealEstate>) : RecyclerView.Adapter<RealEstateAdapter.ViewHolder>()  {
+class RealEstateAdapter(
+    private val fragment: RealEstateListFragment,
+    private var realEstateList: MutableList<RealEstate>
+) : RecyclerView.Adapter<RealEstateAdapter.ViewHolder>()  {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.realestate_item, parent, false)
@@ -19,10 +22,12 @@ class RealEstateAdapter(private val fragment: RealEstateListFragment, private va
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    fun updateData(realEstateList: List<RealEstate>){
-        this.realEstateList = realEstateList
+    fun updateData(realEstateNewList: List<RealEstate>){
+        this.realEstateList.clear()
+        this.realEstateList.addAll(realEstateNewList)
         notifyDataSetChanged()
     }
+
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
 
         val currentItem = realEstateList[position]

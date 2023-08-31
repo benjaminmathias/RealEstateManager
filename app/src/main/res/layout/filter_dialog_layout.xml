@@ -1,0 +1,464 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="10dp">
+
+    <TextView
+        android:id="@+id/available_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="Available :"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/room_amount" />
+
+    <TextView
+        android:id="@+id/surface_range_separator"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="-"
+        app:layout_constraintBottom_toBottomOf="@+id/surface_max_range"
+        app:layout_constraintEnd_toStartOf="@+id/surface_max_range"
+        app:layout_constraintStart_toEndOf="@+id/surface_min_range"
+        app:layout_constraintTop_toTopOf="@+id/surface_max_range" />
+
+    <TextView
+        android:id="@+id/filter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Filters"
+        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/type"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="Type :"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/filter" />
+
+    <HorizontalScrollView
+        android:id="@+id/type_selection_scrollview"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:scrollbars="none"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/type">
+
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/type_chip_group"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:theme="@style/Theme.MaterialComponents.Light"
+            app:layout_constraintStart_toStartOf="@id/type"
+            app:layout_constraintTop_toBottomOf="@id/type"
+            app:selectionRequired="false"
+            app:singleLine="true"
+            app:singleSelection="true">
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/first_type_chip"
+                style="@style/Widget.MaterialComponents.Chip.Choice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checkable="true"
+                android:text="House" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/second_type_chip"
+                style="@style/Widget.MaterialComponents.Chip.Choice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checkable="true"
+                android:text="Apartment" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/third_type_chip"
+                style="@style/Widget.MaterialComponents.Chip.Choice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checkable="true"
+                android:text="Condo" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/fourth_type_chip"
+                style="@style/Widget.MaterialComponents.Chip.Choice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checkable="true"
+                android:text="Loft" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/fifth_type_chip"
+                style="@style/Widget.MaterialComponents.Chip.Choice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checkable="true"
+                android:text="Mansion" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/sixth_type_chip"
+                style="@style/Widget.MaterialComponents.Chip.Choice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checkable="true"
+                android:text="Villa" />
+
+        </com.google.android.material.chip.ChipGroup>
+
+    </HorizontalScrollView>
+
+    <TextView
+        android:id="@+id/surface"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="Surface in m² :"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/type_selection_scrollview" />
+
+    <EditText
+        android:id="@+id/surface_min_range"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:hint="min"
+        android:minHeight="48dp"
+        android:maxLength="5"
+        android:inputType="number"
+        app:layout_constraintBottom_toBottomOf="@+id/surface"
+        app:layout_constraintStart_toEndOf="@+id/surface"
+        app:layout_constraintTop_toTopOf="@+id/surface"
+        tools:text="10000" />
+
+    <EditText
+        android:id="@+id/surface_max_range"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:hint="max"
+        android:minHeight="48dp"
+        android:maxLength="5"
+        android:inputType="number"
+        app:layout_constraintStart_toEndOf="@id/surface_min_range"
+        app:layout_constraintTop_toTopOf="@+id/surface_min_range"
+        tools:text="10000" />
+
+    <TextView
+        android:id="@+id/price"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="Price in $ :"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/surface" />
+
+    <EditText
+        android:id="@+id/price_min_range"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:hint="min"
+        android:minHeight="48dp"
+        android:inputType="number"
+        app:layout_constraintBottom_toBottomOf="@+id/price"
+        app:layout_constraintStart_toEndOf="@+id/price"
+        app:layout_constraintTop_toTopOf="@+id/price"
+        tools:text="1,000,000$" />
+
+    <EditText
+        android:id="@+id/price_max_range"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:hint="max"
+        android:minHeight="48dp"
+        android:inputType="number"
+        app:layout_constraintStart_toEndOf="@+id/price_min_range"
+        app:layout_constraintTop_toTopOf="@+id/price_min_range"
+        tools:text="10,000,000$" />
+
+    <TextView
+        android:id="@+id/location"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="Location :"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/price_min_range" />
+
+    <EditText
+        android:id="@+id/location_edit_text"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:inputType="text"
+        android:hint="Property's location"
+        android:minHeight="48dp"
+        android:maxLength="40"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/location"
+        tools:text="1 Rue de la République, 30300 Beaucaire" />
+
+    <TextView
+        android:id="@+id/nearbypoi"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="Nearby Point of Interest :"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/location_edit_text" />
+
+    <HorizontalScrollView
+        android:id="@+id/poi_chips_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:scrollbars="none"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/nearbypoi">
+
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/poi_chip_group"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:theme="@style/Theme.MaterialComponents.Light"
+            app:selectionRequired="false"
+            app:singleLine="true">
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/restaurant_poi_chip"
+                style="@style/Widget.MaterialComponents.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checkable="true"
+                android:text="Restaurant" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/shopping_poi_chip"
+                style="@style/Widget.MaterialComponents.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checkable="true"
+                android:text="Shopping" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/school_poi_chip"
+                style="@style/Widget.MaterialComponents.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checkable="true"
+                android:text="School" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/healthcare_poi_chip"
+                style="@style/Widget.MaterialComponents.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checkable="true"
+                android:text="Healthcare" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/park_poi_chip"
+                style="@style/Widget.MaterialComponents.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checkable="true"
+                android:text="Park" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/sports_poi_chip"
+                style="@style/Widget.MaterialComponents.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checkable="true"
+                android:text="Sports" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/market_poi_chip"
+                style="@style/Widget.MaterialComponents.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checkable="true"
+                android:text="Market" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/entertainment_poi_chip"
+                style="@style/Widget.MaterialComponents.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checkable="true"
+                android:text="Entertainment" />
+
+        </com.google.android.material.chip.ChipGroup>
+
+    </HorizontalScrollView>
+
+    <TextView
+        android:id="@+id/room"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="Room :"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toStartOf="@+id/bedroom"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/poi_chips_layout" />
+
+    <EditText
+        android:id="@+id/room_amount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:hint="min"
+        android:maxLength="3"
+        android:minHeight="48dp"
+        android:minWidth="48dp"
+        android:inputType="number"
+        app:layout_constraintEnd_toEndOf="@+id/room"
+        app:layout_constraintStart_toStartOf="@+id/room"
+        app:layout_constraintTop_toBottomOf="@id/room"
+        tools:text="100" />
+
+    <TextView
+        android:id="@+id/bedroom"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="Bedroom :"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toStartOf="@+id/bathroom"
+        app:layout_constraintStart_toEndOf="@+id/room"
+        app:layout_constraintTop_toBottomOf="@+id/poi_chips_layout" />
+
+    <EditText
+        android:id="@+id/bedroom_amount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:hint="min"
+        android:inputType="number"
+        android:maxLength="9"
+        android:minHeight="48dp"
+        android:minWidth="48dp"
+        app:layout_constraintEnd_toEndOf="@+id/bedroom"
+        app:layout_constraintStart_toStartOf="@+id/bedroom"
+        app:layout_constraintTop_toBottomOf="@+id/bedroom"
+        tools:text="100" />
+
+    <TextView
+        android:id="@+id/bathroom"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="Bathroom :"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/bedroom"
+        app:layout_constraintTop_toBottomOf="@+id/poi_chips_layout" />
+
+    <EditText
+        android:id="@+id/bathroom_amount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:hint="min"
+        android:minHeight="48dp"
+        android:minWidth="48dp"
+        android:maxLength="3"
+        android:inputType="number"
+        app:layout_constraintEnd_toEndOf="@+id/bathroom"
+        app:layout_constraintStart_toStartOf="@+id/bathroom"
+        app:layout_constraintTop_toBottomOf="@+id/bathroom"
+        tools:text="100" />
+
+    <Button
+        android:id="@+id/cancel_button_dialog"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="10dp"
+        android:background="@android:color/transparent"
+        android:gravity="center"
+        android:text="Cancel"
+        app:layout_constraintEnd_toStartOf="@+id/submit_button_dialog"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/checkboxGroup" />
+
+    <Button
+        android:id="@+id/submit_button_dialog"
+        style="?android:attr/positiveButtonText"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/rounded_corner"
+        android:backgroundTint="@color/colorPrimary"
+        android:gravity="center"
+        android:text="Submit"
+        android:textColor="#FFFFFF"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="@+id/cancel_button_dialog"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/cancel_button_dialog"
+        app:layout_constraintTop_toBottomOf="@+id/checkboxGroup" />
+
+    <TextView
+        android:id="@+id/price_range_separator"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="-"
+        app:layout_constraintBottom_toBottomOf="@+id/price_max_range"
+        app:layout_constraintEnd_toStartOf="@+id/price_max_range"
+        app:layout_constraintStart_toEndOf="@+id/price_min_range"
+        app:layout_constraintTop_toTopOf="@+id/price_max_range" />
+
+    <LinearLayout
+        android:id="@+id/checkboxGroup"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:orientation="horizontal"
+        android:scaleX="1.2"
+        android:scaleY="1.2"
+        app:layout_constraintBottom_toBottomOf="@+id/available_text_view"
+        app:layout_constraintStart_toEndOf="@+id/available_text_view"
+        app:layout_constraintTop_toTopOf="@+id/available_text_view">
+
+        <CheckBox
+            android:id="@+id/checkbox_yes"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="48dp"
+            android:text="Yes" />
+
+        <CheckBox
+            android:id="@+id/checkbox_no"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minHeight="48dp"
+            android:text="No" />
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

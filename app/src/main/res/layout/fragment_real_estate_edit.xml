@@ -2,7 +2,10 @@
 
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
+    android:theme="@style/Theme.MaterialComponents.Light.DarkActionBar">
 
     <data>
 
@@ -12,7 +15,7 @@
 
         <variable
             name="viewModel"
-            type="com.openclassrooms.realestatemanager.viewmodel.NewRealEstateViewModel" />
+            type="com.openclassrooms.realestatemanager.viewmodel.NewEditRealEstateViewModel" />
 
         <variable
             name="poi"
@@ -33,29 +36,203 @@
         android:orientation="vertical"
         tools:ignore="HardcodedText">
 
-        <LinearLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/linearLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="16dp">
+            android:padding="20dp"
+            app:layout_constraintEnd_toEndOf="@+id/cancel_button"
+            app:layout_constraintStart_toEndOf="@+id/cancel_button">
 
             <TextView
+                android:id="@+id/textView2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Select the type of this property : " />
+                android:text="All fields besides description needs to be filled"
+                app:layout_constraintEnd_toEndOf="@+id/priceTextField"
+                app:layout_constraintStart_toStartOf="@+id/priceTextField"
+                app:layout_constraintTop_toTopOf="parent" />
+
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/priceTextField"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:hint="Price in $ (min. 10k$)"
+                android:textColorHint="@color/colorAccent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/textView2">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/price_edit_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:inputType="number"
+                    android:maxLength="16"
+                    android:text="@={viewModel.realEstateDataFlow.price}" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/surfaceTextField"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:hint="Surface in m²"
+                android:textColorHint="@color/colorAccent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/priceTextField">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/surface_edit_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:inputType="number"
+                    android:maxLength="9"
+                    android:minHeight="48dp"
+                    android:text="@={viewModel.realEstateDataFlow.surface}" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/roomTextField"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:hint="Room(s)"
+                android:textColorHint="@color/colorAccent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/surfaceTextField">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/room_edit_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:inputType="number"
+                    android:maxLength="3"
+                    android:minHeight="48dp"
+                    android:text="@={viewModel.realEstateDataFlow.room}" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/bedroomsTextField"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:hint="Bedroom(s)"
+                android:textColorHint="@color/colorAccent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/roomTextField">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/bedrooms_edit_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:inputType="number"
+                    android:maxLength="3"
+                    android:minHeight="48dp"
+                    android:text="@={viewModel.realEstateDataFlow.bedroom}" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/bathroomsTextField"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:hint="Bathroom(s)"
+                android:textColorHint="@color/colorAccent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/bedroomsTextField">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/bathrooms_edit_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:inputType="number"
+                    android:maxLength="3"
+                    android:minHeight="48dp"
+                    android:text="@={viewModel.realEstateDataFlow.bathroom}" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/descriptionTextField"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:hint="Description"
+                android:textColorHint="@color/colorAccent"
+                app:counterEnabled="true"
+                app:counterMaxLength="200"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/bathroomsTextField">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/description_edit_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:maxLength="200"
+                    android:minHeight="48dp"
+                    android:text="@={viewModel.realEstateDataFlow.description}" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <TextView
+                android:id="@+id/location_text_view"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="Current location address :"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/descriptionTextField" />
+
+            <TextView
+                android:id="@+id/converted_address"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="@={viewModel.realEstateDataFlow.address}"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/location_text_view" />
+
+            <TextView
+                android:id="@+id/property_text_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Select property's type : "
+                app:layout_constraintBottom_toTopOf="@+id/type_chip_layout"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/converted_address" />
 
             <HorizontalScrollView
+                android:id="@+id/type_chip_layout"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:scrollbars="none"
-                app:layout_constraintTop_toTopOf="parent">
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/property_text_view"
+                >
 
                 <com.google.android.material.chip.ChipGroup
                     android:id="@+id/type_chip_group"
-                    android:layout_width="wrap_content"
+                    android:layout_width="444dp"
                     android:layout_height="wrap_content"
                     android:checkedChips="@={viewModel.checkedTypeChipObservable}"
                     android:theme="@style/Theme.MaterialComponents.Light"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/property_text_view"
                     app:selectionRequired="true"
                     app:singleLine="true"
                     app:singleSelection="true">
@@ -66,7 +243,9 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:checkable="true"
-                        android:text="House" />
+                        android:checked="false"
+                        android:text="House"
+                        app:chipBackgroundColor="@color/bg_chip_state_list" />
 
                     <com.google.android.material.chip.Chip
                         android:id="@+id/second_type_chip"
@@ -74,7 +253,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:checkable="true"
-                        android:text="Apartment" />
+                        android:text="Apartment"
+                        app:chipBackgroundColor="@color/bg_chip_state_list" />
 
                     <com.google.android.material.chip.Chip
                         android:id="@+id/third_type_chip"
@@ -82,7 +262,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:checkable="true"
-                        android:text="Condo" />
+                        android:text="Condo"
+                        app:chipBackgroundColor="@color/bg_chip_state_list" />
 
                     <com.google.android.material.chip.Chip
                         android:id="@+id/fourth_type_chip"
@@ -90,7 +271,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:checkable="true"
-                        android:text="Loft" />
+                        android:text="Loft"
+                        app:chipBackgroundColor="@color/bg_chip_state_list" />
 
                     <com.google.android.material.chip.Chip
                         android:id="@+id/fifth_type_chip"
@@ -98,7 +280,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:checkable="true"
-                        android:text="Mansion" />
+                        android:text="Mansion"
+                        app:chipBackgroundColor="@color/bg_chip_state_list" />
 
                     <com.google.android.material.chip.Chip
                         android:id="@+id/sixth_type_chip"
@@ -106,383 +289,281 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:checkable="true"
-                        android:text="Villa" />
+                        android:text="Villa"
+                        app:chipBackgroundColor="@color/bg_chip_state_list" />
 
                 </com.google.android.material.chip.ChipGroup>
 
             </HorizontalScrollView>
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/priceTextField"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:hint="Price in $">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/price_edit_text"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="number"
-                    android:maxLength="9"
-                    android:text="@={viewModel.realEstateDataFlow.price}" />
-
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/surfaceTextField"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:hint="Surface in m²">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/surface_edit_text"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="number"
-                    android:maxLength="9"
-                    android:text="@={viewModel.realEstateDataFlow.surface}" />
-
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/roomTextField"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:hint="Amount of rooms">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/room_edit_text"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="number"
-                    android:maxLength="9"
-                    android:text="@={viewModel.realEstateDataFlow.room}" />
-
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/bedroomsTextField"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:hint="Amount of bedrooms">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/bedrooms_edit_text"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="number"
-                    android:maxLength="9"
-                    android:text="@={viewModel.realEstateDataFlow.bedroom}" />
-
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/bathroomsTextField"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:hint="Amount of bathrooms">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/bathrooms_edit_text"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="number"
-                    android:maxLength="9"
-                    android:text="@={viewModel.realEstateDataFlow.bathroom}" />
-
-            </com.google.android.material.textfield.TextInputLayout>
 
             <TextView
-                android:id="@+id/converted_address"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@={viewModel.realEstateDataFlow.address}"
-                 />
-
-            <TextView
+                android:id="@+id/textView3"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:text="Select nearby points of interest : " />
+                android:text="Select nearby points of interest : "
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/type_chip_layout" />
 
-            <FrameLayout
+
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/poi_chip_group"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:scrollbars="none"
-                app:layout_constraintTop_toTopOf="parent">
+                android:layout_height="match_parent"
+                android:checkedChips="@={viewModel.checkedPoiChipObservable}"
+                android:theme="@style/Theme.MaterialComponents.Light"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/textView3"
+                app:selectionRequired="true"
+                app:singleLine="false">
 
-                <com.google.android.material.chip.ChipGroup
-                    android:id="@+id/poi_chip_group"
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/restaurant_poi_chip"
+                    style="@style/Widget.MaterialComponents.Chip.Filter"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:checkedChips="@={viewModel.checkedPoiChipObservable}"
-                    android:theme="@style/Theme.MaterialComponents.Light"
-                    app:selectionRequired="true"
-                    app:singleLine="false">
+                    android:checkable="true"
+                    android:text="Restaurant"
+                    app:chipBackgroundColor="@color/bg_chip_state_list" />
 
-                    <com.google.android.material.chip.Chip
-                        android:id="@+id/restaurant_poi_chip"
-                        style="@style/Widget.MaterialComponents.Chip.Filter"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:checkable="true"
-                        android:text="Restaurant" />
-
-                    <com.google.android.material.chip.Chip
-                        android:id="@+id/shopping_poi_chip"
-                        style="@style/Widget.MaterialComponents.Chip.Filter"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:checkable="true"
-                        android:text="Shopping" />
-
-                    <com.google.android.material.chip.Chip
-                        android:id="@+id/school_poi_chip"
-                        style="@style/Widget.MaterialComponents.Chip.Filter"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:checkable="true"
-                        android:text="School" />
-
-                    <com.google.android.material.chip.Chip
-                        android:id="@+id/healthcare_poi_chip"
-                        style="@style/Widget.MaterialComponents.Chip.Filter"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:checkable="true"
-                        android:text="Healthcare" />
-
-                    <com.google.android.material.chip.Chip
-                        android:id="@+id/park_poi_chip"
-                        style="@style/Widget.MaterialComponents.Chip.Filter"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:checkable="true"
-                        android:text="Park" />
-
-                    <com.google.android.material.chip.Chip
-                        android:id="@+id/sports_poi_chip"
-                        style="@style/Widget.MaterialComponents.Chip.Filter"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:checkable="true"
-                        android:text="Sports" />
-
-                    <com.google.android.material.chip.Chip
-                        android:id="@+id/market_poi_chip"
-                        style="@style/Widget.MaterialComponents.Chip.Filter"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:checkable="true"
-                        android:text="Market" />
-
-                    <com.google.android.material.chip.Chip
-                        android:id="@+id/entertainment_poi_chip"
-                        style="@style/Widget.MaterialComponents.Chip.Filter"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:checkable="true"
-                        android:text="Entertainment" />
-
-                </com.google.android.material.chip.ChipGroup>
-
-            </FrameLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/descriptionTextField"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:hint="Description"
-                app:counterEnabled="true"
-                app:counterMaxLength="200">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/description_edit_text"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:maxLength="200"
-                    android:text="@={viewModel.realEstateDataFlow.description}" />
-
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:baselineAligned="false"
-                android:orientation="vertical">
-
-                <TextView
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/shopping_poi_chip"
+                    style="@style/Widget.MaterialComponents.Chip.Filter"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="6dp"
-                    android:text="Select an entry date : " />
+                    android:checkable="true"
+                    android:text="Shopping"
+                    app:chipBackgroundColor="@color/bg_chip_state_list" />
 
-                <TextView
-                    android:id="@+id/entrydate_text_view"
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/school_poi_chip"
+                    style="@style/Widget.MaterialComponents.Chip.Filter"
                     android:layout_width="wrap_content"
-                    android:layout_height="0dp"
-                    android:layout_marginBottom="12dp"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:text="@={viewModel.realEstateDataFlow.entryDate}"
-                    android:textSize="24sp" />
+                    android:layout_height="wrap_content"
+                    android:checkable="true"
+                    android:text="School"
+                    app:chipBackgroundColor="@color/bg_chip_state_list" />
 
-            </LinearLayout>
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/healthcare_poi_chip"
+                    style="@style/Widget.MaterialComponents.Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checkable="true"
+                    android:text="Healthcare"
+                    app:chipBackgroundColor="@color/bg_chip_state_list" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/park_poi_chip"
+                    style="@style/Widget.MaterialComponents.Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checkable="true"
+                    android:text="Park"
+                    app:chipBackgroundColor="@color/bg_chip_state_list" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/sports_poi_chip"
+                    style="@style/Widget.MaterialComponents.Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checkable="true"
+                    android:text="Sports"
+                    app:chipBackgroundColor="@color/bg_chip_state_list" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/market_poi_chip"
+                    style="@style/Widget.MaterialComponents.Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checkable="true"
+                    android:text="Market"
+                    app:chipBackgroundColor="@color/bg_chip_state_list" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/entertainment_poi_chip"
+                    style="@style/Widget.MaterialComponents.Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checkable="true"
+                    android:text="Entertainment"
+                    app:chipBackgroundColor="@color/bg_chip_state_list" />
+
+            </com.google.android.material.chip.ChipGroup>
+
 
             <TextView
-                android:layout_width="match_parent"
+                android:id="@+id/date_text_view"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:text="Select assigned agent :" />
+                android:text="Select an entry date : "
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/poi_chip_group" />
+
+            <TextView
+                android:id="@+id/entrydate_text_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@={viewModel.realEstateDataFlow.entryDate}"
+                android:textSize="24sp"
+                app:layout_constraintEnd_toEndOf="@+id/date_text_view"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/date_text_view" />
+
+
+            <TextView
+                android:id="@+id/agent_text_view"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="Select assigned agent :"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/entrydate_text_view" />
 
             <HorizontalScrollView
+                android:id="@+id/agent_chip_layout"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:scrollbars="none"
-                app:layout_constraintTop_toTopOf="parent">
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/agent_text_view"
+                >
 
-                <com.google.android.material.chip.ChipGroup
-                    android:id="@+id/agent_chip_group"
+
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/agent_chip_group"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checkedChips="@={viewModel.checkedAgentChipObservable}"
+                android:theme="@style/Theme.MaterialComponents.Light"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/agent_text_view"
+                app:selectionRequired="true"
+                app:singleLine="true"
+                app:singleSelection="true">
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/first_agent_chip"
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:checkedChips="@={viewModel.checkedAgentChipObservable}"
-                    android:theme="@style/Theme.MaterialComponents.Light"
-                    app:selectionRequired="true"
-                    app:singleLine="true"
-                    app:singleSelection="true">
+                    android:checkable="true"
+                    android:text="Jack"
+                    app:chipBackgroundColor="@color/bg_chip_state_list" />
 
-                    <com.google.android.material.chip.Chip
-                        android:id="@+id/first_agent_chip"
-                        style="@style/Widget.MaterialComponents.Chip.Choice"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:checkable="true"
-                        android:text="Jack" />
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/second_agent_chip"
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checkable="true"
+                    android:text="Walter"
+                    app:chipBackgroundColor="@color/bg_chip_state_list" />
 
-                    <com.google.android.material.chip.Chip
-                        android:id="@+id/second_agent_chip"
-                        style="@style/Widget.MaterialComponents.Chip.Choice"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:checkable="true"
-                        android:text="Walter" />
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/third_agent_chip"
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checkable="true"
+                    android:text="Ted"
+                    app:chipBackgroundColor="@color/bg_chip_state_list" />
 
-                    <com.google.android.material.chip.Chip
-                        android:id="@+id/third_agent_chip"
-                        style="@style/Widget.MaterialComponents.Chip.Choice"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:checkable="true"
-                        android:text="Ted" />
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/fourth_agent_chip"
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checkable="true"
+                    android:text="Ellie"
+                    app:chipBackgroundColor="@color/bg_chip_state_list" />
 
-                    <com.google.android.material.chip.Chip
-                        android:id="@+id/fourth_agent_chip"
-                        style="@style/Widget.MaterialComponents.Chip.Choice"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:checkable="true"
-                        android:text="Ellie" />
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/fifth_agent_chip"
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checkable="true"
+                    android:text="Robin"
+                    app:chipBackgroundColor="@color/bg_chip_state_list" />
 
-                    <com.google.android.material.chip.Chip
-                        android:id="@+id/fifth_agent_chip"
-                        style="@style/Widget.MaterialComponents.Chip.Choice"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:checkable="true"
-                        android:text="Robin" />
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/sixth_agent_chip"
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checkable="true"
+                    android:text="Kate"
+                    app:chipBackgroundColor="@color/bg_chip_state_list" />
 
-                    <com.google.android.material.chip.Chip
-                        android:id="@+id/sixth_agent_chip"
-                        style="@style/Widget.MaterialComponents.Chip.Choice"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:checkable="true"
-                        android:text="Kate" />
-
-                </com.google.android.material.chip.ChipGroup>
+            </com.google.android.material.chip.ChipGroup>
 
             </HorizontalScrollView>
 
-            <LinearLayout
-                android:layout_width="match_parent"
+            <TextView
+                android:id="@+id/textView6"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:baselineAligned="false"
-                android:orientation="vertical">
+                android:text="Add pictures for this property (at least 1) :"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/agent_chip_layout" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:layout_marginBottom="12dp"
-                    android:text="Add up to 5 pictures for this property (mandatory !)  : " />
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/input_recycler_view"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/textView6" />
 
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/input_recycler_view"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="horizontal" />
-
-            </LinearLayout>
 
             <Button
                 android:id="@+id/media_add_button"
-                style="?android:attr/buttonBarButtonStyle"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_gravity="center"
-                android:layout_marginStart="64dp"
-                android:layout_marginEnd="64dp"
-                android:background="@drawable/rounded_corner"
-                android:text="Add images"
-                android:textColor="#FFFFFF" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:orientation="horizontal">
+                android:text="Add images"
+                android:textColor="@color/colorPrimary"
+                app:layout_constraintEnd_toEndOf="@+id/input_recycler_view"
+                app:layout_constraintStart_toStartOf="@+id/input_recycler_view"
+                app:layout_constraintTop_toBottomOf="@+id/input_recycler_view" />
 
-                <Button
-                    android:id="@+id/cancel_button"
-                    style="?android:attr/buttonStyle"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_marginEnd="32dp"
-                    android:layout_weight="1"
-                    android:background="@drawable/rounded_corner"
-                    android:backgroundTint="#B3707070"
-                    android:gravity="center"
-                    android:text="Cancel"
-                    android:textColor="#FFFFFF" />
 
-                <Button
-                    android:id="@+id/submit_button"
-                    style="?android:attr/positiveButtonText"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_weight="1"
-                    android:background="@drawable/rounded_corner"
-                    android:backgroundTint="@color/colorPrimary"
-                    android:gravity="center"
-                    android:onClick="@{() -> viewModel.onSaveButtonClick()}"
-                    android:text="Add property"
-                    android:textColor="#FFFFFF"
-                    android:textStyle="bold" />
+            <Button
+                android:id="@+id/cancel_button"
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="Cancel"
+                android:textColor="#000000"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/media_add_button" />
 
-                <!--android:onClick="@{() -> viewModel.convertRealEstateDataToDTO(viewModel.realEstateData)}"-->
-            </LinearLayout>
+            <Button
+                android:id="@+id/submit_button"
+                style="@style/Widget.AppCompat.Button"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:background="@drawable/rounded_corner"
+                android:backgroundTint="@color/colorPrimary"
+                android:gravity="center"
+                android:onClick="@{() -> viewModel.onSaveButtonClick()}"
+                android:text="Add property"
+                android:textColor="@color/white"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/cancel_button"
+                app:layout_constraintTop_toBottomOf="@+id/media_add_button" />
 
-        </LinearLayout>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
     </ScrollView>
 </layout>

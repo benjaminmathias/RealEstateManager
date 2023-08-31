@@ -70,6 +70,13 @@ class MainActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
         R.id.action_filter -> {
             Toast.makeText(this, "Click on Filter button", Toast.LENGTH_LONG).show()
+
+            if (findNavController(R.id.navHostFragment).currentDestination?.id == R.id.fragmentList) {
+                findNavController(R.id.navHostFragment).navigate(R.id.action_fragmentList_to_filterDialogFragment)
+            } else if (findNavController(R.id.navHostFragment).currentDestination?.id == R.id.fragmentMap) {
+                findNavController(R.id.navHostFragment).navigate(R.id.action_fragmentMap_to_filterDialogFragment)
+            }
+
             true
         }
 

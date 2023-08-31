@@ -20,6 +20,9 @@
         <action
             android:id="@+id/action_fragmentList_to_fragmentMap"
             app:destination="@id/fragmentMap" />
+        <action
+            android:id="@+id/action_fragmentList_to_filterDialogFragment"
+            app:destination="@id/filterDialogFragment" />
     </fragment>
     <fragment
         android:id="@+id/fragmentDetails"
@@ -48,7 +51,15 @@
         <action
             android:id="@+id/action_fragmentMap_to_fragmentList"
             app:destination="@id/fragmentList" />
+        <action
+            android:id="@+id/action_fragmentMap_to_filterDialogFragment"
+            app:destination="@id/filterDialogFragment" />
     </fragment>
+    <dialog
+        android:id="@+id/filterDialogFragment"
+        android:name="com.openclassrooms.realestatemanager.ui.FilterDialogFragment"
+        android:label="FilterDialogFragment"
+        tools:layout="@layout/filter_dialog_layout"/>
 
 
 </navigation>

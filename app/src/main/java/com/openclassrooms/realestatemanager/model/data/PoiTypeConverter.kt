@@ -1,4 +1,4 @@
-package com.openclassrooms.realestatemanager.data
+package com.openclassrooms.realestatemanager.model.data
 
 import androidx.room.TypeConverter
 import com.google.gson.Gson
@@ -22,5 +22,10 @@ class PoiTypeConverter {
         } catch (e: Exception) {
             arrayListOf()
         }
+    }
+
+    @TypeConverter
+    fun fromCollection(collection: QueryCollection<String>): String {
+        return fromStringArrayList(collection.arrayList)
     }
 }

@@ -7,7 +7,9 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
+import android.text.Editable
 import android.text.InputFilter
+import android.text.TextWatcher
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.Menu
@@ -28,13 +30,14 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.openclassrooms.realestatemanager.R
-import com.openclassrooms.realestatemanager.data.RealEstatePhoto
 import com.openclassrooms.realestatemanager.databinding.FragmentRealEstateEditBinding
-import com.openclassrooms.realestatemanager.viewmodel.NewRealEstateViewModel
+import com.openclassrooms.realestatemanager.model.data.RealEstatePhoto
+import com.openclassrooms.realestatemanager.viewmodel.NewEditRealEstateViewModel
 import com.openclassrooms.realestatemanager.viewmodel.RealEstateUiState
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import java.io.File
+import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -50,7 +53,7 @@ class RealEstateInputFragment : Fragment(), PhotoAdapter.ItemClickListener {
 
     private var cal: Calendar = Calendar.getInstance()
 
-    private val viewModel: NewRealEstateViewModel by viewModels()
+    private val viewModel: NewEditRealEstateViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -72,6 +75,43 @@ class RealEstateInputFragment : Fragment(), PhotoAdapter.ItemClickListener {
         addPhotoButton = binding.mediaAddButton
         addRealEstateButton = binding.submitButton
         setupEntryDate(binding.entrydateTextView)
+
+
+        // Currency format, dollars only since we ask for $ price
+        var current = ""
+
+        binding.priceEditText.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) {}
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                val stringText = s.toString()
+
+                var parsed = 0.0
+
+                if (stringText != current) {
+                    binding.priceEditText.removeTextChangedListener(this)
+
+                    val locale: Locale = Locale.US
+                    val currency = Currency.getInstance(locale)
+
+                    val cleanString = stringText.replace("[${currency.symbol},.]".toRegex(), "")
+                    if (cleanString.isNotEmpty()) {
+                        parsed = cleanString.toDouble()
+                    }
+
+                    val maxDigits = NumberFormat.getCurrencyInstance(locale)
+                    maxDigits.maximumFractionDigits = 0
+
+                    val formatted = maxDigits.format(parsed / 1)
+
+                    current = formatted
+                    binding.priceEditText.setText(formatted)
+                    binding.priceEditText.setSelection(formatted.length)
+                    binding.priceEditText.addTextChangedListener(this)
+                }
+            }
+        })
 
         // PHOTO //
         // We setup our photo recyclerview here since registerForActivityResult needs to be called in onCreateView
@@ -207,6 +247,7 @@ class RealEstateInputFragment : Fragment(), PhotoAdapter.ItemClickListener {
         builder.show()
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onPrepareOptionsMenu(menu: Menu) {
         super.onPrepareOptionsMenu(menu)
         menu.clear()
@@ -219,6 +260,7 @@ class RealEstateInputFragment : Fragment(), PhotoAdapter.ItemClickListener {
                     when (uiState) {
                         is RealEstateUiState.RealEstateDataUi -> {
                             addRealEstateButton.text = "Add"
+                            activity?.title = "Create a new Real Estate"
                             Toast.makeText(
                                 requireContext(),
                                 "Create a new property",
@@ -228,11 +270,14 @@ class RealEstateInputFragment : Fragment(), PhotoAdapter.ItemClickListener {
 
                         is RealEstateUiState.Default -> {
                             addRealEstateButton.text = "Edit"
+                            activity?.title = "Edit existing property"
                             Toast.makeText(
                                 requireContext(),
                                 "Edit property",
                                 Toast.LENGTH_SHORT
                             ).show()
+                            binding.locationTextView.text = "Stored location"
+                            binding
                         }
 
                         is RealEstateUiState.Success ->

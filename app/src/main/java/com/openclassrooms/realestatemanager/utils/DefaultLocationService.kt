@@ -3,13 +3,13 @@ package com.openclassrooms.realestatemanager.utils
 import android.annotation.SuppressLint
 import android.content.Context
 import android.location.Geocoder
+import android.location.Location
 import android.os.Build
 import android.util.Log
 import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
-import com.google.android.gms.tasks.CancellationTokenSource
-import com.openclassrooms.realestatemanager.data.UserLocation
+import com.google.android.gms.tasks.Task
+import com.openclassrooms.realestatemanager.model.data.UserLocation
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -19,6 +19,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.shareIn
+import java.io.IOException
 import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -49,26 +50,21 @@ class DefaultLocationService @Inject constructor(
 
     @SuppressLint("MissingPermission")
     private fun setupLocation() {
-        fusedLocationProviderClient.getCurrentLocation(
+
+        /*fusedLocationProviderClient.getCurrentLocation(
             LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY,
             CancellationTokenSource().token
         )
             .addOnSuccessListener { location ->
-                Log.d("Location", "location is found: $location")
-                // TODO : clean logs
                 val latitude = location.latitude
                 val longitude = location.longitude
-
-                val emitted =
-                    userPosition.tryEmit(value = Pair(latitude, longitude))
-                Log.d("Location", "location emitted: $emitted")
+                userPosition.tryEmit(value = Pair(latitude, longitude))
             }
             .addOnFailureListener { exception ->
-                Log.d("Location", "Oops location failed with exception: $exception")
-            }
-
+                Log.d("Location", "Location failed with exception: $exception")
+            }*/
         // TODO : test again which one is more efficient
-        /*fusedLocationProviderClient!!.lastLocation.addOnCompleteListener { task: Task<Location?> ->
+        fusedLocationProviderClient.lastLocation.addOnCompleteListener { task: Task<Location?> ->
            val location = task.result
            if (location != null) {
                try {
@@ -81,13 +77,12 @@ class DefaultLocationService @Inject constructor(
 
                    // Set value
                    Log.d("Location", "location is $latitude, $longitude")
-                   val userLocation = UserLocation(latitude, longitude)
-                   latestLocation.value = userLocation
+                   userPosition.tryEmit(value = Pair(latitude, longitude))
                } catch (e: IOException) {
                    e.printStackTrace()
                }
            }
-       }*/
+       }
     }
 
     private fun mapCoordinatesToAddress(latitude: Double, longitude: Double): Flow<UserLocation> {

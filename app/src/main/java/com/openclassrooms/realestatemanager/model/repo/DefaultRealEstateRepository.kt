@@ -1,6 +1,14 @@
-package com.openclassrooms.realestatemanager.data
+package com.openclassrooms.realestatemanager.model.repo
 
 import android.util.Log
+import androidx.sqlite.db.SimpleSQLiteQuery
+import com.openclassrooms.realestatemanager.model.data.Filters
+import com.openclassrooms.realestatemanager.model.data.RealEstate
+import com.openclassrooms.realestatemanager.model.data.RealEstateDao
+import com.openclassrooms.realestatemanager.model.data.RealEstateEntity
+import com.openclassrooms.realestatemanager.model.data.RealEstatePhoto
+import com.openclassrooms.realestatemanager.model.data.RealEstatePhotoDao
+import com.openclassrooms.realestatemanager.model.data.RealEstatePhotoEntity
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
@@ -8,8 +16,7 @@ import javax.inject.Singleton
 
 @Singleton
 class DefaultRealEstateRepository @Inject constructor(
-    private val realEstateDao: RealEstateDao,
-    private val realEstatePhotoDao: RealEstatePhotoDao
+    private val realEstateDao: RealEstateDao, private val realEstatePhotoDao: RealEstatePhotoDao
 ) : RealEstateRepository {
 
     // Retrieve List<RealEstateEntity> as a Flow<List> then convert it to RealEstate
@@ -64,6 +71,87 @@ class DefaultRealEstateRepository @Inject constructor(
         }
     }
 
+    // Retrieve a filtered list of RealEstateEntity as a Flow<List> then convert it to RealEstate
+    override suspend fun retrieveAndConvertFilteredRealEstateList(
+        type: String?,
+        priceMin: String?,
+        priceMax: String?,
+        surfaceMin: String?,
+        surfaceMax: String?,
+        room: String?,
+        bedroom: String?,
+        bathroom: String?,
+        location: String?,
+        nearbyPOI: List<String>?
+    ): Flow<List<RealEstate>> {
+        Log.d("Repo", "Filter reached !")
+        return getAllFiltered(
+            Filters(
+                type = type,
+                priceMin = priceMin,
+                priceMax = priceMax,
+                surfaceMin = surfaceMin,
+                surfaceMax = surfaceMax,
+                room = room,
+                bedroom = bedroom,
+                bathroom = bathroom,
+                location = location,
+                nearbyPOI = nearbyPOI
+            )
+        ).map { entity: List<RealEstateEntity> ->
+                entity.map {
+                    RealEstate(
+                        type = it.type,
+                        surface = it.surface,
+                        price = it.price,
+                        description = it.description,
+                        address = it.address,
+                        nearbyPOI = it.nearbyPOI,
+                        isAvailable = it.isAvailable,
+                        photos = it.id?.let { it1 -> fetchAllPhotoItem(it1) },
+                        entryDate = it.entryDate,
+                        saleDate = it.saleDate,
+                        assignedAgent = it.assignedAgent,
+                        room = it.room,
+                        bedroom = it.bedroom,
+                        bathroom = it.bathroom,
+                        lat = it.lat,
+                        lon = it.lon,
+                        id = it.id
+                    )
+                }
+            }
+
+
+    }
+    /* override suspend fun retrieveAndConvertFilteredRealEstateList(type: String?): List<RealEstate> {
+         return realEstateDao.getAllFiltered(
+             Filters(
+                 type = type
+             )
+         ).map {
+             RealEstate(
+                 type = it.type,
+                 surface = it.surface,
+                 price = it.price,
+                 description = it.description,
+                 address = it.address,
+                 nearbyPOI = it.nearbyPOI,
+                 isAvailable = it.isAvailable,
+                 photos = it.id?.let { it1 -> fetchAllPhotoItem(it1) },
+                 entryDate = it.entryDate,
+                 saleDate = it.saleDate,
+                 assignedAgent = it.assignedAgent,
+                 room = it.room,
+                 bedroom = it.bedroom,
+                 bathroom = it.bathroom,
+                 lat = it.lat,
+                 lon = it.lon,
+                 id = it.id
+             )
+         }
+     }*/
+
 
     // Retrieve both user added RealEstate and PhotoItem, then insert it in db
     override suspend fun insertRealEstateAndPhoto(realEstate: RealEstate) {
@@ -92,9 +180,7 @@ class DefaultRealEstateRepository @Inject constructor(
         // Retrieve PhotoItem (if it exists) and convert it to entity
         val photoList = realEstate.photos?.map {
             RealEstatePhotoEntity(
-                uri = it.uri,
-                photoDescription = it.photoDescription,
-                realEstateId = insertedId
+                uri = it.uri, photoDescription = it.photoDescription, realEstateId = insertedId
             )
         }
 
@@ -113,15 +199,16 @@ class DefaultRealEstateRepository @Inject constructor(
 
         val listOfPhotos: List<RealEstatePhoto> = listOfEntity.map { entities ->
             RealEstatePhoto(
-                entities.uri,
-                entities.photoDescription
+                entities.uri, entities.photoDescription
             )
         }
         return listOfPhotos
     }
 
     // Update an existing RealEstateEntity when user set it as no longer available
-    override suspend fun setRealEstateAsNoLongerAvailable(saleDate: String, isAvailable: Boolean, id: Long) {
+    override suspend fun setRealEstateAsNoLongerAvailable(
+        saleDate: String, isAvailable: Boolean, id: Long
+    ) {
         Log.d("RealEstateRepository", "Update called")
         realEstateDao.updateRealEstate(saleDate, isAvailable, id)
     }
@@ -137,9 +224,7 @@ class DefaultRealEstateRepository @Inject constructor(
         val photoList = realEstate.photos?.map {
             realEstateEntity.id?.let { it1 ->
                 RealEstatePhotoEntity(
-                    uri = it.uri,
-                    photoDescription = it.photoDescription,
-                    realEstateId = it1
+                    uri = it.uri, photoDescription = it.photoDescription, realEstateId = it1
                 )
             }
         }
@@ -177,5 +262,37 @@ class DefaultRealEstateRepository @Inject constructor(
             lon = realEstate.lon,
             id = realEstate.id
         )
+    }
+
+    private fun getAllFiltered(filters: Filters): Flow<List<RealEstateEntity>> {
+        val conditions = mutableListOf<String>()
+        with(filters) {
+            type?.let { conditions.add("type LIKE '$it'") }
+            location?.let { conditions.add("address LIKE '%$it%'") }
+            priceMin?.let { conditions.add("price >= $it") }
+            priceMax?.let { conditions.add("price <= $it") }
+            surfaceMin?.let { conditions.add("surface >= $it") }
+            surfaceMax?.let { conditions.add("surface <= $it") }
+            room?.let { conditions.add("room >= $it") }
+            bedroom?.let { conditions.add("bedroom >= $it") }
+            bathroom?.let { conditions.add("bathroom >= $it") }
+            nearbyPOI?.let { conditions.add("nearbyPOI IN ($it)") }
+            // Handle all filters here
+        }
+
+       /* if (conditions.isEmpty())
+            return getAll()*/
+
+        val conditionsMerged = conditions.joinToString(separator = " AND ")
+        // val bindArgs = conditions.map
+
+        val query = SimpleSQLiteQuery(
+            "SELECT * FROM realEstate WHERE $conditionsMerged",
+            // bindArgs.toTypedArray()
+        )
+
+        Log.d("Repo", "Query : SELECT * FROM realEstate WHERE $conditionsMerged")
+
+        return realEstateDao.getAllFiltered(query)
     }
 }

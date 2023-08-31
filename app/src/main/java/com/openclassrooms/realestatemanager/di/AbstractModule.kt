@@ -1,7 +1,9 @@
-package com.openclassrooms.realestatemanager.utils
+package com.openclassrooms.realestatemanager.di
 
-import com.openclassrooms.realestatemanager.data.DefaultRealEstateRepository
-import com.openclassrooms.realestatemanager.data.RealEstateRepository
+import com.openclassrooms.realestatemanager.model.repo.DefaultRealEstateRepository
+import com.openclassrooms.realestatemanager.model.repo.RealEstateRepository
+import com.openclassrooms.realestatemanager.utils.DefaultLocationService
+import com.openclassrooms.realestatemanager.utils.LocationService
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -17,6 +19,7 @@ abstract class AbstractModule {
     abstract fun provideRealEstateRepository(
         defaultRealEstateRepository: DefaultRealEstateRepository
     ) : RealEstateRepository
+
 
     @Singleton
     @Binds

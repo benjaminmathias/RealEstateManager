@@ -1,4 +1,4 @@
-package com.openclassrooms.realestatemanager.data
+package com.openclassrooms.realestatemanager.model.data
 
 import android.widget.ImageView
 import androidx.databinding.BindingAdapter

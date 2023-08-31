@@ -1,16 +1,19 @@
-package com.openclassrooms.realestatemanager.data
+package com.openclassrooms.realestatemanager.model.data
 
+import android.database.Cursor
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.RawQuery
 import androidx.room.Update
+import androidx.sqlite.db.SupportSQLiteQuery
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface RealEstateDao {
 
     @Insert
-    suspend fun insert(realEstateEntity: RealEstateEntity) : Long
+    suspend fun insert(realEstateEntity: RealEstateEntity): Long
 
     @Update
     suspend fun update(realEstateEntity: RealEstateEntity)
@@ -23,5 +26,11 @@ interface RealEstateDao {
 
     @Query("SELECT * FROM realEstate WHERE id = :id")
     fun getById(id: Long): Flow<RealEstateEntity>
+
+    @RawQuery(observedEntities = [RealEstateEntity::class])
+    fun getAllFiltered(query: SupportSQLiteQuery): Flow<List<RealEstateEntity>>
+
+    @Query("SELECT * FROM realEstate")
+    fun getAllWithCursor() : Cursor
 
 }

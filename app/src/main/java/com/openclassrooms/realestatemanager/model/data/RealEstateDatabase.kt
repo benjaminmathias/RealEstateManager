@@ -1,4 +1,4 @@
-package com.openclassrooms.realestatemanager.data
+package com.openclassrooms.realestatemanager.model.data
 
 
 import androidx.room.Database
@@ -6,7 +6,9 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 
-@Database(entities = [RealEstateEntity::class, RealEstatePhotoEntity::class], version = 1)
+@Database(
+    entities = [RealEstateEntity::class, RealEstatePhotoEntity::class],
+    version = 1)
 @TypeConverters(PoiTypeConverter::class)
 abstract class RealEstateDatabase : RoomDatabase() {
 
