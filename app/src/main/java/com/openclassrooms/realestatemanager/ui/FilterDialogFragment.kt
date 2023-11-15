@@ -1,37 +1,187 @@
 package com.openclassrooms.realestatemanager.ui
 
+import android.app.DatePickerDialog
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
-import androidx.core.view.children
-import androidx.fragment.app.viewModels
+import android.widget.TextView
+import androidx.databinding.DataBindingUtil
+import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import com.google.android.material.chip.Chip
+import com.openclassrooms.realestatemanager.R
 import com.openclassrooms.realestatemanager.databinding.FilterDialogLayoutBinding
 import com.openclassrooms.realestatemanager.viewmodel.MainViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import java.text.NumberFormat
+import java.time.OffsetDateTime
+import java.time.ZoneOffset
+import java.util.Calendar
 import java.util.Currency
 import java.util.Locale
+
 
 @AndroidEntryPoint
 class FilterDialogFragment : BottomSheetDialogFragment() {
 
     private lateinit var binding: FilterDialogLayoutBinding
-    private val viewModel: MainViewModel by viewModels()
+    private val viewModel: MainViewModel by activityViewModels()
+
+    private var cal: Calendar = Calendar.getInstance()
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setStyle(STYLE_NORMAL, R.style.AppBottomSheetDialogTheme)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FilterDialogLayoutBinding.inflate(layoutInflater, container, false)
+        binding =
+            DataBindingUtil.inflate(layoutInflater, R.layout.filter_dialog_layout, container, false)
 
+        binding.lifecycleOwner = this
+        binding.viewModel = viewModel
+
+        binding.soldDateLayout.visibility = View.GONE
+
+        observeFilters()
+        observeDialog()
+        setupPriceEditText()
+        clearAllViews()
+
+        binding.radioIgnore.setOnClickListener {
+            binding.soldDateLayout.visibility = View.GONE
+            viewModel.setSoldDateFrom(null)
+            viewModel.setSoldDateTo(null)
+        }
+
+        binding.radioNo.setOnClickListener {
+            binding.soldDateLayout.visibility = View.VISIBLE
+        }
+
+        binding.radioYes.setOnClickListener {
+            binding.soldDateLayout.visibility = View.GONE
+            viewModel.setSoldDateFrom(null)
+            viewModel.setSoldDateTo(null)
+        }
+
+        binding.closeImageButton.setOnClickListener {
+            dialog?.dismiss()
+            clearAllViews()
+        }
+
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        (dialog as? BottomSheetDialog)?.behavior?.state = BottomSheetBehavior.STATE_EXPANDED
+    }
+
+    private fun observeFilters() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.realEstateFilters.collect {
+                    setupDatePicker(
+                        binding.fromListedDate,
+                        FilterDate.LISTED_FROM,
+                        null,
+                        it.toListedDate
+                    )
+                    setupDatePicker(
+                        binding.toListedDate,
+                        FilterDate.LISTED_TO,
+                        it.fromListedDate,
+                        null
+                    )
+                    setupDatePicker(binding.fromSoldDate, FilterDate.SOLD_FROM, null, it.toSoldDate)
+                    setupDatePicker(binding.toSoldDate, FilterDate.SOLD_TO, it.fromSoldDate, null)
+                }
+            }
+        }
+    }
+
+    private fun observeDialog() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.closeDialog.collect {
+                    when (it) {
+                        true -> dialog?.dismiss()
+                        false -> {}
+                    }
+                }
+            }
+        }
+    }
+
+    private fun setupDatePicker(
+        view: TextView,
+        filterDate: FilterDate,
+        fromDate: OffsetDateTime?,
+        toDate: OffsetDateTime?
+    ) {
+
+        val dateDialogListener =
+            DatePickerDialog.OnDateSetListener { _, year, monthOfYear, dayOfMonth ->
+
+                if (fromDate != null) {
+                    cal.set(fromDate.year, fromDate.monthValue, fromDate.dayOfMonth)
+                }
+
+                if (toDate != null) {
+                    cal.set(toDate.year, toDate.monthValue, toDate.dayOfMonth)
+                }
+
+                cal.set(Calendar.YEAR, year)
+                cal.set(Calendar.MONTH, monthOfYear)
+                cal.set(Calendar.DAY_OF_MONTH, dayOfMonth)
+
+                val date = cal.time
+                val zoneOffset = ZoneOffset.of("+02:00")
+                val offsetDateTime = date.toInstant().atOffset(zoneOffset)
+
+                when (filterDate) {
+                    FilterDate.LISTED_TO -> viewModel.setListedDateTo(offsetDateTime)
+                    FilterDate.SOLD_TO -> viewModel.setSoldDateTo(offsetDateTime)
+                    FilterDate.LISTED_FROM -> viewModel.setListedDateFrom(offsetDateTime)
+                    FilterDate.SOLD_FROM -> viewModel.setSoldDateFrom(offsetDateTime)
+                }
+            }
+
+        view.setOnClickListener {
+            val picker = DatePickerDialog(
+                requireContext(),
+                dateDialogListener,
+                cal.get(Calendar.YEAR),
+                cal.get(Calendar.MONTH),
+                cal.get(Calendar.DAY_OF_MONTH)
+            )
+            if (fromDate != null) {
+                cal.set(fromDate.year, fromDate.monthValue - 1, fromDate.dayOfMonth)
+                picker.datePicker.minDate = cal.timeInMillis
+            }
+
+            if (toDate != null) {
+                cal.set(toDate.year, toDate.monthValue - 1, toDate.dayOfMonth)
+                picker.datePicker.maxDate = cal.timeInMillis
+            }
+
+            picker.show()
+        }
+    }
+
+    private fun setupPriceEditText(){
         binding.priceMinRange.addTextChangedListener(object : TextWatcher {
 
             var current = ""
@@ -64,6 +214,12 @@ class FilterDialogFragment : BottomSheetDialogFragment() {
                     binding.priceMinRange.setText(formatted)
                     binding.priceMinRange.setSelection(formatted.length)
                     binding.priceMinRange.addTextChangedListener(this)
+
+                    if (formatted == "$0"){
+                        binding.priceMinRange.removeTextChangedListener(this)
+                        binding.priceMinRange.setText("")
+                        binding.priceMinRange.addTextChangedListener(this)
+                    }
                 }
             }
         })
@@ -100,107 +256,32 @@ class FilterDialogFragment : BottomSheetDialogFragment() {
                     binding.priceMaxRange.setText(formatted)
                     binding.priceMaxRange.setSelection(formatted.length)
                     binding.priceMaxRange.addTextChangedListener(this)
+
+                    if (formatted == "$0"){
+                        binding.priceMaxRange.removeTextChangedListener(this)
+                        binding.priceMaxRange.setText("")
+                        binding.priceMaxRange.addTextChangedListener(this)
+                    }
                 }
             }
         })
-
-        binding.submitButtonDialog.setOnClickListener {
-
-            // Get all inputs
-            val priceMin = binding.priceMinRange.text.toString().ifEmpty { null }
-            val priceMax = binding.priceMaxRange.text.toString().ifEmpty { null }
-            val surfaceMin = binding.surfaceMinRange.text.toString().ifEmpty { null }
-            val surfaceMax = binding.surfaceMaxRange.text.toString().ifEmpty { null }
-            val location = binding.locationEditText.text.toString().ifEmpty { null }
-            val room = binding.roomAmount.text.toString().ifEmpty { null }
-            val bedroom = binding.bedroomAmount.text.toString().ifEmpty { null }
-            val bathroom = binding.bathroomAmount.text.toString().ifEmpty { null }
-
-            val isAvailable: Boolean? = if (binding.checkboxYes.isChecked) {
-                true
-            } else if (binding.checkboxNo.isChecked) {
-                false
-            } else {
-                null
-            }
-
-            Log.d("Available value", isAvailable.toString())
-
-            val nearbyPoiList = binding.poiChipGroup.children
-                .filter { (it as Chip).isChecked }
-                .map { (it as Chip).text.toString() }
-            
-            val typeName = binding.typeChipGroup.children
-                .filter { (it as Chip).isChecked }
-                .map { (it as Chip).text.toString() }
-                .toList()
-                .ifEmpty { null }?.get(0)
-
-            Log.d("Filter", "" + typeName)
-
-            val requestOk: Boolean =
-                allFieldsAreEmpty(isAvailable, typeName, nearbyPoiList.toList().ifEmpty { null })
-
-            if (requestOk) {
-                Log.d("Filter", "Empty fields")
-                Toast.makeText(requireContext(), "You must select at least one filter !", Toast.LENGTH_LONG).show()
-            } else {
-                viewModel.filterList(
-                    type = typeName,
-                    priceMin = currencyToString(priceMin),
-                    priceMax = currencyToString(priceMax),
-                    surfaceMin = surfaceMin,
-                    surfaceMax = surfaceMax,
-                    room = room,
-                    bedroom = bedroom,
-                    bathroom = bathroom,
-                    location = location,
-                    nearbyPOI = nearbyPoiList.toList().ifEmpty { null }
-                )
-                Log.d("Filter", "Filters applied")
-                dismiss()
-            }
-        }
-
-        binding.cancelButtonDialog.setOnClickListener()
-        {
-            dismiss()
-        }
-
-        return binding.root
     }
 
-    private fun allFieldsAreEmpty(
-        isAvailable: Boolean?,
-        typeName: String?,
-        nearbyPOIList: List<String>?
-    ): Boolean {
-        if (isAvailable == null) {
-            if (nearbyPOIList == null) {
-                if (typeName == null) {
-                    return binding.priceMinRange.text.toString().isEmpty() &&
-                            binding.priceMaxRange.text.toString().isEmpty() &&
-                            binding.surfaceMinRange.text.toString().isEmpty() &&
-                            binding.surfaceMaxRange.text.toString().isEmpty() &&
-                            binding.locationEditText.text.toString().isEmpty() &&
-                            binding.roomAmount.text.toString().isEmpty() &&
-                            binding.bedroomAmount.text.toString().isEmpty() &&
-                            binding.bathroomAmount.text.toString().isEmpty()
-                }
-                return false
-            }
-            return false
+    private fun clearAllViews(){
+        binding.cancelButtonDialog.setOnClickListener {
+            binding.surfaceMinRange.text?.clear()
+            binding.surfaceMaxRange.text?.clear()
+            binding.locationEditText.text?.clear()
+            binding.radioGroup.check(R.id.radio_ignore)
+            binding.soldDateLayout.visibility = View.GONE
+            binding.typeChipGroup.clearCheck()
+            binding.poiChipGroup.clearCheck()
+            viewModel.clearData()
+            // android:onClick="@{() -> viewModel.clearData()}"
         }
-        return false
     }
+}
 
-    private fun currencyToString(price: String?) : String?{
-        if (price != null) {
-            return price
-                .replace("$", "")
-                .replace(".", "")
-                .replace(",", "")
-        }
-        return null
-    }
+enum class FilterDate {
+    LISTED_FROM, LISTED_TO, SOLD_FROM, SOLD_TO
 }

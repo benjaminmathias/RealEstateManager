@@ -2,13 +2,24 @@ package com.openclassrooms.realestatemanager.ui
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.provider.Settings
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
+import com.openclassrooms.realestatemanager.BuildConfig
 import com.openclassrooms.realestatemanager.databinding.ActivitySplashBinding
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @SuppressLint("CustomSplashScreen")
 class SplashActivity : AppCompatActivity() {
@@ -21,36 +32,27 @@ class SplashActivity : AppCompatActivity() {
         binding = ActivitySplashBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        requestLocationPermission()
+        setupAnimation()
+
+        makePermissionRequest()
     }
 
-    @RequiresApi(Build.VERSION_CODES.N)
-    val locationPermissionRequest = registerForActivityResult(
-        ActivityResultContracts.RequestMultiplePermissions()
-    ) { permissions ->
-        when {
-            permissions.getOrDefault(Manifest.permission.ACCESS_FINE_LOCATION, false) -> {
-                // Precise location access granted.
-                Toast.makeText(this, "Permission granted !", Toast.LENGTH_LONG).show()
-                // Navigate to MainActivity
-            }
+    private fun setupAnimation() {
 
-            permissions.getOrDefault(Manifest.permission.ACCESS_COARSE_LOCATION, false) -> {
-                // Only approximate location access granted.
-                 Toast.makeText(this, "Permission granted !", Toast.LENGTH_LONG).show()
-                // Ask for precise location
-            }
+        val progressText = binding.permissionTextView
 
-            else -> {
-                // No location access granted.
-                Toast.makeText(this, "Permission denied !", Toast.LENGTH_LONG).show()
+        progressText.text = "Checking permissions"
 
-            }
+        lifecycleScope.launch {
+            delay(1000)
+            progressText.text = "Checking permissions."
+            delay(1000)
+            progressText.text = "Checking permissions.."
+            delay(1000)
+            progressText.text = "Checking permissions..."
         }
     }
-
-    @RequiresApi(Build.VERSION_CODES.N)
-    fun requestLocationPermission() {
+    private fun makePermissionRequest() {
         locationPermissionRequest.launch(
             arrayOf(
                 Manifest.permission.ACCESS_FINE_LOCATION,
@@ -59,5 +61,63 @@ class SplashActivity : AppCompatActivity() {
         )
     }
 
+    private val locationPermissionRequest =
+        registerForActivityResult(
+            ActivityResultContracts.RequestMultiplePermissions())
+        { permissions ->
+            // Handle Permission granted/rejected
+            val fine = permissions[Manifest.permission.ACCESS_FINE_LOCATION]
+            val coarse = permissions[Manifest.permission.ACCESS_COARSE_LOCATION]
 
+            if (fine == true && coarse == true) {
+                // Location permission granted.
+                Handler(Looper.getMainLooper()).postDelayed({
+                    val intent = Intent(this@SplashActivity, MainActivity::class.java)
+                    startActivity(intent)
+                }, 3000)
+                startActivity(intent)
+            } else {
+                // Location permission rejected.
+                showAlertDialog()
+            }
+        }
+
+    private fun showAlertDialog() {
+        val alertDialogBuilder = AlertDialog.Builder(this)
+        alertDialogBuilder.setMessage("R.string.splash_dialog_message")
+        alertDialogBuilder.setPositiveButton(
+            "R.string.positive_string"
+        ) { arg0, arg1 ->
+            try {
+                // Access app settings screen
+                val intent = Intent()
+                intent.action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+                val uri = Uri.fromParts(
+                    "package",
+                    BuildConfig.APPLICATION_ID, null
+                )
+                intent.data = uri
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                startActivity(intent)
+                finish()
+            } catch (e: Exception) {
+                Toast.makeText(
+                    this@SplashActivity,
+                    "R.string.splash_dialog_settings_error" + " " + e,
+                    Toast.LENGTH_LONG
+                ).show()
+                Log.d("error", e.toString())
+            }
+        }
+        alertDialogBuilder.setNegativeButton("R.string.negative_string") { dialog, which ->
+            Toast.makeText(
+                this@SplashActivity,
+                "R.string.splash_dialog_message_warning",
+                Toast.LENGTH_LONG
+            ).show()
+            finish()
+        }
+        val alertDialog = alertDialogBuilder.create()
+        alertDialog.show()
+    }
 }

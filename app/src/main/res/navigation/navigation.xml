@@ -8,7 +8,8 @@
     <fragment
         android:id="@+id/fragmentList"
         android:name="com.openclassrooms.realestatemanager.ui.RealEstateListFragment"
-        android:label="FragmentList"
+        android:label="RealEstateManager"
+        app:popUpToInclusive="true"
         tools:layout="@layout/fragment_list">
         <action
             android:id="@+id/action_fragmentList_to_fragmentDetails"
@@ -18,25 +19,32 @@
             android:id="@+id/action_fragmentList_to_fragmentAdd2"
             app:destination="@id/fragmentInput" />
         <action
-            android:id="@+id/action_fragmentList_to_fragmentMap"
-            app:destination="@id/fragmentMap" />
+            android:id="@+id/action_fragmentList_to_fragmentInput"
+            app:destination="@id/fragmentInput" />
         <action
             android:id="@+id/action_fragmentList_to_filterDialogFragment"
             app:destination="@id/filterDialogFragment" />
+        <action
+            android:id="@+id/action_fragmentList_to_fragmentLoan"
+            app:destination="@id/fragmentLoan" />
     </fragment>
     <fragment
         android:id="@+id/fragmentDetails"
         android:name="com.openclassrooms.realestatemanager.ui.RealEstateDetailsFragment"
-        android:label="FragmentDetails"
-        tools:layout="@layout/fragment_details">
+        android:label="RealEstateDetailsFragment"
+        tools:layout="@layout/fragment_details_rework">
+        <action
+            android:id="@+id/action_fragmentList_to_fragmentInput"
+            app:destination="@id/fragmentInput" />
         <action
             android:id="@+id/action_fragmentDetails_to_fragmentList"
             app:destination="@id/fragmentList" />
+
     </fragment>
     <fragment
         android:id="@+id/fragmentInput"
         android:name="com.openclassrooms.realestatemanager.ui.RealEstateInputFragment"
-        android:label="FragmentAdd"
+        android:label="Property Information"
         tools:layout="@layout/fragment_real_estate_edit">
         <action
             android:id="@+id/action_fragmentAddTest_to_fragmentList"
@@ -46,20 +54,29 @@
     <fragment
         android:id="@+id/fragmentMap"
         android:name="com.openclassrooms.realestatemanager.ui.MapFragment"
-        android:label="FragmentMap"
+        android:label="RealEstateManager"
+        app:popUpToInclusive="true"
         tools:layout="@layout/fragment_map">
-        <action
-            android:id="@+id/action_fragmentMap_to_fragmentList"
-            app:destination="@id/fragmentList" />
         <action
             android:id="@+id/action_fragmentMap_to_filterDialogFragment"
             app:destination="@id/filterDialogFragment" />
+        <action
+            android:id="@+id/action_fragmentMap_to_fragmentLoan"
+            app:destination="@id/fragmentLoan" />
     </fragment>
     <dialog
         android:id="@+id/filterDialogFragment"
         android:name="com.openclassrooms.realestatemanager.ui.FilterDialogFragment"
         android:label="FilterDialogFragment"
-        tools:layout="@layout/filter_dialog_layout"/>
+        tools:layout="@layout/filter_dialog_layout" />
+
+    <fragment
+        android:id="@+id/fragmentLoan"
+        android:name="com.openclassrooms.realestatemanager.ui.LoanFragment"
+        android:label="Mortgage calculator"
+        tools:layout="@layout/fragment_loan">
+
+    </fragment>
 
 
 </navigation>

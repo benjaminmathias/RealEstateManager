@@ -1,167 +1,192 @@
 package com.openclassrooms.realestatemanager.ui
 
-import android.location.Geocoder
+import android.content.res.Configuration
+import android.content.res.Configuration.SCREENLAYOUT_SIZE_LARGE
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.navigation.findNavController
-import androidx.recyclerview.widget.DividerItemDecoration
-import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.navigation.NavOptions
+import androidx.navigation.fragment.AbstractListDetailFragment
+import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
+import androidx.slidingpanelayout.widget.SlidingPaneLayout
 import com.openclassrooms.realestatemanager.R
 import com.openclassrooms.realestatemanager.databinding.FragmentListBinding
+import com.openclassrooms.realestatemanager.model.data.RealEstate
 import com.openclassrooms.realestatemanager.viewmodel.MainViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
-import java.util.Locale
 
 @AndroidEntryPoint
-class RealEstateListFragment : Fragment() {
+class RealEstateListFragment : AbstractListDetailFragment() {
 
     private lateinit var realestateRecyclerView: RecyclerView
     private lateinit var binding: FragmentListBinding
     private lateinit var adapter: RealEstateAdapter
 
-    private val viewModel: MainViewModel by viewModels()
+    private val viewModel: MainViewModel by activityViewModels()
 
-    private lateinit var geocoder: Geocoder
-
-    override fun onCreateView(
+    override fun onCreateListPaneView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentListBinding.inflate(layoutInflater, container, false)
-
-        activity?.title = "Real Estate Manager"
-        geocoder = Geocoder(requireContext(), Locale.getDefault())
-
-        setupRecyclerView()
-
         return binding.root
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        observeData()
+    override fun onCreateDetailPaneNavHostFragment(): NavHostFragment {
+        return NavHostFragment.create(R.navigation.two_pane_navigation)
     }
 
-    private fun setupRecyclerView() {
-        realestateRecyclerView = binding.realestateListFragment
-        realestateRecyclerView.layoutManager = LinearLayoutManager(context)
-        realestateRecyclerView.addItemDecoration(
-            DividerItemDecoration(
-                realestateRecyclerView.context,
-                DividerItemDecoration.HORIZONTAL
-            )
+    override fun onListPaneViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onListPaneViewCreated(view, savedInstanceState)
+
+        requireActivity().onBackPressedDispatcher.addCallback(
+            viewLifecycleOwner,
+            TwoPaneOnBackPressedCallback(slidingPaneLayout)
         )
-        adapter = RealEstateAdapter(this@RealEstateListFragment, mutableListOf())
+
+        binding.listFab?.setOnClickListener {
+            findNavController().navigate(R.id.fragmentMap)
+        }
+
+        realestateRecyclerView = binding.realestateListRecyclerView
+        adapter = RealEstateAdapter(mutableListOf())
+
+        adapter.setOnClickListener(object :
+            RealEstateAdapter.OnClickListener {
+            override fun onClick(position: Int, model: RealEstate) {
+                openDetails(model.id!!)
+            }
+        })
+
         realestateRecyclerView.adapter = adapter
+
+        collectState()
+        observeFilteredList()
     }
 
-    private fun observeData() {
-
-        /* viewModel.uiStateLiveData.observe(viewLifecycleOwner) { uiState ->
-
-            when (uiState) {
-
-                is MainViewModel.MainUiState.Success -> {
-                    adapter.updateData(uiState.realEstateEntity)
-                }
-
-                is MainViewModel.MainUiState.Error -> RealEstateAdapter(
-                    this@RealEstateListFragment,
-                    mutableListOf()
-                )
-
-                else -> {}
-            }
-        }*/
-
-        /*lifecycleScope.launch {
-            viewModel.uiState
-                .flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
-                .collect { uiState ->
-                    when (uiState) {
-                        is MainViewModel.MainUiState.Success -> {
-                            adapter.updateData(uiState.realEstateEntity)
-                        }
-
-                        is MainViewModel.MainUiState.Filter -> {
-                            adapter.updateData(uiState.realEstateFilteredList)
-                        }
-
-                        is MainViewModel.MainUiState.Error -> RealEstateAdapter(
-                            this@RealEstateListFragment,
-                            mutableListOf()
-                        )
-
-                        else -> {}
-                    }
-                }*/
-
-        // TODO : check ici pour update recyclerview
-         viewLifecycleOwner.lifecycleScope.launch {
+    private fun collectState() {
+        viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.uiState.collect { uiState ->
                     when (uiState) {
                         is MainViewModel.MainUiState.Success -> {
-                            adapter.updateData(uiState.realEstateEntity)
+                            adapter.updateData(uiState.realEstateList)
+                            binding.emptyView.root.visibility = View.GONE
+
+                            collectFilteredValue()
+
+                            if (!realestateRecyclerView.isComputingLayout) {
+                                if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE &&
+                                    resources.configuration.isLayoutSizeAtLeast(
+                                        SCREENLAYOUT_SIZE_LARGE
+                                    )
+                                ) {
+                                    if (uiState.realEstateList.isNotEmpty()) {
+                                        uiState.realEstateList[0].id?.let { openDetails(it) }
+                                    } else {
+                                        openDetails(null)
+                                    }
+                                }
+                            }
                         }
 
-                        is MainViewModel.MainUiState.Error -> RealEstateAdapter(
-                            this@RealEstateListFragment,
-                            mutableListOf()
-                        )
-
-                        else -> {}
+                        is MainViewModel.MainUiState.Error -> {
+                            binding.emptyView.root.visibility = View.VISIBLE
+                            binding.emptyView.title.text = "There was an error getting the list"
+                            binding.emptyView.subTitle.text = uiState.exception.message
+                        }
                     }
                 }
             }
         }
     }
 
-    fun onClick(id: Long) {
-        Toast.makeText(context, "Click on $id", Toast.LENGTH_SHORT).show()
-        val bundle = Bundle().apply {
-            putLong("id", id)
+    private fun collectFilteredValue() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.isFiltered.collect {
+                    when (it) {
+                        true -> {
+                            if (realestateRecyclerView.adapter?.itemCount == 0) {
+                                binding.emptyView.root.visibility = View.VISIBLE
+                                binding.emptyView.title.text =
+                                    "There's no data available !"
+                                binding.emptyView.subTitle.text =
+                                    "There's no result matching your query"
+                            }
+                        }
+
+                        false -> {
+                            if (realestateRecyclerView.adapter?.itemCount == 0) {
+                                binding.emptyView.root.visibility = View.VISIBLE
+                                binding.emptyView.title.text =
+                                    "There's no data available !"
+                                binding.emptyView.subTitle.text =
+                                    "You need to add a new property for it to be shown !"
+                            }
+                        }
+                    }
+                }
+            }
         }
-        requireView().findNavController().navigate(R.id.fragmentDetails, bundle)
     }
 
+    private fun observeFilteredList() {
+        lifecycleScope.launch {
+            viewModel.isFiltered.collect {
+                if (it) {
+                    if (realestateRecyclerView.adapter?.itemCount == 0) {
+                        if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE &&
+                            resources.configuration.isLayoutSizeAtLeast(
+                                SCREENLAYOUT_SIZE_LARGE
+                            )
+                        ) {
+                            openDetails(null)
+                        }
+                    }
+                    binding.realestateListFilterClear?.visibility = View.VISIBLE
 
-    override fun onStart() {
-        super.onStart()
-        Log.d("RealEstateListFragment", "onStart called")
+                    binding.realestateListFilterClear?.setOnClickListener {
+                        viewModel.getNonFilteredList()
+                    }
+                } else {
+                    binding.realestateListFilterClear?.visibility = View.GONE
+                }
+            }
+        }
     }
 
-    override fun onResume() {
-        super.onResume()
-        Log.d("RealEstateListFragment", "onResume called")
+    private fun openDetails(itemId: Long?) {
+        val bundle = Bundle().apply {
+            if (itemId != null) {
+                putLong("id", itemId)
+            }
+        }
+        val detailNavController = detailPaneNavHostFragment.navController
+        detailNavController.navigate(
+            R.id.fragmentDetails,
+            bundle,
+            NavOptions.Builder()
+                .setPopUpTo(detailNavController.graph.startDestinationId, true)
+                .apply {
+                    if (slidingPaneLayout.isOpen) {
+                        setEnterAnim(R.animator.nav_default_enter_anim)
+                        setExitAnim(R.animator.nav_default_exit_anim)
+                    }
+                }
+                .build()
+        )
+        slidingPaneLayout.open()
+        slidingPaneLayout.lockMode = SlidingPaneLayout.LOCK_MODE_LOCKED
     }
-
-    override fun onPause() {
-        super.onPause()
-        Log.d("RealEstateListFragment", "onPause called")
-    }
-
-    override fun onStop() {
-        super.onStop()
-        Log.d("RealEstateListFragment", "onStop called")
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        Log.d("RealEstateListFragment", "onDestroy called")
-    }
-
-
 }
+

@@ -1,0 +1,367 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_weight="1"
+    android:maxWidth="300dp"
+    android:orientation="vertical"
+    android:theme="@style/Theme.MaterialComponents.Light.DarkActionBar"
+    tools:ignore="HardcodedText">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/details_layout2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/details_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <LinearLayout
+                android:id="@+id/photoLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:baselineAligned="false"
+                android:orientation="vertical"
+                app:layout_constraintBottom_toTopOf="@+id/assignedagent_text_view"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <androidx.viewpager.widget.ViewPager
+                    android:id="@+id/idViewPager"
+                    android:layout_width="match_parent"
+                    android:layout_height="350dp">
+
+                    <com.google.android.material.tabs.TabLayout
+                        android:id="@+id/tablayout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="bottom|center"
+                        android:background="@android:color/transparent"
+                        app:tabBackground="@drawable/tab_selector"
+                        app:tabGravity="center"
+                        app:tabIndicatorHeight="0dp" />
+
+                </androidx.viewpager.widget.ViewPager>
+
+
+                <!-- <ImageSwitcher
+                     android:id="@+id/image_switcher"
+                     android:layout_width="match_parent"
+                     android:layout_height="250dp" /> -->
+
+            </LinearLayout>
+
+
+            <TextView
+                android:id="@+id/no_pic_text_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:visibility="gone"
+                app:layout_constraintBottom_toTopOf="parent"
+                app:layout_constraintEnd_toStartOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="No picture has been provided" />
+
+
+            <TextView
+                android:id="@+id/assignedagent_text_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:drawablePadding="2dp"
+                android:padding="16dp"
+                android:text="Agent"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                app:drawableLeftCompat="@drawable/person_24px"
+                app:drawableTint="@color/colorPrimaryDark"
+                app:layout_constraintEnd_toStartOf="@+id/availability_text_view"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/photoLayout" />
+
+            <TextView
+                android:id="@+id/availability_text_view"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="1dp"
+                android:gravity="end"
+                android:padding="16dp"
+                android:text="Availability"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/assignedagent_text_view"
+                app:layout_constraintTop_toTopOf="@+id/assignedagent_text_view" />
+
+
+            <TextView
+                android:id="@+id/type_text_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:drawablePadding="2dp"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                app:drawableLeftCompat="@drawable/home_24px"
+                app:drawableTint="@color/colorPrimaryDark"
+                app:layout_constraintBottom_toBottomOf="@+id/currency_switch"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/currency_switch"
+                tools:text="Type" />
+
+
+            <TextView
+                android:id="@+id/price_text_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:drawablePadding="2dp"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                app:drawableLeftCompat="@drawable/sell_24px"
+                app:drawableTint="@color/colorPrimaryDark"
+                app:layout_constraintBottom_toBottomOf="@+id/currency_switch"
+                app:layout_constraintEnd_toStartOf="@+id/surface_text_view"
+                app:layout_constraintStart_toEndOf="@+id/type_text_view"
+                app:layout_constraintTop_toTopOf="@+id/currency_switch"
+                tools:text="Price" />
+
+
+            <TextView
+                android:id="@+id/surface_text_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="10dp"
+                android:drawablePadding="2dp"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                app:drawableLeftCompat="@drawable/fullscreen_24px"
+                app:drawableTint="@color/colorPrimaryDark"
+                app:layout_constraintBottom_toBottomOf="@+id/type_text_view"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/type_text_view"
+                tools:text="Surface" />
+
+
+            <TextView
+                android:id="@+id/rooms_text_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="10dp"
+                android:drawablePadding="2dp"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                app:drawableLeftCompat="@drawable/nest_multi_room_24px"
+                app:drawableTint="@color/colorPrimaryDark"
+                app:layout_constraintEnd_toStartOf="@+id/bedroom_text_view"
+                app:layout_constraintHorizontal_chainStyle="spread"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/currency_switch"
+                tools:text="Room(s) : \n        1" />
+
+
+            <TextView
+                android:id="@+id/bedroom_text_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:drawablePadding="2dp"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                app:drawableLeftCompat="@drawable/bedroom_24px"
+                app:drawableTint="@color/colorPrimaryDark"
+                app:layout_constraintBottom_toBottomOf="@+id/bathroom_text_view"
+                app:layout_constraintEnd_toStartOf="@+id/bathroom_text_view"
+                app:layout_constraintStart_toEndOf="@+id/rooms_text_view"
+                app:layout_constraintTop_toTopOf="@+id/bathroom_text_view"
+                tools:text="Bedroom(s) : \n           1" />
+
+
+            <TextView
+                android:id="@+id/bathroom_text_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:drawablePadding="2dp"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                app:drawableLeftCompat="@drawable/shower_24px"
+                app:drawableTint="@color/colorPrimaryDark"
+                app:layout_constraintBottom_toBottomOf="@+id/rooms_text_view"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/bedroom_text_view"
+                app:layout_constraintTop_toTopOf="@+id/rooms_text_view"
+                tools:text="Bathroom(s) : \n        1" />
+
+            <TextView
+                android:id="@+id/location_text_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:padding="16dp"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                app:drawableLeftCompat="@drawable/home_pin_24px"
+                app:drawableTint="@color/colorPrimaryDark"
+                app:layout_constraintBottom_toTopOf="@+id/details_map"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/bedroom_text_view"
+                tools:text="146 Rue de la grande route, 75000 Paris" />
+
+
+            <com.google.android.gms.maps.MapView
+                android:id="@+id/details_map"
+                android:layout_width="200dp"
+                android:layout_height="150dp"
+                app:layout_constraintBottom_toTopOf="@+id/description_text_view"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/location_text_view" />
+
+
+            <TextView
+                android:id="@+id/description_text_view"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="10dp"
+                android:layout_marginBottom="10dp"
+                android:gravity="center"
+                android:textSize="16sp"
+                android:textStyle="italic"
+                app:layout_constraintBottom_toTopOf="@+id/textView4"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/details_map"
+                tools:text="Lorem ipsum dolor sit amet,
+                 consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore
+                  et dolore magna aliqua." />
+
+
+            <TextView
+                android:id="@+id/textView4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:text="Nearby point of interest :"
+                android:textSize="16sp"
+                app:layout_constraintBottom_toTopOf="@+id/nearbyPOI_text_view"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/description_text_view" />
+
+            <TextView
+                android:id="@+id/nearbyPOI_text_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:gravity="center"
+                android:textSize="16sp"
+                android:textStyle="bold|italic"
+                app:layout_constraintBottom_toTopOf="@+id/entrydate_text_view"
+                app:layout_constraintStart_toStartOf="@+id/textView4"
+                app:layout_constraintTop_toBottomOf="@+id/textView4"
+                tools:text="Restaurant, Shopping, Entertainment" />
+
+
+            <TextView
+                android:id="@+id/entrydate_text_view"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="10dp"
+                android:gravity="center"
+                android:text="Entry Date"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toStartOf="@+id/saledate_text_view"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/nearbyPOI_text_view" />
+
+
+            <TextView
+                android:id="@+id/saledate_text_view"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:gravity="center"
+                android:text="Sale Date"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/entrydate_text_view"
+                app:layout_constraintTop_toTopOf="@+id/entrydate_text_view" />
+
+
+            <Button
+                android:id="@+id/sold_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="10dp"
+                android:background="@drawable/rounded_corner"
+                android:padding="16dp"
+                android:text="Mark as sold"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="@+id/edit_button"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/edit_button"
+                tools:visibility="visible" />
+
+            <Button
+                android:id="@+id/edit_button"
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:padding="16dp"
+                android:text="Edit property"
+                android:textColor="@color/colorPrimary"
+                android:textSize="16sp"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/entrydate_text_view"
+                tools:visibility="visible" />
+
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/currency_switch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="10dp"
+                android:checked="true"
+                android:textOff="$"
+                android:textOn="€"
+                app:layout_constraintEnd_toStartOf="@+id/price_text_view"
+                app:layout_constraintStart_toEndOf="@+id/type_text_view"
+                app:layout_constraintTop_toBottomOf="@+id/availability_text_view" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <include
+            android:id="@+id/empty_view"
+            layout="@layout/empty_data_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:visibility="gone" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>

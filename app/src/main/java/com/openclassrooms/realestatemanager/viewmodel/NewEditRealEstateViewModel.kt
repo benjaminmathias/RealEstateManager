@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import java.time.OffsetDateTime
 import java.util.UUID
 import javax.inject.Inject
 
@@ -44,22 +45,24 @@ class NewEditRealEstateViewModel @Inject constructor(
             if (realEstateId == null) {
                 _uiState.value = RealEstateUiState.Default(true)
                 _uiState.value = RealEstateUiState.RealEstateDataUi(_realEstateData.value)
-                Log.d("VM", "Default RealEstateData")
-                getCurrentLocation()
             } else {
                 _uiState.value = RealEstateUiState.Default(false)
                 retrieveStoredRealEstate(realEstateId)
-                Log.d("VM", "Retrieved RealEstateData")
             }
         }
 
     }
 
+    fun updateEntryDate(entryDate : OffsetDateTime){
+        _realEstateData.value = _realEstateData.value.copy(
+            entryDate = entryDate
+        )
+    }
+
     // GET ADDRESS
-    private fun getCurrentLocation(){
+    fun getCurrentLocation(){
         viewModelScope.launch {
             locationService.userLocation.collect {
-                Log.d("Initial flow in VM", it.address)
                 _realEstateData.value = _realEstateData.value.copy(
                     address = it.address,
                     lat = it.latitude,
@@ -67,7 +70,17 @@ class NewEditRealEstateViewModel @Inject constructor(
                 )
             }
         }
-        Log.d("NewVM", _realEstateData.value.address)
+    }
+
+    // CLEAR ADDRESS
+    fun clearExistingLocation(){
+        viewModelScope.launch {
+            _realEstateData.value = _realEstateData.value.copy(
+                address = null,
+                lat = null,
+                lon = null
+            )
+        }
     }
 
     // TYPE //
@@ -145,7 +158,7 @@ class NewEditRealEstateViewModel @Inject constructor(
     // Retrieve stored real estate poi list
     private fun getStoredRealEstatePoi() {
         val chipIds = mutableListOf<Int>()
-        for (poi in realEstateDataFlow.value.nearbyPOI) {
+        for (poi in realEstateDataFlow.value.nearbyPOI!!) {
             if (poi == RealEstatePoi.RESTAURANT.name)
                 chipIds.add(R.id.restaurant_poi_chip)
             if (poi == RealEstatePoi.SHOPPING.name)
@@ -210,12 +223,12 @@ class NewEditRealEstateViewModel @Inject constructor(
         checkedAgentChipObservable.value = chipIdList
     }
 
-    // Submit
+    //
+    // Create OR Update
     fun onSaveButtonClick() {
         viewModelScope.launch {
             if (checkIfFieldsAreValid()) {
                 val realEstate = getRealEstate(_realEstateData.value)
-                // retrieveAddress(_userLocation.value.latitude, _userLocation.value.longitude)
                 // If id is null, create a new RealEstate
                 if (realEstateId == null) {
                     realEstateRepository.insertRealEstateAndPhoto(realEstate)
@@ -231,13 +244,13 @@ class NewEditRealEstateViewModel @Inject constructor(
         }
     }
 
-    // Retrieve
+    // Retrieve existing
     private suspend fun retrieveStoredRealEstate(id: Long) {
         realEstateRepository.retrieveAndConvertSpecificRealEstateEntity(id)
             .map { realEstate: RealEstate ->
                 RealEstateData(
                     type = realEstate.type,
-                    surface = realEstate.surface.toString(),
+                    surface = if (realEstate.surface.toString() != "null") { realEstate.surface.toString()} else {null},
                     price = realEstate.price.toString(),
                     description = realEstate.description,
                     address = realEstate.address,
@@ -246,9 +259,11 @@ class NewEditRealEstateViewModel @Inject constructor(
                     nearbyPOI = realEstate.nearbyPOI,
                     entryDate = realEstate.entryDate,
                     assignedAgent = realEstate.assignedAgent,
-                    room = realEstate.room.toString(),
-                    bedroom = realEstate.bedroom.toString(),
-                    bathroom = realEstate.bathroom.toString(),
+                    room = if (realEstate.room.toString() != "null") { realEstate.room.toString()} else {null},
+                    bedroom = if (realEstate.bedroom.toString() != "null") { realEstate.bedroom.toString()} else {null},
+                    bathroom = if (realEstate.bathroom.toString() != "null") { realEstate.bathroom.toString()} else {null},
+                    lat = realEstate.lat,
+                    lon = realEstate.lon,
                     id = realEstate.id
                 )
             }
@@ -266,17 +281,12 @@ class NewEditRealEstateViewModel @Inject constructor(
 
     private fun checkIfFieldsAreValid(): Boolean {
         if (getSelectedRealEstateType().toString().isEmpty() ||
-            _realEstateData.value.price.isEmpty() || currencyToInt(_realEstateData.value.price) <= 10000||
-            _realEstateData.value.surface.isEmpty() ||
-           // _realEstateData.value.description.isEmpty() ||
-            _realEstateData.value.room.isEmpty() ||
-            _realEstateData.value.bedroom.isEmpty() ||
-            _realEstateData.value.bathroom.isEmpty() ||
-            _realEstateData.value.photos.isEmpty() ||
-            _realEstateData.value.entryDate == "../../...." ||
+            _realEstateData.value.price.isEmpty() ||
+            currencyToInt(_realEstateData.value.price) <= 10000 ||
             getSelectedRealEstateAgent().toString().isEmpty() ||
-            getSelectedRealEstatePoi().isEmpty()
-        ) {
+            _realEstateData.value.photos.isEmpty() ||
+            _realEstateData.value.entryDate == null
+            ) {
             return false
         }
         return true
@@ -294,7 +304,7 @@ class NewEditRealEstateViewModel @Inject constructor(
     private fun getRealEstate(realEstateData: RealEstateData): RealEstate {
         return RealEstate(
             type = getSelectedRealEstateType()[0],
-            surface = realEstateData.surface.toInt(),
+            surface = realEstateData.surface?.toInt(),
             price = currencyToInt(realEstateData.price),
             description = realEstateData.description,
             address = realEstateData.address,
@@ -303,34 +313,34 @@ class NewEditRealEstateViewModel @Inject constructor(
             entryDate = realEstateData.entryDate,
             saleDate = null,
             assignedAgent = getSelectedRealEstateAgent()[0],
-            room = realEstateData.room.toInt(),
-            bedroom = realEstateData.bedroom.toInt(),
-            bathroom = realEstateData.bathroom.toInt(),
+            room = realEstateData.room?.toInt(),
+            bedroom = realEstateData.bedroom?.toInt(),
+            bathroom = realEstateData.bathroom?.toInt(),
             id = realEstateData.id,
             photos = realEstateData.photos,
             lat = realEstateData.lat,
             lon = realEstateData.lon
         )
-        // TODO : var name check
     }
 }
 
 data class RealEstateData(
     var type: String = "",
     var price: String = "",
-    var surface: String = "",
-    var description: String = "",
-    var room: String = "",
-    var bedroom: String = "",
-    var bathroom: String = "",
-    var address: String = "",
-    var entryDate: String = "../../....",
+    var surface: String? = null,
+    var description: String? = null,
+    var room: String? = null,
+    var bedroom: String? = null,
+    var bathroom: String? = null,
+    var address: String? = null,
+    var entryDate: OffsetDateTime? = null,
+    var saleDate: OffsetDateTime? = null,
     var assignedAgent: String = "",
     var isAvailable: Boolean = true,
-    var nearbyPOI: List<String> = emptyList(),
+    var nearbyPOI: List<String>? = emptyList(),
     var photos: MutableList<RealEstatePhoto> = mutableListOf(),
-    var lat: Double = 0.0,
-    var lon: Double = 0.0,
+    var lat: Double? = 0.0,
+    var lon: Double? = 0.0,
     var id: Long? = null
 )
 

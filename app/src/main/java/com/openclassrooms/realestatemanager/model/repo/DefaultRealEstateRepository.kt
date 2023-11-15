@@ -9,150 +9,105 @@ import com.openclassrooms.realestatemanager.model.data.RealEstateEntity
 import com.openclassrooms.realestatemanager.model.data.RealEstatePhoto
 import com.openclassrooms.realestatemanager.model.data.RealEstatePhotoDao
 import com.openclassrooms.realestatemanager.model.data.RealEstatePhotoEntity
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.withContext
+import java.time.OffsetDateTime
+import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class DefaultRealEstateRepository @Inject constructor(
-    private val realEstateDao: RealEstateDao, private val realEstatePhotoDao: RealEstatePhotoDao
+    private val realEstateDao: RealEstateDao,
+    private val realEstatePhotoDao: RealEstatePhotoDao,
+    private val ioDispatcher: CoroutineDispatcher,
 ) : RealEstateRepository {
 
+    private val formatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME
+
+    // READ
     // Retrieve List<RealEstateEntity> as a Flow<List> then convert it to RealEstate
     override fun retrieveAndConvertRealEstateEntityList(): Flow<List<RealEstate>> {
         return realEstateDao.getAll().map { entity: List<RealEstateEntity> ->
             entity.map {
-                RealEstate(
-                    type = it.type,
-                    surface = it.surface,
-                    price = it.price,
-                    description = it.description,
-                    address = it.address,
-                    nearbyPOI = it.nearbyPOI,
-                    isAvailable = it.isAvailable,
-                    photos = it.id?.let { it1 -> fetchAllPhotoItem(it1) },
-                    entryDate = it.entryDate,
-                    saleDate = it.saleDate,
-                    assignedAgent = it.assignedAgent,
-                    room = it.room,
-                    bedroom = it.bedroom,
-                    bathroom = it.bathroom,
-                    lat = it.lat,
-                    lon = it.lon,
-                    id = it.id
-                )
+                convertEntityToRealEstate(it)
             }
         }
     }
 
-    // Retrieve RealEstateEntity as a Flow then convert it to RealEstate
+    // Retrieve a single RealEstateEntity as a Flow then convert it to RealEstate
     override fun retrieveAndConvertSpecificRealEstateEntity(id: Long): Flow<RealEstate> {
-        return realEstateDao.getById(id).map { entity: RealEstateEntity ->
-            RealEstate(
-                type = entity.type,
-                surface = entity.surface,
-                price = entity.price,
-                description = entity.description,
-                address = entity.address,
-                isAvailable = entity.isAvailable,
-                photos = fetchAllPhotoItem(id),
-                nearbyPOI = entity.nearbyPOI,
-                entryDate = entity.entryDate,
-                saleDate = entity.saleDate,
-                assignedAgent = entity.assignedAgent,
-                room = entity.room,
-                bedroom = entity.bedroom,
-                bathroom = entity.bathroom,
-                lat = entity.lat,
-                lon = entity.lon,
-                id = entity.id
-            )
+        return realEstateDao.getById(id).map {
+            convertEntityToRealEstate(it)
         }
     }
 
     // Retrieve a filtered list of RealEstateEntity as a Flow<List> then convert it to RealEstate
     override suspend fun retrieveAndConvertFilteredRealEstateList(
-        type: String?,
-        priceMin: String?,
-        priceMax: String?,
-        surfaceMin: String?,
-        surfaceMax: String?,
-        room: String?,
-        bedroom: String?,
-        bathroom: String?,
-        location: String?,
-        nearbyPOI: List<String>?
-    ): Flow<List<RealEstate>> {
+        filters: Filters
+    ): List<RealEstate> {
         Log.d("Repo", "Filter reached !")
-        return getAllFiltered(
-            Filters(
-                type = type,
-                priceMin = priceMin,
-                priceMax = priceMax,
-                surfaceMin = surfaceMin,
-                surfaceMax = surfaceMax,
-                room = room,
-                bedroom = bedroom,
-                bathroom = bathroom,
-                location = location,
-                nearbyPOI = nearbyPOI
-            )
-        ).map { entity: List<RealEstateEntity> ->
-                entity.map {
-                    RealEstate(
-                        type = it.type,
-                        surface = it.surface,
-                        price = it.price,
-                        description = it.description,
-                        address = it.address,
-                        nearbyPOI = it.nearbyPOI,
-                        isAvailable = it.isAvailable,
-                        photos = it.id?.let { it1 -> fetchAllPhotoItem(it1) },
-                        entryDate = it.entryDate,
-                        saleDate = it.saleDate,
-                        assignedAgent = it.assignedAgent,
-                        room = it.room,
-                        bedroom = it.bedroom,
-                        bathroom = it.bathroom,
-                        lat = it.lat,
-                        lon = it.lon,
-                        id = it.id
-                    )
-                }
+        return withContext(ioDispatcher) {
+            realEstateDao.getAllFiltered(buildQuery(filters)).map { convertEntityToRealEstate(it) }
+        }
+    }
+
+    // Build a specific SQL query to retrieve matching (multiple if exists) RealEstateEntity
+    private fun buildQuery(filters: Filters): SimpleSQLiteQuery {
+
+        val conditions = mutableListOf<String>()
+        with(filters) {
+            type?.let { conditions.add("type LIKE '$it'") }
+            location?.let { conditions.add("address LIKE '%$it%'") }
+
+            if (priceMin?.isNotEmpty() == true) {
+                priceMin?.let { conditions.add("price >= $it") }
             }
 
+            if (priceMax?.isNotEmpty() == true) {
+                priceMax?.let { conditions.add("price <= $it") }
+            }
 
+            surfaceMin?.let { conditions.add("surface >= $it") }
+            surfaceMax?.let { conditions.add("surface <= $it") }
+            if (nearbyPOI != null) {
+                for (element: String in nearbyPOI!!) {
+                    nearbyPOI.let { conditions.add("nearbyPOI LIKE '%$element%'") }
+                }
+            }
+            isAvailable?.let { conditions.add("isAvailable = $it") }
+            fromListedDate?.let { conditions.add("date(entryDate) >= date('$it')") }
+            toListedDate?.let { conditions.add("date(entryDate) <= date('$it')") }
+            fromSoldDate?.let { conditions.add("date(saleDate) >= date('$it')") }
+            toSoldDate?.let { conditions.add("date(saleDate) >= date('$it')") }
+        }
+
+        val conditionsMerged = conditions.joinToString(separator = " AND ")
+
+        val query = SimpleSQLiteQuery(
+            "SELECT * FROM realEstate WHERE $conditionsMerged"
+        )
+        Log.d("Repo", "Query : SELECT * FROM realEstate WHERE $conditionsMerged")
+
+        return query
     }
-    /* override suspend fun retrieveAndConvertFilteredRealEstateList(type: String?): List<RealEstate> {
-         return realEstateDao.getAllFiltered(
-             Filters(
-                 type = type
-             )
-         ).map {
-             RealEstate(
-                 type = it.type,
-                 surface = it.surface,
-                 price = it.price,
-                 description = it.description,
-                 address = it.address,
-                 nearbyPOI = it.nearbyPOI,
-                 isAvailable = it.isAvailable,
-                 photos = it.id?.let { it1 -> fetchAllPhotoItem(it1) },
-                 entryDate = it.entryDate,
-                 saleDate = it.saleDate,
-                 assignedAgent = it.assignedAgent,
-                 room = it.room,
-                 bedroom = it.bedroom,
-                 bathroom = it.bathroom,
-                 lat = it.lat,
-                 lon = it.lon,
-                 id = it.id
-             )
-         }
-     }*/
+
+    // Retrieve all PhotoItem with id related to RealEstateEntity
+    private suspend fun fetchAllPhotoItem(id: Long): List<RealEstatePhoto> {
+        val listOfEntity: List<RealEstatePhotoEntity> = realEstatePhotoDao.getById(id)
+
+        val listOfPhotos: List<RealEstatePhoto> = listOfEntity.map { entities ->
+            RealEstatePhoto(
+                entities.uri, entities.photoDescription
+            )
+        }
+        return listOfPhotos
+    }
 
 
+    // CREATE
     // Retrieve both user added RealEstate and PhotoItem, then insert it in db
     override suspend fun insertRealEstateAndPhoto(realEstate: RealEstate) {
         // Retrieve our RealEstate object and convert it to entity
@@ -193,21 +148,17 @@ class DefaultRealEstateRepository @Inject constructor(
         }
     }
 
-    // Retrieve all PhotoItem with id related to RealEstateEntity
-    private suspend fun fetchAllPhotoItem(id: Long): List<RealEstatePhoto> {
-        val listOfEntity: List<RealEstatePhotoEntity> = realEstatePhotoDao.getById(id)
-
-        val listOfPhotos: List<RealEstatePhoto> = listOfEntity.map { entities ->
-            RealEstatePhoto(
-                entities.uri, entities.photoDescription
-            )
-        }
-        return listOfPhotos
-    }
-
-    // Update an existing RealEstateEntity when user set it as no longer available
-    override suspend fun setRealEstateAsNoLongerAvailable(
+    // UPDATE
+    // Update an existing RealEstateEntity to no longer available (sold)
+    /*override suspend fun setRealEstateAsNoLongerAvailable(
         saleDate: String, isAvailable: Boolean, id: Long
+    ) {
+        Log.d("RealEstateRepository", "Update called")
+        realEstateDao.updateRealEstate(saleDate, isAvailable, id)
+    }*/
+
+    override suspend fun setRealEstateAsNoLongerAvailable(
+        saleDate: OffsetDateTime, isAvailable: Boolean, id: Long
     ) {
         Log.d("RealEstateRepository", "Update called")
         realEstateDao.updateRealEstate(saleDate, isAvailable, id)
@@ -243,7 +194,7 @@ class DefaultRealEstateRepository @Inject constructor(
         }
     }
 
-    private fun convertRealEstateToEntity(realEstate: RealEstate): RealEstateEntity {
+    fun convertRealEstateToEntity(realEstate: RealEstate): RealEstateEntity {
         return RealEstateEntity(
             type = realEstate.type,
             surface = realEstate.surface,
@@ -252,6 +203,7 @@ class DefaultRealEstateRepository @Inject constructor(
             address = realEstate.address,
             isAvailable = realEstate.isAvailable,
             nearbyPOI = realEstate.nearbyPOI as ArrayList<String>,
+            // entryDate = realEstate.entryDate,
             entryDate = realEstate.entryDate,
             saleDate = realEstate.saleDate,
             assignedAgent = realEstate.assignedAgent,
@@ -262,37 +214,30 @@ class DefaultRealEstateRepository @Inject constructor(
             lon = realEstate.lon,
             id = realEstate.id
         )
+
+
     }
 
-    private fun getAllFiltered(filters: Filters): Flow<List<RealEstateEntity>> {
-        val conditions = mutableListOf<String>()
-        with(filters) {
-            type?.let { conditions.add("type LIKE '$it'") }
-            location?.let { conditions.add("address LIKE '%$it%'") }
-            priceMin?.let { conditions.add("price >= $it") }
-            priceMax?.let { conditions.add("price <= $it") }
-            surfaceMin?.let { conditions.add("surface >= $it") }
-            surfaceMax?.let { conditions.add("surface <= $it") }
-            room?.let { conditions.add("room >= $it") }
-            bedroom?.let { conditions.add("bedroom >= $it") }
-            bathroom?.let { conditions.add("bathroom >= $it") }
-            nearbyPOI?.let { conditions.add("nearbyPOI IN ($it)") }
-            // Handle all filters here
-        }
-
-       /* if (conditions.isEmpty())
-            return getAll()*/
-
-        val conditionsMerged = conditions.joinToString(separator = " AND ")
-        // val bindArgs = conditions.map
-
-        val query = SimpleSQLiteQuery(
-            "SELECT * FROM realEstate WHERE $conditionsMerged",
-            // bindArgs.toTypedArray()
+    suspend fun convertEntityToRealEstate(realEstateEntity: RealEstateEntity): RealEstate {
+        return RealEstate(
+            type = realEstateEntity.type,
+            surface = realEstateEntity.surface,
+            price = realEstateEntity.price,
+            description = realEstateEntity.description,
+            address = realEstateEntity.address,
+            nearbyPOI = realEstateEntity.nearbyPOI,
+            isAvailable = realEstateEntity.isAvailable,
+            photos = realEstateEntity.id?.let { it1 -> fetchAllPhotoItem(it1) },
+            // entryDate = realEstateEntity.entryDate,
+            entryDate = realEstateEntity.entryDate,
+            saleDate = realEstateEntity.saleDate,
+            assignedAgent = realEstateEntity.assignedAgent,
+            room = realEstateEntity.room,
+            bedroom = realEstateEntity.bedroom,
+            bathroom = realEstateEntity.bathroom,
+            lat = realEstateEntity.lat,
+            lon = realEstateEntity.lon,
+            id = realEstateEntity.id
         )
-
-        Log.d("Repo", "Query : SELECT * FROM realEstate WHERE $conditionsMerged")
-
-        return realEstateDao.getAllFiltered(query)
     }
 }

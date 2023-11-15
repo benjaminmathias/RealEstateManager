@@ -1,30 +1,32 @@
 package com.openclassrooms.realestatemanager.model.data
 
-import android.content.ContentValues
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import java.time.OffsetDateTime
 
 @Entity(tableName = "realEstate")
 data class RealEstateEntity(
     var type: String,
-    var surface: Int,
+    var surface: Int?,
     var price: Int,
-    var description: String,
-    var address: String,
-    var nearbyPOI: ArrayList<String>,
+    var description: String?,
+    var address: String?,
+    var nearbyPOI: ArrayList<String>?,
     var isAvailable: Boolean,
-    var entryDate: String,
-    var saleDate: String?,
+    // var entryDate: String,
+    // var entryDate: Date?,
+    var entryDate: OffsetDateTime?,
+    var saleDate: OffsetDateTime?,
     var assignedAgent: String,
-    var room: Int,
-    var bedroom: Int,
-    var bathroom: Int,
-    var lat: Double,
-    var lon: Double,
+    var room: Int?,
+    var bedroom: Int?,
+    var bathroom: Int?,
+    var lat: Double?,
+    var lon: Double?,
     @PrimaryKey(autoGenerate = false)
     val id: Long? = null
 ){
-    companion object {
+   /* companion object {
 
         fun fromContentValues(values: ContentValues): RealEstateEntity {
             var realEstateEntity : RealEstateEntity =
@@ -44,7 +46,7 @@ data class RealEstateEntity(
                     0,
                     0.0,
                     0.0,
-                    null)
+                    1)
 
             if (values.containsKey("type")) realEstateEntity.type = values.getAsString("type")
             if (values.containsKey("description")) realEstateEntity.description = values.getAsString("description")
@@ -63,6 +65,6 @@ data class RealEstateEntity(
 
             return realEstateEntity
         }
-    }
+    }*/
 }
 

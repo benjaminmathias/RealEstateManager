@@ -1,64 +1,103 @@
 package com.openclassrooms.realestatemanager.ui
 
-import android.Manifest
-import android.os.Build
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
-import android.view.View
 import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.annotation.RequiresApi
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
-import androidx.navigation.ui.setupWithNavController
-import com.google.android.material.bottomnavigation.BottomNavigationView
+import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.navigateUp
+import androidx.navigation.ui.setupActionBarWithNavController
 import com.openclassrooms.realestatemanager.R
 import com.openclassrooms.realestatemanager.databinding.ActivityMainBinding
+import com.openclassrooms.realestatemanager.viewmodel.MainViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
+    private lateinit var appBarConfiguration: AppBarConfiguration
+    private lateinit var navController: NavController
 
-    private lateinit var bottomNav: BottomNavigationView
+    private val viewModel: MainViewModel by viewModels()
 
-    @RequiresApi(Build.VERSION_CODES.N)
+
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val navHostFragment =
+       // setupNavigation()
+        observeQuery()
+
+        /*val navHostFragment =
             supportFragmentManager.findFragmentById(R.id.navHostFragment) as NavHostFragment
 
-        val navController = navHostFragment.navController
-
-        bottomNav = binding.bottomNavigation
-
-        bottomNav.setupWithNavController(navController)
+        navController = navHostFragment.navController
 
         navController.addOnDestinationChangedListener { _, destination, _ ->
-            if (destination.id == R.id.fragmentDetails ||
-                destination.id == R.id.fragmentInput
-            ) {
-                bottomNav.visibility = View.GONE
-                binding.realestateAddFab.visibility = View.GONE
+            when (destination.id) {*/
+              /*  R.id.fragmentLoan -> //binding.listMapFab.visibility = View.GONE
+                R.id.fragmentInput -> //binding.listMapFab.visibility = View.GONE
+                R.id.fragmentMap -> observePane(R.id.fragmentMap)
+                R.id.fragmentList -> observePane(R.id.fragmentList)*/
+
+
+
+       /* binding.listMapFab.setOnClickListener {
+            if (findNavController(R.id.navHostFragment).currentDestination?.id == R.id.fragmentList) {
+                findNavController(R.id.navHostFragment).navigate(R.id.fragmentMap)
+            } else if (findNavController(R.id.navHostFragment).currentDestination?.id == R.id.fragmentMap) {
+                findNavController(R.id.navHostFragment).navigate(R.id.fragmentList)
+            }
+        }*/
+
+        //observeFilteredList()
+
+        //observeNetwork()
+    }
+
+    private fun observeNetwork() {
+        viewModel.connectivityLiveData.observe(this) { networkAvailability ->
+            if (networkAvailability == true) {
+                Toast.makeText(this, "Device connected", Toast.LENGTH_LONG).show()
             } else {
-                bottomNav.visibility = View.VISIBLE
-                binding.realestateAddFab.visibility = View.VISIBLE
+                Toast.makeText(this, "Network lost", Toast.LENGTH_LONG).show()
             }
         }
+    }
 
-        binding.realestateAddFab.setOnClickListener {
-            findNavController(R.id.navHostFragment).navigate(R.id.fragmentInput)
+    private fun observeQuery() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.noQuery.collect {
+                    when (it) {
+                        true -> {
+                            Toast.makeText(
+                                this@MainActivity,
+                                "Need at least one search field",
+                                Toast.LENGTH_SHORT
+                            ).show()
+
+                            viewModel.setNoQueryToFalse()
+                        }
+
+                        false -> {}
+                    }
+                }
+            }
         }
-
-        requestLocationPermission()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -69,24 +108,25 @@ class MainActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
         R.id.action_filter -> {
-            Toast.makeText(this, "Click on Filter button", Toast.LENGTH_LONG).show()
-
             if (findNavController(R.id.navHostFragment).currentDestination?.id == R.id.fragmentList) {
                 findNavController(R.id.navHostFragment).navigate(R.id.action_fragmentList_to_filterDialogFragment)
             } else if (findNavController(R.id.navHostFragment).currentDestination?.id == R.id.fragmentMap) {
                 findNavController(R.id.navHostFragment).navigate(R.id.action_fragmentMap_to_filterDialogFragment)
             }
-
             true
         }
 
         R.id.action_mortgage -> {
-            Toast.makeText(this, "Click on Mortgage button", Toast.LENGTH_LONG).show()
+            if (findNavController(R.id.navHostFragment).currentDestination?.id == R.id.fragmentList) {
+                findNavController(R.id.navHostFragment).navigate(R.id.fragmentLoan)
+            } else if (findNavController(R.id.navHostFragment).currentDestination?.id == R.id.fragmentMap) {
+                findNavController(R.id.navHostFragment).navigate(R.id.fragmentLoan)
+            }
             true
         }
 
-        R.id.action_settings -> {
-            Toast.makeText(this, "Click on Settings button", Toast.LENGTH_LONG).show()
+        R.id.action_add -> {
+            findNavController(R.id.navHostFragment).navigate(R.id.fragmentInput)
             true
         }
 
@@ -95,36 +135,19 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.N)
-    val locationPermissionRequest = registerForActivityResult(
-        ActivityResultContracts.RequestMultiplePermissions()
-    ) { permissions ->
-        when {
-            permissions.getOrDefault(Manifest.permission.ACCESS_FINE_LOCATION, false) -> {
-                // Precise location access granted.
-                Toast.makeText(this, "Permission granted !", Toast.LENGTH_LONG).show()
-            }
+    private fun setupNavigation(){
+        val navHostFragment =
+            supportFragmentManager.findFragmentById(R.id.navHostFragment) as NavHostFragment
 
-            permissions.getOrDefault(Manifest.permission.ACCESS_COARSE_LOCATION, false) -> {
-                // Only approximate location access granted.
-                Toast.makeText(this, "Permission granted !", Toast.LENGTH_LONG).show()
-            }
-
-            else -> {
-                // No location access granted.
-                Toast.makeText(this, "Permission denied !", Toast.LENGTH_LONG).show()
-            }
-        }
+        navController = navHostFragment.navController
+        appBarConfiguration = AppBarConfiguration.Builder(navController.graph).build()
+        setupActionBarWithNavController(navController, appBarConfiguration)
     }
 
-    @RequiresApi(Build.VERSION_CODES.N)
-    fun requestLocationPermission() {
-        locationPermissionRequest.launch(
-            arrayOf(
-                Manifest.permission.ACCESS_FINE_LOCATION,
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            )
-        )
+    override fun onSupportNavigateUp(): Boolean {
+       // return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
+        val navController = findNavController(R.id.navHostFragment)
+        return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
     }
 }
 

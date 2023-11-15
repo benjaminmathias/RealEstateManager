@@ -28,6 +28,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.openclassrooms.realestatemanager.R
 import com.openclassrooms.realestatemanager.databinding.FragmentRealEstateEditBinding
@@ -38,7 +39,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import java.io.File
 import java.text.NumberFormat
-import java.text.SimpleDateFormat
+import java.time.ZoneOffset
 import java.util.*
 
 @AndroidEntryPoint
@@ -75,7 +76,6 @@ class RealEstateInputFragment : Fragment(), PhotoAdapter.ItemClickListener {
         addPhotoButton = binding.mediaAddButton
         addRealEstateButton = binding.submitButton
         setupEntryDate(binding.entrydateTextView)
-
 
         // Currency format, dollars only since we ask for $ price
         var current = ""
@@ -164,6 +164,7 @@ class RealEstateInputFragment : Fragment(), PhotoAdapter.ItemClickListener {
         // Open BottomSheetDialog where the user can pick existing photos or a new ones
         addPhotoButton.setOnClickListener {
             val dialog = BottomSheetDialog(requireContext())
+            dialog.behavior.state = BottomSheetBehavior.STATE_EXPANDED
             val view = layoutInflater.inflate(R.layout.image_selection_bottom_sheet, null)
 
             val cameraButton = view.findViewById<TextView>(R.id.camera_text_view)
@@ -201,6 +202,7 @@ class RealEstateInputFragment : Fragment(), PhotoAdapter.ItemClickListener {
         binding.cancelButton.setOnClickListener {
             requireView().findNavController().navigate(R.id.fragmentList)
         }
+
         return binding.root
     }
 
@@ -310,8 +312,7 @@ class RealEstateInputFragment : Fragment(), PhotoAdapter.ItemClickListener {
     }
 
     private fun notifyRealEstateIsCreated() {
-        Toast.makeText(requireContext(), "Success ! ", Toast.LENGTH_LONG)
-            .show()
+        Toast.makeText(requireContext(), "Success ! ", Toast.LENGTH_LONG).show()
         requireView().findNavController().navigate(R.id.fragmentList)
     }
 
@@ -321,7 +322,10 @@ class RealEstateInputFragment : Fragment(), PhotoAdapter.ItemClickListener {
                 cal.set(Calendar.YEAR, year)
                 cal.set(Calendar.MONTH, monthOfYear)
                 cal.set(Calendar.DAY_OF_MONTH, dayOfMonth)
-                updateEntryDateView(entryDateTextView)
+
+                val timeInMillis = cal.time
+                Log.d("Time", timeInMillis.toString())
+                updateEntryDateView()
             }
 
         entryDateTextView.setOnClickListener {
@@ -335,9 +339,10 @@ class RealEstateInputFragment : Fragment(), PhotoAdapter.ItemClickListener {
         }
     }
 
-    private fun updateEntryDateView(entryDateTextView: TextView) {
-        val myFormat = "dd/MM/yyyy"
-        val sdf = SimpleDateFormat(myFormat, Locale.FRANCE)
-        entryDateTextView.text = sdf.format(cal.time)
+    private fun updateEntryDateView() {
+        val date = cal.time
+        val zoneOffset = ZoneOffset.of("+02:00")
+        val offsetDateTime = date.toInstant().atOffset(zoneOffset)
+        viewModel.updateEntryDate(offsetDateTime)
     }
 }

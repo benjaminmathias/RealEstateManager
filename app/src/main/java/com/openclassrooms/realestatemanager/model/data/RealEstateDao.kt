@@ -8,6 +8,7 @@ import androidx.room.RawQuery
 import androidx.room.Update
 import androidx.sqlite.db.SupportSQLiteQuery
 import kotlinx.coroutines.flow.Flow
+import java.time.OffsetDateTime
 
 @Dao
 interface RealEstateDao {
@@ -17,9 +18,10 @@ interface RealEstateDao {
 
     @Update
     suspend fun update(realEstateEntity: RealEstateEntity)
+    
 
     @Query("UPDATE realEstate SET saleDate = :saleDate, isAvailable = :isAvailable WHERE id LIKE :id")
-    suspend fun updateRealEstate(saleDate: String, isAvailable: Boolean, id: Long)
+    suspend fun updateRealEstate(saleDate: OffsetDateTime, isAvailable: Boolean, id: Long)
 
     @Query("SELECT * FROM realEstate")
     fun getAll(): Flow<List<RealEstateEntity>>
@@ -28,9 +30,8 @@ interface RealEstateDao {
     fun getById(id: Long): Flow<RealEstateEntity>
 
     @RawQuery(observedEntities = [RealEstateEntity::class])
-    fun getAllFiltered(query: SupportSQLiteQuery): Flow<List<RealEstateEntity>>
+    fun getAllFiltered(query: SupportSQLiteQuery): List<RealEstateEntity>
 
     @Query("SELECT * FROM realEstate")
     fun getAllWithCursor() : Cursor
-
 }

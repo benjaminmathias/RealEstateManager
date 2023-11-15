@@ -8,8 +8,9 @@ import androidx.room.TypeConverters
 
 @Database(
     entities = [RealEstateEntity::class, RealEstatePhotoEntity::class],
-    version = 1)
-@TypeConverters(PoiTypeConverter::class)
+    version = 1,
+    exportSchema = false)
+@TypeConverters(value = [PoiTypeConverter::class, DateTypeConverter::class])
 abstract class RealEstateDatabase : RoomDatabase() {
 
     abstract fun realEstateDao(): RealEstateDao

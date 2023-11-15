@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/action_filter"
+        android:id="@+id/action_add"
         android:icon="@drawable/baseline_add_24"
-        android:title="Filter" />
+        android:title="Add"
+        app:showAsAction="always"/>
+    <item
+        android:id="@+id/action_filter"
+        android:title="Filters" />
 
     <item
         android:id="@+id/action_mortgage"
-        android:icon="@drawable/baseline_house_24"
-        android:title="Sim mortgage" />
-
-    <item android:id="@+id/action_settings"
-        android:icon="@drawable/baseline_search_24"
-        android:title="Settings" />
+        android:title="Mortgage" />
 
 </menu>

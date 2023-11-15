@@ -32,7 +32,7 @@ class ViewPagerAdapter(val context: Context, val imageList: List<RealEstatePhoto
 
         val imageView: ImageView = itemView.findViewById<View>(R.id.idIVImage) as ImageView
 
-        val textView: TextView = itemView.findViewById<TextView>(R.id.pager_textview) as TextView
+        val textView: TextView = itemView.findViewById(R.id.pager_textview) as TextView
 
         Glide.with(imageView)
             .load(imageList[position].uri)

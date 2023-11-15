@@ -1,24 +1,26 @@
 package com.openclassrooms.realestatemanager.provider
 
 import android.content.ContentProvider
+import android.content.ContentUris
 import android.content.ContentValues
 import android.database.Cursor
 import android.net.Uri
 import com.openclassrooms.realestatemanager.model.data.RealEstateDao
-import com.openclassrooms.realestatemanager.model.data.RealEstateEntity
 import javax.inject.Inject
 
 class RealEstateContentProvider @Inject constructor(
-    private val realEstateDao: RealEstateDao)
-    : ContentProvider(){
+    private val realEstateDao: RealEstateDao
+): ContentProvider() {
 
     companion object {
-        val AUTHORITY = "com.openclassrooms.realestatemanager.provider"
-        val TABLE_NAME = RealEstateEntity::class.java.simpleName
-        val URI_ITEM = Uri.parse("content://$AUTHORITY/$TABLE_NAME")
+        const val AUTHORITY = "com.openclassrooms.realestatemanager.provider"
+        const val TABLE_NAME: String = "realEstate"
+        val URI_ITEM: Uri = Uri.parse("content://$AUTHORITY/$TABLE_NAME")
     }
 
     override fun onCreate(): Boolean {
+
+
         return true
     }
 
@@ -29,8 +31,10 @@ class RealEstateContentProvider @Inject constructor(
         selectionArgs: Array<out String>?,
         sortOrder: String?
     ): Cursor {
-        if (context != null){
+        if (context != null) {
+            val realEstateId = ContentUris.parseId(uri)
             val cursor = realEstateDao.getAllWithCursor()
+            // val cursor = database.realEstateDao().getRealEstatesWithCursor(realEstateId)
             cursor.setNotificationUri(context!!.contentResolver, uri)
             return cursor
         }
@@ -38,24 +42,20 @@ class RealEstateContentProvider @Inject constructor(
         throw IllegalArgumentException("Failed to query row for uri $uri")
     }
 
-    override fun getType(uri: Uri): String? {
-        return "vnd.android.cursor.realestateentity/$AUTHORITY.$TABLE_NAME"
+    override fun getType(uri: Uri): String {
+        return "vnd.android.cursor.realestate/$AUTHORITY.$TABLE_NAME"
     }
 
-    override fun insert(uri: Uri, values: ContentValues?): Uri? {
-        TODO("Will not be implemented")
-    }
+    override fun insert(uri: Uri, values: ContentValues?): Uri =
+        throw UnsupportedOperationException()
 
-    override fun delete(uri: Uri, selection: String?, selectionArgs: Array<out String>?): Int {
-        TODO("Will not be implemented")
-    }
+    override fun delete(uri: Uri, selection: String?, selectionArgs: Array<out String>?): Int =
+        throw UnsupportedOperationException()
 
     override fun update(
         uri: Uri,
         values: ContentValues?,
         selection: String?,
         selectionArgs: Array<out String>?
-    ): Int {
-        TODO("Will not be implemented")
-    }
+    ): Int = throw UnsupportedOperationException()
 }

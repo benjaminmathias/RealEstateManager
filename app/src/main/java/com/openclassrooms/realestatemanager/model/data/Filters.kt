@@ -1,14 +1,18 @@
 package com.openclassrooms.realestatemanager.model.data
 
+import java.time.OffsetDateTime
+
 data class Filters(
-    val type: String? = null,
-    val priceMin: String? = null,
-    val priceMax: String? = null,
-    val surfaceMin: String? = null,
-    val surfaceMax: String? = null,
-    val room: String? = null,
-    val bedroom: String? = null,
-    val bathroom: String? = null,
-    val location: String? = null,
-    val nearbyPOI: List<String>? = null
+    var type: String? = null,
+    var priceMin: String? = null,
+    var priceMax: String? = null,
+    var surfaceMin: String? = null,
+    var surfaceMax: String? = null,
+    var location: String? = null,
+    var nearbyPOI: List<String>? = null,
+    var fromListedDate: OffsetDateTime? = null,
+    var toListedDate: OffsetDateTime? = null,
+    var fromSoldDate: OffsetDateTime? = null,
+    var toSoldDate: OffsetDateTime? = null,
+    var isAvailable: Boolean? = null
 )

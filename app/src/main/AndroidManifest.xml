@@ -28,16 +28,18 @@
         android:theme="@style/AppTheme" >
         <activity
             android:name=".ui.SplashActivity"
-            android:exported="false" />
-        <activity
-            android:name=".ui.MainActivity"
-            android:exported="true"
-            android:windowSoftInputMode="stateUnchanged" >
+            android:noHistory="true"
+            android:exported="true" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity
+            android:name=".ui.MainActivity"
+            android:exported="false"
+            android:windowSoftInputMode="stateUnchanged" >
         </activity>
 
         <meta-data
@@ -55,9 +57,8 @@
         </provider>
         <provider
             android:name=".provider.RealEstateContentProvider"
-            android:authorities="${applicationId}.provider"
+            android:authorities="com.openclassrooms.realestatemanager.provider"
             android:exported="true"
             tools:ignore="Instantiatable" />
     </application>
-
 </manifest>

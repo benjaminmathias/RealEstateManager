@@ -1,42 +1,87 @@
 package com.openclassrooms.realestatemanager.viewmodel
 
 import android.util.Log
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.openclassrooms.realestatemanager.model.data.RealEstate
+import com.openclassrooms.realestatemanager.model.data.RealEstatePhoto
 import com.openclassrooms.realestatemanager.model.repo.RealEstateRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import java.time.OffsetDateTime
 import javax.inject.Inject
 
 @HiltViewModel
-class DetailsViewModel @Inject constructor(private val realEstateRepository: RealEstateRepository) :
-    ViewModel() {
+class DetailsViewModel @Inject constructor(
+    private val realEstateRepository: RealEstateRepository,
+    savedStateHandle: SavedStateHandle,
+) : ViewModel() {
 
-    private val _uiState = MutableStateFlow<DetailsUiState?>(null)
-    val uiState: MutableStateFlow<DetailsUiState?> = _uiState
+    private val _realEstateDataDetails: MutableStateFlow<RealEstateData> =
+        MutableStateFlow(RealEstateData())
+    val realEstateDataDetailsFlow: StateFlow<RealEstateData> = _realEstateDataDetails
 
-    fun getSpecificRealEstateConverted(id: Long) {
+    private val _detailsUiState = MutableStateFlow<DetailsUiState?>(null)
+    val detailsUiState: MutableStateFlow<DetailsUiState?> = _detailsUiState
+
+    private val realEstateId = savedStateHandle.get<Long>("id")
+
+    init {
+        viewModelScope.launch {
+            if (realEstateId != null){
+                getSpecificRealEstateConverted(realEstateId)
+                Log.d("Surface", _realEstateDataDetails.value.surface.toString())
+            }
+        }
+    }
+    private fun getSpecificRealEstateConverted(id: Long) {
         viewModelScope.launch {
             realEstateRepository.retrieveAndConvertSpecificRealEstateEntity(id)
+                .map { realEstate: RealEstate ->
+                    RealEstateData(
+                        type = realEstate.type,
+                        surface = realEstate.surface.toString(),
+                        price = realEstate.price.toString(),
+                        description = realEstate.description,
+                        address = realEstate.address,
+                        isAvailable = realEstate.isAvailable,
+                        photos = realEstate.photos as MutableList<RealEstatePhoto>,
+                        nearbyPOI = realEstate.nearbyPOI,
+                        entryDate = realEstate.entryDate,
+                        saleDate = realEstate.saleDate,
+                        assignedAgent = realEstate.assignedAgent,
+                        room = realEstate.room.toString(),
+                        bedroom = realEstate.bedroom.toString(),
+                        bathroom = realEstate.bathroom.toString(),
+                        lat = realEstate.lat,
+                        lon = realEstate.lon,
+                        id = realEstate.id
+                    )
+                }
                 .catch { e ->
-                    _uiState.value = DetailsUiState.Error(e)
+                    _detailsUiState.value = DetailsUiState.Error(e)
                 }
                 .collect {
-                    _uiState.value = DetailsUiState.Success(it)
+                    _realEstateDataDetails.value = it
+                    _detailsUiState.value = DetailsUiState.Success(it)
+
                 }
         }
     }
 
-    fun setRealEstateAsNoLongerAvailable(saleDate: String, isAvailable: Boolean, id: Long) = viewModelScope.launch {
+    fun setRealEstateAsNoLongerAvailable(saleDate: OffsetDateTime, isAvailable: Boolean, id: Long) = viewModelScope.launch {
         Log.d("DetailsViewModel", "Update called")
         realEstateRepository.setRealEstateAsNoLongerAvailable(saleDate, isAvailable, id)
     }
 
     sealed class DetailsUiState {
-        data class Success(val realEstate: RealEstate) : DetailsUiState()
+
+        data class Success(val realEstateData: RealEstateData) : DetailsUiState()
         data class Error(val exception: Throwable) : DetailsUiState()
     }
 }

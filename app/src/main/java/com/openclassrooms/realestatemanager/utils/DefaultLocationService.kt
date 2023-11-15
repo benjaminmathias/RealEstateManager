@@ -50,20 +50,6 @@ class DefaultLocationService @Inject constructor(
 
     @SuppressLint("MissingPermission")
     private fun setupLocation() {
-
-        /*fusedLocationProviderClient.getCurrentLocation(
-            LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY,
-            CancellationTokenSource().token
-        )
-            .addOnSuccessListener { location ->
-                val latitude = location.latitude
-                val longitude = location.longitude
-                userPosition.tryEmit(value = Pair(latitude, longitude))
-            }
-            .addOnFailureListener { exception ->
-                Log.d("Location", "Location failed with exception: $exception")
-            }*/
-        // TODO : test again which one is more efficient
         fusedLocationProviderClient.lastLocation.addOnCompleteListener { task: Task<Location?> ->
            val location = task.result
            if (location != null) {
