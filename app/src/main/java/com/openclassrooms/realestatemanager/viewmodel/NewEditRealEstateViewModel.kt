@@ -5,10 +5,10 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.openclassrooms.realestatemanager.R
-import com.openclassrooms.realestatemanager.model.data.RealEstate
-import com.openclassrooms.realestatemanager.model.data.RealEstatePhoto
-import com.openclassrooms.realestatemanager.model.repo.RealEstateRepository
-import com.openclassrooms.realestatemanager.utils.LocationService
+import com.openclassrooms.realestatemanager.data.model.RealEstate
+import com.openclassrooms.realestatemanager.data.model.RealEstatePhoto
+import com.openclassrooms.realestatemanager.data.repository.RealEstateRepository
+import com.openclassrooms.realestatemanager.utils.location.LocationService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -25,7 +25,6 @@ class NewEditRealEstateViewModel @Inject constructor(
     private val locationService: LocationService,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
-
     private val realEstateId = savedStateHandle.get<Long>("id")
 
     private val _realEstateData: MutableStateFlow<RealEstateData> =
@@ -50,17 +49,16 @@ class NewEditRealEstateViewModel @Inject constructor(
                 retrieveStoredRealEstate(realEstateId)
             }
         }
-
     }
 
-    fun updateEntryDate(entryDate : OffsetDateTime){
+    fun updateEntryDate(entryDate: OffsetDateTime) {
         _realEstateData.value = _realEstateData.value.copy(
             entryDate = entryDate
         )
     }
 
     // GET ADDRESS
-    fun getCurrentLocation(){
+    fun getCurrentLocation() {
         viewModelScope.launch {
             locationService.userLocation.collect {
                 _realEstateData.value = _realEstateData.value.copy(
@@ -73,7 +71,7 @@ class NewEditRealEstateViewModel @Inject constructor(
     }
 
     // CLEAR ADDRESS
-    fun clearExistingLocation(){
+    fun clearExistingLocation() {
         viewModelScope.launch {
             _realEstateData.value = _realEstateData.value.copy(
                 address = null,
@@ -85,7 +83,7 @@ class NewEditRealEstateViewModel @Inject constructor(
 
     // TYPE //
     // Retrieve currently selected real estate type
-    private fun getSelectedRealEstateType(): MutableList<String> {
+    fun getSelectedRealEstateType(): MutableList<String> {
 
         val realEstateTypeList = mutableListOf<String>()
 
@@ -128,7 +126,7 @@ class NewEditRealEstateViewModel @Inject constructor(
 
     // POI //
     // Retrieve currently selected poi chips
-    private fun getSelectedRealEstatePoi(): MutableList<String> {
+    fun getSelectedRealEstatePoi(): MutableList<String> {
 
         val realEstatePoiList = mutableListOf<String>()
 
@@ -182,7 +180,7 @@ class NewEditRealEstateViewModel @Inject constructor(
 
     // AGENT //
     // Retrieve currently selected real estate agent
-    private fun getSelectedRealEstateAgent(): MutableList<String> {
+    fun getSelectedRealEstateAgent(): MutableList<String> {
 
         val realEstateAgentList = mutableListOf<String>()
 
@@ -232,25 +230,31 @@ class NewEditRealEstateViewModel @Inject constructor(
                 // If id is null, create a new RealEstate
                 if (realEstateId == null) {
                     realEstateRepository.insertRealEstateAndPhoto(realEstate)
+                    _uiState.value = RealEstateUiState.Success(true)
                 } else {
                     // If id isn't null, edit existing RealEstate
                     _realEstateData.value.id = realEstateId
                     realEstateRepository.editRealEstate(realEstate)
+                    _uiState.value = RealEstateUiState.EditSuccess(true, realEstateId)
                 }
-                _uiState.value = RealEstateUiState.Success(true)
             } else {
+                // If required fields are not filled, return error
                 _uiState.value = RealEstateUiState.Error(true)
             }
         }
     }
 
     // Retrieve existing
-    private suspend fun retrieveStoredRealEstate(id: Long) {
+    suspend fun retrieveStoredRealEstate(id: Long) {
         realEstateRepository.retrieveAndConvertSpecificRealEstateEntity(id)
             .map { realEstate: RealEstate ->
                 RealEstateData(
                     type = realEstate.type,
-                    surface = if (realEstate.surface.toString() != "null") { realEstate.surface.toString()} else {null},
+                    surface = if (realEstate.surface.toString() != "null") {
+                        realEstate.surface.toString()
+                    } else {
+                        null
+                    },
                     price = realEstate.price.toString(),
                     description = realEstate.description,
                     address = realEstate.address,
@@ -259,15 +263,27 @@ class NewEditRealEstateViewModel @Inject constructor(
                     nearbyPOI = realEstate.nearbyPOI,
                     entryDate = realEstate.entryDate,
                     assignedAgent = realEstate.assignedAgent,
-                    room = if (realEstate.room.toString() != "null") { realEstate.room.toString()} else {null},
-                    bedroom = if (realEstate.bedroom.toString() != "null") { realEstate.bedroom.toString()} else {null},
-                    bathroom = if (realEstate.bathroom.toString() != "null") { realEstate.bathroom.toString()} else {null},
+                    room = if (realEstate.room.toString() != "null") {
+                        realEstate.room.toString()
+                    } else {
+                        null
+                    },
+                    bedroom = if (realEstate.bedroom.toString() != "null") {
+                        realEstate.bedroom.toString()
+                    } else {
+                        null
+                    },
+                    bathroom = if (realEstate.bathroom.toString() != "null") {
+                        realEstate.bathroom.toString()
+                    } else {
+                        null
+                    },
                     lat = realEstate.lat,
                     lon = realEstate.lon,
                     id = realEstate.id
                 )
             }
-            .catch { e ->
+            .catch {
                 _uiState.value = RealEstateUiState.Error(true)
             }
             .collect {
@@ -286,13 +302,13 @@ class NewEditRealEstateViewModel @Inject constructor(
             getSelectedRealEstateAgent().toString().isEmpty() ||
             _realEstateData.value.photos.isEmpty() ||
             _realEstateData.value.entryDate == null
-            ) {
+        ) {
             return false
         }
         return true
     }
 
-    private fun currencyToInt(price: String) : Int{
+    private fun currencyToInt(price: String): Int {
         return price
             .replace("$", "")
             .replace(".", "")
@@ -347,6 +363,7 @@ data class RealEstateData(
 sealed class RealEstateUiState {
     data class RealEstateDataUi(val realEstateData: RealEstateData) : RealEstateUiState()
     data class Success(val success: Boolean) : RealEstateUiState()
+    data class EditSuccess(val editSuccess: Boolean, val id: Long?) : RealEstateUiState()
     data class Error(val error: Boolean, val id: UUID = UUID.randomUUID()) : RealEstateUiState()
     data class Default(val default: Boolean) : RealEstateUiState()
 }

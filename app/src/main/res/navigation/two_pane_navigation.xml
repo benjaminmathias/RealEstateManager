@@ -6,6 +6,6 @@
 
     <fragment
         android:id="@+id/fragmentDetails"
-        android:name="com.openclassrooms.realestatemanager.ui.RealEstateDetailsFragment"
+        android:name="com.openclassrooms.realestatemanager.ui.details.RealEstateDetailsFragment"
         android:label="RealEstateDetailsFragment" />
 </navigation>

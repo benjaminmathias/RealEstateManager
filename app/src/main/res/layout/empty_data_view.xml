@@ -4,47 +4,47 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:layout_gravity="center"
     android:gravity="center"
+    android:orientation="vertical"
     android:paddingTop="10dp"
-    android:paddingBottom="10dp"
-    tools:ignore="RtlHardcoded">
+    android:paddingBottom="10dp">
 
     <ImageView
         android:id="@+id/empty_view_imageview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:src="@drawable/baseline_error_24"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.422"
-        android:src="@drawable/baseline_error_24" />
+        android:contentDescription="@string/error_icon" />
 
     <TextView
         android:id="@+id/title"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        tools:text="There's no data available"
+        android:gravity="center"
         android:padding="10dp"
         android:textStyle="bold"
-        android:gravity="center"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/empty_view_imageview" />
+        app:layout_constraintTop_toBottomOf="@+id/empty_view_imageview"
+        tools:text="There's no data available" />
 
     <TextView
         android:id="@+id/sub_title"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        tools:text="Please add a new property"
-        android:padding="5dp"
-        android:gravity="center"
         android:layout_marginStart="10dp"
         android:layout_marginEnd="10dp"
+        android:gravity="center"
+        android:padding="5dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/title" />
+        app:layout_constraintTop_toBottomOf="@+id/title"
+        tools:text="Please add a new property" />
 </androidx.constraintlayout.widget.ConstraintLayout>

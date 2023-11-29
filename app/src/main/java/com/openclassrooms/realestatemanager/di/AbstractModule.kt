@@ -1,11 +1,11 @@
 package com.openclassrooms.realestatemanager.di
 
-import com.openclassrooms.realestatemanager.model.repo.DefaultRealEstateRepository
-import com.openclassrooms.realestatemanager.model.repo.RealEstateRepository
-import com.openclassrooms.realestatemanager.utils.DefaultLocationService
-import com.openclassrooms.realestatemanager.utils.DefaultNetworkObserver
-import com.openclassrooms.realestatemanager.utils.LocationService
-import com.openclassrooms.realestatemanager.utils.NetworkObserver
+import com.openclassrooms.realestatemanager.data.repository.DefaultRealEstateRepository
+import com.openclassrooms.realestatemanager.data.repository.RealEstateRepository
+import com.openclassrooms.realestatemanager.utils.location.DefaultLocationService
+import com.openclassrooms.realestatemanager.utils.location.LocationService
+import com.openclassrooms.realestatemanager.utils.network.DefaultNetworkObserver
+import com.openclassrooms.realestatemanager.utils.network.NetworkObserver
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn

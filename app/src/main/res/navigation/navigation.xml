@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/fragmentList"
-        android:name="com.openclassrooms.realestatemanager.ui.RealEstateListFragment"
+        android:name="com.openclassrooms.realestatemanager.ui.list.RealEstateListFragment"
         android:label="RealEstateManager"
         app:popUpToInclusive="true"
         tools:layout="@layout/fragment_list">
@@ -30,9 +30,9 @@
     </fragment>
     <fragment
         android:id="@+id/fragmentDetails"
-        android:name="com.openclassrooms.realestatemanager.ui.RealEstateDetailsFragment"
+        android:name="com.openclassrooms.realestatemanager.ui.details.RealEstateDetailsFragment"
         android:label="RealEstateDetailsFragment"
-        tools:layout="@layout/fragment_details_rework">
+        tools:layout="@layout/fragment_details">
         <action
             android:id="@+id/action_fragmentList_to_fragmentInput"
             app:destination="@id/fragmentInput" />
@@ -43,7 +43,7 @@
     </fragment>
     <fragment
         android:id="@+id/fragmentInput"
-        android:name="com.openclassrooms.realestatemanager.ui.RealEstateInputFragment"
+        android:name="com.openclassrooms.realestatemanager.ui.input.RealEstateInputFragment"
         android:label="Property Information"
         tools:layout="@layout/fragment_real_estate_edit">
         <action
@@ -53,7 +53,7 @@
 
     <fragment
         android:id="@+id/fragmentMap"
-        android:name="com.openclassrooms.realestatemanager.ui.MapFragment"
+        android:name="com.openclassrooms.realestatemanager.ui.map.MapFragment"
         android:label="RealEstateManager"
         app:popUpToInclusive="true"
         tools:layout="@layout/fragment_map">

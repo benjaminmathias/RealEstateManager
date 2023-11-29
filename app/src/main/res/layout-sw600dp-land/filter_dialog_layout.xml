@@ -1,0 +1,622 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:theme="@style/Theme.MaterialComponents.Light.DarkActionBar">
+
+    <data>
+
+        <variable
+            name="viewModel"
+            type="com.openclassrooms.realestatemanager.viewmodel.MainViewModel" />
+
+        <variable
+            name="poi"
+            type="java.util.ArrayList&lt;RealEstatePoi&gt;" />
+
+        <import type="com.openclassrooms.realestatemanager.viewmodel.RealEstateType" />
+
+        <import type="com.openclassrooms.realestatemanager.viewmodel.RealEstatePoi" />
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="10dp">
+
+        <TextView
+            android:id="@+id/available_text_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="10dp"
+            android:text="Available :"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="@+id/guideline9"
+            app:layout_constraintTop_toBottomOf="@+id/from_listed_date" />
+
+        <TextView
+            android:id="@+id/surface_range_separator"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="-"
+            app:layout_constraintBottom_toBottomOf="@+id/surface_max_layout"
+            app:layout_constraintEnd_toStartOf="@+id/surface_max_layout"
+            app:layout_constraintStart_toEndOf="@+id/surface_min_layout"
+            app:layout_constraintTop_toTopOf="@+id/surface_max_layout" />
+
+        <TextView
+            android:id="@+id/filter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Filters"
+            android:textAppearance="@style/TextAppearance.AppCompat.Large"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/type"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="Type :"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toTopOf="@+id/type_selection_scrollview"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/filter" />
+
+        <HorizontalScrollView
+            android:id="@+id/type_selection_scrollview"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:scrollbars="none"
+            app:layout_constraintBottom_toBottomOf="@+id/poi_chips_layout"
+            app:layout_constraintHorizontal_chainStyle="spread"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/poi_chips_layout">
+
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/type_chip_group"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checkedChips="@={viewModel.checkedTypeChipObservable}"
+                android:theme="@style/Theme.MaterialComponents.Light"
+                app:layout_constraintStart_toStartOf="@id/type"
+                app:layout_constraintTop_toBottomOf="@id/type"
+                app:selectionRequired="false"
+                app:singleLine="true"
+                app:singleSelection="true">
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/first_type_chip"
+                    style="@style/Colors_Widget.MaterialComponents.Chip.Choice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checkable="true"
+                    android:text="House" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/second_type_chip"
+                    style="@style/Colors_Widget.MaterialComponents.Chip.Choice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checkable="true"
+                    android:text="Apartment" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/third_type_chip"
+                    style="@style/Colors_Widget.MaterialComponents.Chip.Choice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checkable="true"
+                    android:text="Condo" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/fourth_type_chip"
+                    style="@style/Colors_Widget.MaterialComponents.Chip.Choice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checkable="true"
+                    android:text="Loft" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/fifth_type_chip"
+                    style="@style/Colors_Widget.MaterialComponents.Chip.Choice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checkable="true"
+                    android:text="Mansion" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/sixth_type_chip"
+                    style="@style/Colors_Widget.MaterialComponents.Chip.Choice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checkable="true"
+                    android:text="Villa" />
+
+            </com.google.android.material.chip.ChipGroup>
+
+        </HorizontalScrollView>
+
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/surface_min_layout"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginEnd="10dp"
+            android:hint="Surface in m²"
+            app:helperText="min"
+            app:helperTextEnabled="true"
+            app:helperTextTextColor="@color/colorAccent"
+            app:layout_constraintEnd_toStartOf="@+id/surface_range_separator"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/type_selection_scrollview"
+            app:startIconDrawable="@drawable/fullscreen_24px"
+            app:startIconTint="@color/light_gray">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/surface_min_range"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="number"
+                android:maxLength="5"
+                android:minHeight="48dp"
+                android:text="@={viewModel.realEstateFilters.surfaceMin}"
+                tools:text="10000" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/surface_max_layout"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:hint="Surface in m2"
+            app:helperText="max"
+            app:helperTextEnabled="true"
+            app:helperTextTextColor="@color/colorAccent"
+            app:layout_constraintEnd_toStartOf="@+id/guideline9"
+            app:layout_constraintStart_toEndOf="@+id/surface_range_separator"
+            app:layout_constraintTop_toBottomOf="@+id/type_selection_scrollview"
+            app:startIconDrawable="@drawable/fullscreen_24px"
+            app:startIconTint="@color/light_gray">
+
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/surface_max_range"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+
+                android:inputType="number"
+                android:maxLength="5"
+                android:minHeight="48dp"
+                android:text="@={viewModel.realEstateFilters.surfaceMax}"
+                app:layout_constraintStart_toEndOf="@id/surface_min_range"
+                app:layout_constraintTop_toTopOf="@+id/surface_min_range"
+                tools:text="10000" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/price_min_layout"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="10dp"
+            android:hint="Price"
+            app:helperText="min"
+            app:helperTextEnabled="true"
+            app:helperTextTextColor="@color/colorAccent"
+            app:layout_constraintEnd_toStartOf="@+id/price_range_separator"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/surface_min_layout"
+            app:startIconDrawable="@drawable/baseline_attach_money_24"
+            app:startIconTint="@color/light_gray">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/price_min_range"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="number"
+                android:maxLength="10"
+                android:minHeight="48dp"
+                android:text="@={viewModel.realEstateFilters.priceMin}"
+                tools:text="100,000$" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/price_max_layout"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:hint="Price"
+            app:helperText="max"
+            app:helperTextEnabled="true"
+            app:helperTextTextColor="@color/colorAccent"
+            app:layout_constraintEnd_toStartOf="@+id/guideline9"
+            app:layout_constraintStart_toEndOf="@+id/price_range_separator"
+            app:layout_constraintTop_toBottomOf="@+id/surface_max_layout"
+            app:startIconDrawable="@drawable/baseline_attach_money_24"
+            app:startIconTint="@color/light_gray">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/price_max_range"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="number"
+                android:maxLength="10"
+                android:minHeight="48dp"
+                android:text="@={viewModel.realEstateFilters.priceMax}"
+                tools:text="100,000$" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/location_layout"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:hint="Location"
+            app:counterEnabled="true"
+            app:counterMaxLength="60"
+            app:layout_constraintBottom_toTopOf="@+id/cancel_button_dialog"
+            app:layout_constraintEnd_toStartOf="@+id/guideline9"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/price_min_layout"
+            app:layout_constraintVertical_chainStyle="spread"
+            app:startIconDrawable="@drawable/baseline_location_on_24"
+            app:startIconTint="@color/light_gray">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/location_edit_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="text"
+                android:maxLength="60"
+                android:minHeight="48dp"
+                android:text="@={viewModel.realEstateFilters.location}"
+                tools:text="1 Rue de la République, 30300 Beaucaire" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <TextView
+            android:id="@+id/nearbypoi"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="10dp"
+            android:text="Nearby Point of Interest :"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="@+id/guideline9"
+            app:layout_constraintTop_toBottomOf="@+id/filter" />
+
+        <HorizontalScrollView
+            android:id="@+id/poi_chips_layout"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+            android:scrollbars="none"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/guideline9"
+            app:layout_constraintTop_toBottomOf="@+id/nearbypoi">
+
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/poi_chip_group"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checkedChips="@={viewModel.checkedPoiChipObservable}"
+                android:theme="@style/Theme.MaterialComponents.Light"
+                app:selectionRequired="false"
+                app:singleLine="true">
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/restaurant_poi_chip"
+                    style="@style/Colors_Widget.MaterialComponents.Chip.Choice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checkable="true"
+                    android:text="Restaurant" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/shopping_poi_chip"
+                    style="@style/Colors_Widget.MaterialComponents.Chip.Choice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checkable="true"
+                    android:text="Shopping" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/school_poi_chip"
+                    style="@style/Colors_Widget.MaterialComponents.Chip.Choice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checkable="true"
+                    android:text="School" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/healthcare_poi_chip"
+                    style="@style/Colors_Widget.MaterialComponents.Chip.Choice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checkable="true"
+                    android:text="Healthcare" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/park_poi_chip"
+                    style="@style/Colors_Widget.MaterialComponents.Chip.Choice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checkable="true"
+                    android:text="Park" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/sports_poi_chip"
+                    style="@style/Colors_Widget.MaterialComponents.Chip.Choice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checkable="true"
+                    android:text="Sports" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/market_poi_chip"
+                    style="@style/Colors_Widget.MaterialComponents.Chip.Choice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checkable="true"
+                    android:text="Market" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/entertainment_poi_chip"
+                    style="@style/Colors_Widget.MaterialComponents.Chip.Choice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checkable="true"
+                    android:text="Entertainment" />
+
+            </com.google.android.material.chip.ChipGroup>
+
+        </HorizontalScrollView>
+
+
+        <Button
+            android:id="@+id/cancel_button_dialog"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:background="@android:color/transparent"
+            android:gravity="center"
+            android:text="Clear"
+            android:textColor="@color/black"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/guideline9"
+            app:layout_constraintHorizontal_chainStyle="spread"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <Button
+            android:id="@+id/submit_button_dialog"
+            style="?android:attr/positiveButtonText"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
+            android:background="@drawable/rounded_corner"
+            android:backgroundTint="@color/colorPrimary"
+            android:gravity="center"
+            android:onClick="@{() -> viewModel.filterList()}"
+            android:text="Submit"
+            android:textColor="#FFFFFF"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/guideline9" />
+
+        <TextView
+            android:id="@+id/price_range_separator"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="-"
+            app:layout_constraintBottom_toBottomOf="@+id/price_max_layout"
+            app:layout_constraintEnd_toStartOf="@+id/price_max_layout"
+            app:layout_constraintStart_toEndOf="@+id/price_min_layout"
+            app:layout_constraintTop_toTopOf="@+id/price_max_layout" />
+
+        <RadioGroup
+            android:id="@+id/radioGroup"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:checkedButton="@={viewModel.checkedAvailableRadioButtonObservable}"
+            android:orientation="horizontal"
+            android:scaleX="1.2"
+            android:scaleY="1.2"
+            app:layout_constraintBottom_toBottomOf="@+id/available_text_view"
+            app:layout_constraintStart_toEndOf="@+id/available_text_view"
+            app:layout_constraintTop_toTopOf="@+id/available_text_view">
+
+            <RadioButton
+                android:id="@+id/radio_yes"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp"
+                android:text="Yes" />
+
+            <RadioButton
+                android:id="@+id/radio_no"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp"
+                android:text="No" />
+
+            <RadioButton
+                android:id="@+id/radio_ignore"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp"
+                android:text="Ignore" />
+        </RadioGroup>
+
+        <TextView
+            android:id="@+id/listed_date_textview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:text="Listed date :"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="@+id/guideline9"
+            app:layout_constraintTop_toBottomOf="@+id/poi_chips_layout" />
+
+        <TextView
+            android:id="@+id/from_listed"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="10dp"
+            android:text="From : "
+            android:textSize="16sp"
+            app:layout_constraintStart_toStartOf="@+id/guideline9"
+            app:layout_constraintTop_toBottomOf="@+id/listed_date_textview" />
+
+        <TextView
+            android:id="@+id/from_listed_date"
+            :padding="2dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:bindDate="@{viewModel.realEstateFilters.fromListedDate}"
+            android:padding="5dp"
+            android:text="../../...."
+            android:textSize="24sp"
+            app:drawableStartCompat="@drawable/baseline_calendar_24"
+            app:drawableTint="@color/light_gray"
+            app:layout_constraintStart_toStartOf="@+id/from_listed"
+            app:layout_constraintTop_toBottomOf="@+id/from_listed" />
+
+        <TextView
+            android:id="@+id/to_listed"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:text="To : "
+            android:textSize="16sp"
+            app:layout_constraintStart_toEndOf="@+id/from_listed_date"
+            app:layout_constraintTop_toTopOf="@+id/from_listed" />
+
+        <TextView
+            android:id="@+id/to_listed_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:bindDate="@{viewModel.realEstateFilters.toListedDate}"
+            android:gravity="center"
+            android:padding="5dp"
+            android:text="../../...."
+            android:textSize="24sp"
+            app:drawableStartCompat="@drawable/baseline_calendar_24"
+            app:drawableTint="@color/light_gray"
+            app:layout_constraintStart_toStartOf="@+id/to_listed"
+            app:layout_constraintTop_toBottomOf="@+id/to_listed" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/sold_date_layout"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="10dp"
+            android:layout_marginBottom="10dp"
+            android:visibility="invisible"
+            app:layout_constraintBottom_toTopOf="@+id/submit_button_dialog"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="@+id/guideline9"
+            app:layout_constraintTop_toBottomOf="@+id/radioGroup">
+
+            <TextView
+                android:id="@+id/sold_date_textview"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Sold :"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/from_sold"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="From : "
+                android:textSize="16sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/sold_date_textview" />
+
+            <TextView
+                android:id="@+id/from_sold_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:bindDate="@{viewModel.realEstateFilters.fromSoldDate}"
+                android:padding="5dp"
+                android:text="../../...."
+                android:textSize="24sp"
+                app:drawableStartCompat="@drawable/baseline_calendar_24"
+                app:drawableTint="@color/light_gray"
+                app:layout_constraintStart_toStartOf="@+id/from_sold"
+                app:layout_constraintTop_toBottomOf="@+id/from_sold" />
+
+            <TextView
+                android:id="@+id/to_sold"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:text="To : "
+                android:textSize="16sp"
+                app:layout_constraintStart_toEndOf="@+id/from_sold_date"
+                app:layout_constraintTop_toTopOf="@+id/from_sold" />
+
+            <TextView
+                android:id="@+id/to_sold_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:bindDate="@{viewModel.realEstateFilters.toSoldDate}"
+                android:gravity="center"
+                android:padding="5dp"
+                android:text="../../...."
+                android:textSize="24sp"
+                app:drawableStartCompat="@drawable/baseline_calendar_24"
+                app:drawableTint="@color/light_gray"
+                app:layout_constraintStart_toStartOf="@+id/to_sold"
+                app:layout_constraintTop_toBottomOf="@+id/to_sold" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <ImageButton
+            android:id="@+id/close_image_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@android:color/transparent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/baseline_close_24" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline9"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.5" />
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

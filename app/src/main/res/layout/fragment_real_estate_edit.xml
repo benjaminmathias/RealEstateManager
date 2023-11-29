@@ -11,7 +11,7 @@
 
         <variable
             name="photosAdapter"
-            type="com.openclassrooms.realestatemanager.ui.PhotoAdapter" />
+            type="com.openclassrooms.realestatemanager.ui.input.PhotoAdapter" />
 
         <variable
             name="viewModel"
@@ -23,7 +23,7 @@
 
         <variable
             name="adapter"
-            type="com.openclassrooms.realestatemanager.ui.PhotoAdapter" />
+            type="com.openclassrooms.realestatemanager.ui.input.PhotoAdapter" />
 
         <import type="com.openclassrooms.realestatemanager.viewmodel.RealEstateType" />
 
@@ -87,7 +87,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:hint="Surface"
-                app:startIconDrawable="@drawable/baseline_attach_money_24"
+                app:startIconDrawable="@drawable/fullscreen_24px"
                 app:startIconTint="@color/light_gray"
                 app:helperTextTextColor="@color/colorAccent"
                 app:helperText="in m²"

@@ -17,6 +17,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.openclassrooms.realestatemanager.BuildConfig
+import com.openclassrooms.realestatemanager.R
 import com.openclassrooms.realestatemanager.databinding.ActivitySplashBinding
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -33,25 +34,24 @@ class SplashActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         setupAnimation()
-
         makePermissionRequest()
     }
 
     private fun setupAnimation() {
-
         val progressText = binding.permissionTextView
 
-        progressText.text = "Checking permissions"
+        progressText.text = getString(R.string.check_permission_1)
 
         lifecycleScope.launch {
             delay(1000)
-            progressText.text = "Checking permissions."
+            progressText.text = getString(R.string.check_permission_2)
             delay(1000)
-            progressText.text = "Checking permissions.."
+            progressText.text = getString(R.string.check_permission_3)
             delay(1000)
-            progressText.text = "Checking permissions..."
+            progressText.text = getString(R.string.check_permission_4)
         }
     }
+
     private fun makePermissionRequest() {
         locationPermissionRequest.launch(
             arrayOf(
@@ -63,7 +63,8 @@ class SplashActivity : AppCompatActivity() {
 
     private val locationPermissionRequest =
         registerForActivityResult(
-            ActivityResultContracts.RequestMultiplePermissions())
+            ActivityResultContracts.RequestMultiplePermissions()
+        )
         { permissions ->
             // Handle Permission granted/rejected
             val fine = permissions[Manifest.permission.ACCESS_FINE_LOCATION]
@@ -84,10 +85,10 @@ class SplashActivity : AppCompatActivity() {
 
     private fun showAlertDialog() {
         val alertDialogBuilder = AlertDialog.Builder(this)
-        alertDialogBuilder.setMessage("R.string.splash_dialog_message")
+        alertDialogBuilder.setMessage(getString(R.string.splash_dialog_message))
         alertDialogBuilder.setPositiveButton(
-            "R.string.positive_string"
-        ) { arg0, arg1 ->
+            getString(R.string.positive_string)
+        ) { _, _ ->
             try {
                 // Access app settings screen
                 val intent = Intent()
@@ -103,16 +104,16 @@ class SplashActivity : AppCompatActivity() {
             } catch (e: Exception) {
                 Toast.makeText(
                     this@SplashActivity,
-                    "R.string.splash_dialog_settings_error" + " " + e,
+                    getString(R.string.splash_dialog_settings_error) + " " + e,
                     Toast.LENGTH_LONG
                 ).show()
                 Log.d("error", e.toString())
             }
         }
-        alertDialogBuilder.setNegativeButton("R.string.negative_string") { dialog, which ->
+        alertDialogBuilder.setNegativeButton(getString(R.string.negative_string)) { _, _ ->
             Toast.makeText(
                 this@SplashActivity,
-                "R.string.splash_dialog_message_warning",
+                getString(R.string.splash_dialog_message_warning),
                 Toast.LENGTH_LONG
             ).show()
             finish()

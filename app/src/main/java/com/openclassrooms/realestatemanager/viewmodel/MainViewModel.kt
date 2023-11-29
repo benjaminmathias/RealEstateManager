@@ -1,17 +1,15 @@
 package com.openclassrooms.realestatemanager.viewmodel
 
 import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.openclassrooms.realestatemanager.R
-import com.openclassrooms.realestatemanager.model.data.Filters
-import com.openclassrooms.realestatemanager.model.data.RealEstate
-import com.openclassrooms.realestatemanager.model.data.UserLocation
-import com.openclassrooms.realestatemanager.model.repo.RealEstateRepository
-import com.openclassrooms.realestatemanager.utils.LocationService
-import com.openclassrooms.realestatemanager.utils.NetworkObserver
+import com.openclassrooms.realestatemanager.data.model.Filters
+import com.openclassrooms.realestatemanager.data.model.RealEstate
+import com.openclassrooms.realestatemanager.data.model.UserLocation
+import com.openclassrooms.realestatemanager.data.repository.RealEstateRepository
+import com.openclassrooms.realestatemanager.utils.location.LocationService
+import com.openclassrooms.realestatemanager.utils.network.NetworkObserver
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -24,8 +22,8 @@ import javax.inject.Inject
 @HiltViewModel
 class MainViewModel @Inject constructor(
     private val realEstateRepository: RealEstateRepository,
-    private val locationService: LocationService,
-    private val connectivityObserver: NetworkObserver
+    locationService: LocationService,
+    connectivityObserver: NetworkObserver
 ) : ViewModel() {
 
     private val _uiState: MutableStateFlow<MainUiState> =
@@ -52,16 +50,12 @@ class MainViewModel @Inject constructor(
     val checkedPoiChipObservable: MutableStateFlow<List<Int>> = MutableStateFlow(mutableListOf())
     var checkedAvailableRadioButtonObservable: MutableStateFlow<Int> = MutableStateFlow(0)
 
-    val userLocationLiveData: MutableLiveData<UserLocation> = MutableLiveData()
-    val connectivityLiveData: MutableLiveData<Boolean> = MutableLiveData()
-
     val userLocationFlow : Flow<UserLocation> = locationService.userLocation
+    val connectivityFlow : Flow<Boolean> = connectivityObserver.isConnected
 
     init {
         checkedAvailableRadioButtonObservable.value = R.id.radio_ignore
         getNonFilteredList()
-        getCurrentLocation()
-        getCurrentConnectivity()
     }
 
     fun getNonFilteredList() {
@@ -74,7 +68,7 @@ class MainViewModel @Inject constructor(
                 .collect {
                     _isFiltered.emit(false)
                     _uiState.value = MainUiState.Success(it)
-                    Log.d("MVM", "Base list success !")
+                    Log.d("Photo 1", it[0].photos.toString())
                 }
         }
     }
@@ -99,27 +93,8 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    // Get user location
-    private fun getCurrentLocation(): LiveData<UserLocation> {
-        viewModelScope.launch {
-            locationService.userLocation.collect {
-                Log.d("Initial flow in VM", it.address)
-                userLocationLiveData.value = it
-            }
-        }
-        return userLocationLiveData
-    }
-
-    private fun getCurrentConnectivity(): LiveData<Boolean> {
-        viewModelScope.launch {
-            connectivityObserver.isConnected.collect {
-                connectivityLiveData.value = it
-            }
-        }
-        return connectivityLiveData
-    }
-
-    private fun getSelectedRealEstateType(): MutableList<String>? {
+    // Filters
+    fun getSelectedRealEstateType(): MutableList<String>? {
 
         val realEstateTypeList = mutableListOf<String>()
 
@@ -144,7 +119,7 @@ class MainViewModel @Inject constructor(
         return realEstateTypeList
     }
 
-    private fun getSelectedAvailability(): Boolean? {
+    fun getSelectedAvailability(): Boolean? {
         var isAvailable: Boolean? = null
         val checkedId: Int
 
@@ -159,7 +134,7 @@ class MainViewModel @Inject constructor(
         return isAvailable
     }
 
-    private fun getSelectedRealEstatePoi(): MutableList<String>? {
+    fun getSelectedRealEstatePoi(): MutableList<String>? {
 
         val realEstatePoiList = mutableListOf<String>()
 

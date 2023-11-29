@@ -2,9 +2,9 @@ package com.openclassrooms.realestatemanager
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.test.filters.SmallTest
-import com.openclassrooms.realestatemanager.model.data.RealEstateDatabase
-import com.openclassrooms.realestatemanager.model.data.RealEstatePhotoDao
-import com.openclassrooms.realestatemanager.model.data.RealEstatePhotoEntity
+import com.openclassrooms.realestatemanager.data.db.RealEstateDatabase
+import com.openclassrooms.realestatemanager.data.db.dao.RealEstatePhotoDao
+import com.openclassrooms.realestatemanager.data.db.entities.RealEstatePhotoEntity
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -44,12 +44,6 @@ class RealEstatePhotoDaoTest {
         "content://media/picker/0/com.android.providers.media.photopicker/media/1000000040",
         "test update",
         1
-    )
-
-    private val photoEntityTest2 = RealEstatePhotoEntity(
-        "content://media/picker/0/com.android.providers.media.photopicker/media/1000000040",
-        "test1",
-        2
     )
 
     @Before

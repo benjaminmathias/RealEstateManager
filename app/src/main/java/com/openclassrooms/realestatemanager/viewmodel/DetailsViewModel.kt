@@ -1,15 +1,15 @@
 package com.openclassrooms.realestatemanager.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.openclassrooms.realestatemanager.model.data.RealEstate
-import com.openclassrooms.realestatemanager.model.data.RealEstatePhoto
-import com.openclassrooms.realestatemanager.model.repo.RealEstateRepository
+import com.openclassrooms.realestatemanager.data.model.RealEstate
+import com.openclassrooms.realestatemanager.data.model.RealEstatePhoto
+import com.openclassrooms.realestatemanager.data.repository.RealEstateRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -27,19 +27,19 @@ class DetailsViewModel @Inject constructor(
     val realEstateDataDetailsFlow: StateFlow<RealEstateData> = _realEstateDataDetails
 
     private val _detailsUiState = MutableStateFlow<DetailsUiState?>(null)
-    val detailsUiState: MutableStateFlow<DetailsUiState?> = _detailsUiState
+    val detailsUiState = _detailsUiState.asStateFlow()
 
     private val realEstateId = savedStateHandle.get<Long>("id")
 
     init {
         viewModelScope.launch {
-            if (realEstateId != null){
+            if (realEstateId != null) {
                 getSpecificRealEstateConverted(realEstateId)
-                Log.d("Surface", _realEstateDataDetails.value.surface.toString())
             }
         }
     }
-    private fun getSpecificRealEstateConverted(id: Long) {
+
+    fun getSpecificRealEstateConverted(id: Long) {
         viewModelScope.launch {
             realEstateRepository.retrieveAndConvertSpecificRealEstateEntity(id)
                 .map { realEstate: RealEstate ->
@@ -67,17 +67,20 @@ class DetailsViewModel @Inject constructor(
                     _detailsUiState.value = DetailsUiState.Error(e)
                 }
                 .collect {
-                    _realEstateDataDetails.value = it
                     _detailsUiState.value = DetailsUiState.Success(it)
-
+                    _realEstateDataDetails.value = it
                 }
         }
     }
 
-    fun setRealEstateAsNoLongerAvailable(saleDate: OffsetDateTime, isAvailable: Boolean, id: Long) = viewModelScope.launch {
-        Log.d("DetailsViewModel", "Update called")
-        realEstateRepository.setRealEstateAsNoLongerAvailable(saleDate, isAvailable, id)
-    }
+    fun setRealEstateAsNoLongerAvailable(
+        saleDate: OffsetDateTime,
+        isAvailable: Boolean,
+        id: Long,
+    ) =
+        viewModelScope.launch {
+            realEstateRepository.setRealEstateAsNoLongerAvailable(saleDate, isAvailable, id)
+        }
 
     sealed class DetailsUiState {
 

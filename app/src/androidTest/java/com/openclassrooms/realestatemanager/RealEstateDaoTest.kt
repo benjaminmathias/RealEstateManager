@@ -4,9 +4,9 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.sqlite.db.SimpleSQLiteQuery
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
-import com.openclassrooms.realestatemanager.model.data.RealEstateDao
-import com.openclassrooms.realestatemanager.model.data.RealEstateDatabase
-import com.openclassrooms.realestatemanager.model.data.RealEstateEntity
+import com.openclassrooms.realestatemanager.data.db.RealEstateDatabase
+import com.openclassrooms.realestatemanager.data.db.dao.RealEstateDao
+import com.openclassrooms.realestatemanager.data.db.entities.RealEstateEntity
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -17,6 +17,8 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import java.time.OffsetDateTime
+import java.time.ZoneOffset
+import java.util.Calendar
 import javax.inject.Inject
 import javax.inject.Named
 import kotlin.test.assertEquals
@@ -37,6 +39,16 @@ class RealEstateDaoTest {
     @Named("test_db")
     lateinit var database: RealEstateDatabase
     private lateinit var realEstateDao: RealEstateDao
+    private var cal : Calendar = Calendar.getInstance()
+
+    private fun convertDateToOffsetDateTime(day: Int, month: Int, year: Int): OffsetDateTime {
+        cal.set(Calendar.YEAR, year)
+        cal.set(Calendar.MONTH, month)
+        cal.set(Calendar.DAY_OF_MONTH, day)
+        val date = cal.time
+        val zoneOffset = ZoneOffset.of("+02:00")
+        return date.toInstant().atOffset(zoneOffset)
+    }
 
     private val realEstateEntityTest1 = RealEstateEntity(
         type = "HOUSE",
@@ -46,7 +58,7 @@ class RealEstateDaoTest {
         address = "here",
         isAvailable = true,
         nearbyPOI = arrayListOf("RESTAURANT", "PARK"),
-        entryDate = OffsetDateTime.now(),
+        entryDate = convertDateToOffsetDateTime(5,5,2023),
         saleDate = null,
         assignedAgent = "JACK",
         room = 1,
@@ -65,7 +77,7 @@ class RealEstateDaoTest {
         address = "here updated",
         isAvailable = true,
         nearbyPOI = arrayListOf("RESTAURANT", "PARK"),
-        entryDate = OffsetDateTime.now(),
+        entryDate = convertDateToOffsetDateTime(5,5,2023),
         saleDate = null,
         assignedAgent = "JACK",
         room = 1,
@@ -84,7 +96,7 @@ class RealEstateDaoTest {
         address = "there",
         isAvailable = true,
         nearbyPOI = arrayListOf("RESTAURANT", "PARK"),
-        entryDate = OffsetDateTime.now(),
+        entryDate = convertDateToOffsetDateTime(5,5,2023),
         saleDate = null,
         assignedAgent = "JACK",
         room = 2,
@@ -187,7 +199,7 @@ class RealEstateDaoTest {
         val isAvailableBaseValue = realEstateDao.getById(1).first().isAvailable
 
         // Mark the item as sold, changing its saleDate and isAvailable values
-        realEstateDao.updateRealEstate(OffsetDateTime.now(), false, 1)
+        realEstateDao.updateRealEstate(convertDateToOffsetDateTime(10,10,2023), false, 1)
 
         val soldRealEstate = realEstateDao.getById(1).first()
 

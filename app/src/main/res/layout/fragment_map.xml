@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:theme="@style/Theme.MaterialComponents.Light.DarkActionBar"
-    tools:context=".ui.MapFragment">
+    tools:context=".ui.map.MapFragment">
 
     <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
         android:id="@+id/realestate_map_filter_clear"

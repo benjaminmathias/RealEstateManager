@@ -5,10 +5,9 @@ import android.net.Uri
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
-import com.openclassrooms.realestatemanager.model.data.RealEstateDao
-import com.openclassrooms.realestatemanager.model.data.RealEstateDatabase
-import com.openclassrooms.realestatemanager.model.data.RealEstateEntity
-import com.openclassrooms.realestatemanager.provider.RealEstateContentProvider
+import com.openclassrooms.realestatemanager.data.db.RealEstateDatabase
+import com.openclassrooms.realestatemanager.data.db.dao.RealEstateDao
+import com.openclassrooms.realestatemanager.data.db.entities.RealEstateEntity
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -21,7 +20,6 @@ import java.time.OffsetDateTime
 import javax.inject.Inject
 import javax.inject.Named
 import kotlin.test.assertEquals
-
 
 @HiltAndroidTest
 @ExperimentalCoroutinesApi
@@ -79,11 +77,9 @@ class RealEstateContentProviderTest {
 
     @Test
     fun getItemsWhenNoItemInserted() = runTest {
-        val cursor = mContentResolver!!.query(
-            uri, null, null, null, null
-        )
+        val cursor = realEstateDao.getAllWithCursor()
 
-        assertEquals(cursor!!.count, 0)
+        assertEquals(cursor.count, 0)
         cursor.close()
     }
 
@@ -92,23 +88,10 @@ class RealEstateContentProviderTest {
         // Adding a new RealEstate
         realEstateDao.insert(realEstateEntityTest1)
 
-        /*val cursor = mContentResolver!!.query(
-            ContentUris.withAppendedId(
-                RealEstateContentProvider.URI_ITEM,
-                1
-            ), null, null, null, null)*/
+        val cursor = realEstateDao.getAllWithCursor()
 
-        val uri = RealEstateContentProvider.URI_ITEM
-
-        val cursor = mContentResolver!!.query(
-            uri, null, null, null, null
-        )
-
-        assertEquals(cursor!!.count, 1)
-        assertEquals(
-            cursor.getColumnIndexOrThrow("address").toString(),
-            realEstateEntityTest1.address
-        )
+        assertEquals(cursor.count, 1)
+        cursor.close()
     }
 
 

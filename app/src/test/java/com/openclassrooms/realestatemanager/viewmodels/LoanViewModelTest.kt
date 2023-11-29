@@ -31,6 +31,7 @@ class LoanViewModelTest {
         viewModel.computeMortgage()
 
         assertEquals("", viewModel.loanResult.value.monthlyPayment)
+        assertEquals("",viewModel.loanResult.value.totalAmount)
     }
 
     @Test

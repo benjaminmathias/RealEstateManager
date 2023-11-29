@@ -11,7 +11,7 @@
         android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="RealEstateManager"
+        android:text="@string/app_name"
         android:textAppearance="@style/TextAppearance.AppCompat.Display1"
         android:textColor="@color/colorPrimary"
         android:textStyle="bold"
@@ -26,20 +26,19 @@
         android:layout_height="250dp"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
-        android:contentDescription="TODO"
         app:layout_constraintBottom_toTopOf="@+id/textView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/home_house_icon"
-        app:tint="@color/colorPrimary" />
+        app:tint="@color/colorPrimary"
+        android:contentDescription="@string/app_logo" />
 
     <TextView
         android:id="@+id/permission_text_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
-        android:text="TextView"
         android:textColor="@color/colorPrimary"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

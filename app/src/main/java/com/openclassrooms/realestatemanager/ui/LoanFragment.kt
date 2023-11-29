@@ -5,12 +5,17 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import androidx.core.view.MenuHost
+import androidx.core.view.MenuProvider
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import com.openclassrooms.realestatemanager.R
 import com.openclassrooms.realestatemanager.databinding.FragmentLoanBinding
 import com.openclassrooms.realestatemanager.utils.InputFilterMinMax
@@ -21,7 +26,7 @@ import java.util.Currency
 import java.util.Locale
 
 @AndroidEntryPoint
-class LoanFragment : Fragment() {
+class LoanFragment : Fragment(), MenuProvider {
 
     private lateinit var binding: FragmentLoanBinding
     private lateinit var submitLoanButton : Button
@@ -44,6 +49,9 @@ class LoanFragment : Fragment() {
         binding.lifecycleOwner = this@LoanFragment
 
         activity?.title = "RealEstateManager"
+
+        val menuHost: MenuHost = requireActivity()
+        menuHost.addMenuProvider(this, viewLifecycleOwner, Lifecycle.State.RESUMED)
 
         submitLoanButton = binding.submitLoanButton
 
@@ -87,10 +95,11 @@ class LoanFragment : Fragment() {
         return binding.root
     }
 
-    @Deprecated("Deprecated in Java")
-    override fun onPrepareOptionsMenu(menu: Menu) {
-        super.onPrepareOptionsMenu(menu)
+    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
         menu.clear()
     }
 
+    override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+        return false
+    }
 }

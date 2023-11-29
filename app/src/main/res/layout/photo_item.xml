@@ -7,7 +7,7 @@
     <data>
         <variable
             name="photo"
-            type="com.openclassrooms.realestatemanager.model.data.RealEstatePhoto"/>
+            type="com.openclassrooms.realestatemanager.data.model.RealEstatePhoto"/>
 
     </data>
 
@@ -32,7 +32,6 @@
         android:backgroundTint="#B3707070"
         android:layout_margin="0dp"
         android:src="@android:drawable/ic_delete"
-        app:photo="@{photo.uri}"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:tint="#FFFFFF" />
@@ -45,7 +44,6 @@
         android:gravity="center"
         android:textColor="#FFFFFF"
         android:textSize="14sp"
-        android:text="@={photo.photoDescription}"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

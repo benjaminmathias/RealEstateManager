@@ -1,7 +1,7 @@
 package com.openclassrooms.realestatemanager.viewmodel
 
 import androidx.lifecycle.ViewModel
-import com.openclassrooms.realestatemanager.utils.Utils
+import com.openclassrooms.realestatemanager.utils.UtilsKt
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -20,7 +20,7 @@ class LoanViewModel @Inject constructor(
         MutableStateFlow(LoanResult())
     val loanResult: StateFlow<LoanResult> = _loanResult
 
-    val utils: Utils = Utils()
+    private val mUtilsKt: UtilsKt = UtilsKt()
 
     fun computeMortgage() {
         if (!allFieldsAreValid()) return
@@ -31,14 +31,14 @@ class LoanViewModel @Inject constructor(
 
         val loanMonthlyAmount = ((amount * rate) / 12) / (1 - (1 + ((rate) / 12)).pow(-duration))
         val removedDecimals = loanMonthlyAmount.toString().substringBefore(".")
-        val formattedAmount = utils.formatCurrency(removedDecimals, true)
+        val formattedAmount = mUtilsKt.formatCurrency(removedDecimals, true)
 
         val amountPerMonth = "$formattedAmount per months"
         val totalDuration = "for a total duration of $duration months."
 
         val totalAmount = loanMonthlyAmount * duration
         val totalFormat = totalAmount.toString().substringBefore(".")
-        val formattedTotalAmount = utils.formatCurrency(totalFormat, true)
+        val formattedTotalAmount = mUtilsKt.formatCurrency(totalFormat, true)
         val totalAmountText = "Total value : $formattedTotalAmount"
 
         _loanResult.value = LoanResult(amountPerMonth, totalDuration, totalAmountText )

@@ -13,9 +13,9 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
-import androidx.navigation.ui.setupActionBarWithNavController
 import com.openclassrooms.realestatemanager.R
 import com.openclassrooms.realestatemanager.databinding.ActivityMainBinding
 import com.openclassrooms.realestatemanager.viewmodel.MainViewModel
@@ -31,51 +31,18 @@ class MainActivity : AppCompatActivity() {
 
     private val viewModel: MainViewModel by viewModels()
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-       // setupNavigation()
-        observeQuery()
-
-        /*val navHostFragment =
+        val navHostFragment =
             supportFragmentManager.findFragmentById(R.id.navHostFragment) as NavHostFragment
 
-        navController = navHostFragment.navController
+        navController = navHostFragment.findNavController()
 
-        navController.addOnDestinationChangedListener { _, destination, _ ->
-            when (destination.id) {*/
-              /*  R.id.fragmentLoan -> //binding.listMapFab.visibility = View.GONE
-                R.id.fragmentInput -> //binding.listMapFab.visibility = View.GONE
-                R.id.fragmentMap -> observePane(R.id.fragmentMap)
-                R.id.fragmentList -> observePane(R.id.fragmentList)*/
-
-
-
-       /* binding.listMapFab.setOnClickListener {
-            if (findNavController(R.id.navHostFragment).currentDestination?.id == R.id.fragmentList) {
-                findNavController(R.id.navHostFragment).navigate(R.id.fragmentMap)
-            } else if (findNavController(R.id.navHostFragment).currentDestination?.id == R.id.fragmentMap) {
-                findNavController(R.id.navHostFragment).navigate(R.id.fragmentList)
-            }
-        }*/
-
-        //observeFilteredList()
-
-        //observeNetwork()
-    }
-
-    private fun observeNetwork() {
-        viewModel.connectivityLiveData.observe(this) { networkAvailability ->
-            if (networkAvailability == true) {
-                Toast.makeText(this, "Device connected", Toast.LENGTH_LONG).show()
-            } else {
-                Toast.makeText(this, "Network lost", Toast.LENGTH_LONG).show()
-            }
-        }
+        observeQuery()
     }
 
     private fun observeQuery() {
@@ -86,7 +53,7 @@ class MainActivity : AppCompatActivity() {
                         true -> {
                             Toast.makeText(
                                 this@MainActivity,
-                                "Need at least one search field",
+                                getString(R.string.filter_error_message),
                                 Toast.LENGTH_SHORT
                             ).show()
 
@@ -108,25 +75,25 @@ class MainActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
         R.id.action_filter -> {
-            if (findNavController(R.id.navHostFragment).currentDestination?.id == R.id.fragmentList) {
-                findNavController(R.id.navHostFragment).navigate(R.id.action_fragmentList_to_filterDialogFragment)
-            } else if (findNavController(R.id.navHostFragment).currentDestination?.id == R.id.fragmentMap) {
-                findNavController(R.id.navHostFragment).navigate(R.id.action_fragmentMap_to_filterDialogFragment)
+            if (navController.currentDestination?.id == R.id.fragmentList) {
+                navController.navigate(R.id.action_fragmentList_to_filterDialogFragment)
+            } else if (navController.currentDestination?.id == R.id.fragmentMap) {
+                navController.navigate(R.id.action_fragmentMap_to_filterDialogFragment)
             }
             true
         }
 
         R.id.action_mortgage -> {
-            if (findNavController(R.id.navHostFragment).currentDestination?.id == R.id.fragmentList) {
-                findNavController(R.id.navHostFragment).navigate(R.id.fragmentLoan)
-            } else if (findNavController(R.id.navHostFragment).currentDestination?.id == R.id.fragmentMap) {
-                findNavController(R.id.navHostFragment).navigate(R.id.fragmentLoan)
+            if (navController.currentDestination?.id == R.id.fragmentList) {
+                navController.navigate(R.id.fragmentLoan)
+            } else if (navController.currentDestination?.id == R.id.fragmentMap) {
+                navController.navigate(R.id.fragmentLoan)
             }
             true
         }
 
         R.id.action_add -> {
-            findNavController(R.id.navHostFragment).navigate(R.id.fragmentInput)
+            navController.navigate(R.id.fragmentInput)
             true
         }
 
@@ -135,17 +102,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun setupNavigation(){
-        val navHostFragment =
-            supportFragmentManager.findFragmentById(R.id.navHostFragment) as NavHostFragment
-
-        navController = navHostFragment.navController
-        appBarConfiguration = AppBarConfiguration.Builder(navController.graph).build()
-        setupActionBarWithNavController(navController, appBarConfiguration)
-    }
-
     override fun onSupportNavigateUp(): Boolean {
-       // return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
         val navController = findNavController(R.id.navHostFragment)
         return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
     }
