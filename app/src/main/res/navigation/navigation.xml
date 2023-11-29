@@ -9,6 +9,7 @@
         android:id="@+id/fragmentList"
         android:name="com.openclassrooms.realestatemanager.ui.list.RealEstateListFragment"
         android:label="RealEstateManager"
+        app:defaultNavHost="true"
         app:popUpToInclusive="true"
         tools:layout="@layout/fragment_list">
         <action
@@ -48,7 +49,8 @@
         tools:layout="@layout/fragment_real_estate_edit">
         <action
             android:id="@+id/action_fragmentAddTest_to_fragmentList"
-            app:destination="@id/fragmentList" />
+            app:destination="@id/fragmentList"
+            app:popUpTo="@id/fragmentList" />
     </fragment>
 
     <fragment

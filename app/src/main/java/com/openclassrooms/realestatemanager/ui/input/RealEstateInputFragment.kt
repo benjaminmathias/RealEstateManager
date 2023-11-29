@@ -281,6 +281,8 @@ class RealEstateInputFragment : Fragment(), PhotoAdapter.ItemClickListener {
     }
 
     private fun notifyRealEstateIsCreated() {
+
+        requireView().findNavController().popBackStack()
         requireView().findNavController().navigate(R.id.fragmentList)
         Toast.makeText(
             requireContext(),
@@ -294,6 +296,7 @@ class RealEstateInputFragment : Fragment(), PhotoAdapter.ItemClickListener {
             id?.let { putLong("id", it) }
         }
 
+        requireView().findNavController().popBackStack()
         requireView().findNavController().navigate(R.id.fragmentList, bundle)
         Toast.makeText(
             requireContext(),

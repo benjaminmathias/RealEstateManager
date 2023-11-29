@@ -194,5 +194,9 @@ class RealEstateListFragment : AbstractListDetailFragment() {
         slidingPaneLayout.open()
         slidingPaneLayout.lockMode = SlidingPaneLayout.LOCK_MODE_LOCKED
     }
+
+
+
+
 }
 
